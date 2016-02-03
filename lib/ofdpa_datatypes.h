@@ -3,6 +3,10 @@
 
 #include <inttypes.h>
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 static const uint32_t OFDPA_EXP_ID = 0x001018;
 
 /* OXM Flow match field types for OpenFlow Experimental */
@@ -242,5 +246,9 @@ enum OFDPA_FLOW_TABLE_ID_FMT_EGRESS_MAINTENANCE_POINT {
 	OFDPA_FTT_EGRESS_MAINTENANCE_POINT_PDU_DROP_LOWER_MDL,
 	OFDPA_FTT_EGRESS_MAINTENANCE_POINT_DATA_PASSTHOUGH_UP_OR_DOWN_MEP,
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* ROFL_OFDPA_DATATYPES_H_ */
