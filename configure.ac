@@ -27,6 +27,11 @@ LT_INIT
 # todo: add http://www.gnu.org/software/autoconf-archive/ax_cxx_compile_stdcxx_11.html
 CXXFLAGS="$CXXFLAGS -std=c++11"
 
+AC_ARG_WITH([pkgconfigdir], AS_HELP_STRING([--with-pkgconfigdir=PATH],
+        [Path to the pkgconfig directory [[LIBDIR/pkgconfig]]]),
+        [pkgconfigdir="$withval"], [pkgconfigdir='${libdir}/pkgconfig'])
+AC_SUBST([pkgconfigdir])
+
 # Checks for libraries.
 PKG_CHECK_MODULES([ROFL], rofl_common >= 0.10.0, [],
   [ AC_MSG_ERROR([minimum version of rofl_common is 0.10.0]) ])
@@ -44,6 +49,7 @@ AC_TYPE_UINT64_T
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
+                 rofl_ofdpa.pc
                  include/Makefile
                  lib/Makefile])
 AC_OUTPUT

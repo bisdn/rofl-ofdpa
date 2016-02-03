@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: rofl-ofdpa
+Description: Revised OpenFlow Library (ofdpa part)
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lrofl_ofdpa
+Cflags: -I${includedir}
