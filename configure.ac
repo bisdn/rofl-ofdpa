@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([rofl-ofdpa], [0.1], [rofl-devel@roflibs.org])
 
-AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_AUX_DIR(build-aux)
 AC_CONFIG_MACRO_DIR(config)
 
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
