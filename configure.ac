@@ -51,5 +51,6 @@ AC_TYPE_UINT64_T
 AC_CONFIG_FILES([Makefile
                  rofl_ofdpa.pc
                  include/Makefile
-                 lib/Makefile])
+                 lib/Makefile
+		 pkg/rhel/rofl-ofdpa.spec])
 AC_OUTPUT

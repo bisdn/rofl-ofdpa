@@ -1,0 +1,52 @@
+Name:           rofl-ofdpa
+Version:        @VERSION@
+Release:        1%{?dist}
+Summary:        TODO
+
+License:        BISDN
+URL:            http://www.bisdn.de/
+Source0:        rofl-ofdpa-%{version}.tar.gz
+
+BuildRequires:  autoconf, automake, libtool, rofl-common-devel, openssl-devel
+Requires:       rofl-common
+
+%description
+TODO
+
+%package        devel
+Summary:        TODO
+Group:          Development/Libraries
+Requires:       %{name} = %{version}-%{release}
+
+%description    devel
+TODO
+
+%prep
+%setup -q
+
+
+%build
+%configure
+make %{?_smp_mflags}
+
+
+%install
+rm -rf $RPM_BUILD_ROOT
+%make_install
+
+
+%files
+%{_libdir}/librofl_ofdpa.so.*
+
+%doc
+
+%files devel
+%{_includedir}/rofl/ofdpa/rofl_ofdpa_fm_driver.hpp
+%{_libdir}/librofl_ofdpa.a
+%{_libdir}/librofl_ofdpa.la
+%{_libdir}/librofl_ofdpa.so
+%{_libdir}/pkgconfig/rofl_ofdpa.pc
+
+%changelog
+* Tue Feb  9 2016 Tobias Jungel
+- 
