@@ -16,7 +16,8 @@ pkgconfig_DATA = \
 	rofl_ofdpa.pc
 
 EXTRA_DIST = \
-	autogen.sh
+	autogen.sh \
+	VERSION
 
 maintainer-clean-local:
 	rm -rf $(top_srcdir)/build-aux

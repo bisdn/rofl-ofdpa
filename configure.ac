@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([rofl-ofdpa], [0.1], [rofl-devel@roflibs.org])
+AC_INIT([rofl-ofdpa], m4_esyscmd_s([./version.sh]), [rofl-devel@roflibs.org])
 
 AC_CONFIG_AUX_DIR(build-aux)
 AC_CONFIG_MACRO_DIR(config)

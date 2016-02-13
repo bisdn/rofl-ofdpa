@@ -23,5 +23,6 @@ Makefile
 /configure
 /config
 /build*
+/VERSION
 
 !.gitignore
