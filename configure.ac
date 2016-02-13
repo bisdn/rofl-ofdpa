@@ -25,7 +25,7 @@ PKG_PROG_PKG_CONFIG
 LT_INIT
 
 # todo: add http://www.gnu.org/software/autoconf-archive/ax_cxx_compile_stdcxx_11.html
-CXXFLAGS="$CXXFLAGS -std=c++11"
+CXXFLAGS="$CXXFLAGS -std=c++11 -Wall -Werror"
 
 AC_ARG_WITH([pkgconfigdir], AS_HELP_STRING([--with-pkgconfigdir=PATH],
         [Path to the pkgconfig directory [[LIBDIR/pkgconfig]]]),
