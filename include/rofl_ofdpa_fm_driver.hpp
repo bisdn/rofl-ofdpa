@@ -44,6 +44,10 @@ public:
 	remove_bridging_unicast_vlan(const rofl::cmacaddr& mac, uint16_t vid,
 			uint32_t port_no);
 
+  void
+  rewrite_vlan_egress(uint16_t old_vid, uint16_t new_vid,
+      uint32_t backup_port);
+
 private:
 	rofl::crofdpt& dpt;
 	const uint16_t default_idle_timeout;

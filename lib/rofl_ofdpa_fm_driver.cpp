@@ -10,7 +10,6 @@
 
 namespace rofl {
 
-#if 0 // currently not using experimenter messages
 namespace ofdpa {
 
 #define HAS_MASK_FLAG (1 << 8)
@@ -18,9 +17,11 @@ namespace ofdpa {
 	/* OXM Flow match field types for OpenFlow experimenter class. */
 	enum oxm_tlv_match_fields {
 	OXM_TLV_EXPR_VRF = (rofl::openflow::OFPXMC_EXPERIMENTER << 16)
-			| (OFPXMT_OFX_VRF << 9) | 2,
+			| (OFDPA_OXM_VRF << 9) | 2,
 	OXM_TLV_EXPR_VRF_MASK = (rofl::openflow::OFPXMC_EXPERIMENTER << 16)
-			| (OFPXMT_OFX_VRF << 9) | 4 | HAS_MASK_FLAG,
+			| (OFDPA_OXM_VRF << 9) | 4 | HAS_MASK_FLAG,
+  OXM_TLV_EXPR_ACTSET_OUTPUT = (rofl::openflow::OFPXMC_EXPERIMENTER << 16)
+      | (OFDPA_OXM_ACTSET_OUTPUT << 9) | 6,
 	};
 
 class coxmatch_ofb_vrf : public rofl::openflow::coxmatch_exp {
@@ -52,8 +53,61 @@ public:
 	}
 };
 
+class coxmatch_ofb_actset_output: public rofl::openflow::coxmatch_exp {
+
+  struct broadcom_t {
+    uint16_t value;
+    uint32_t portno;
+  } __attribute__((packed));
+
+public:
+  coxmatch_ofb_actset_output(uint32_t port) :
+      coxmatch_exp(ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT, OFDPA_EXP_ID) {
+    set_port(port);
+  }
+
+  coxmatch_ofb_actset_output(const coxmatch_exp &oxm) :
+      coxmatch_exp(oxm) {}
+
+  virtual
+  ~coxmatch_ofb_actset_output() {}
+
+  /**
+   * @brief set port number
+   */
+  void
+  set_port(uint32_t port) {
+    rofl::cmemory body(6);
+    struct broadcom_t* bcm = (struct broadcom_t*)body.somem();
+    bcm->value  = htobe16(OFDPA_OXM_ACTSET_OUTPUT);
+    bcm->portno = htobe32(port);
+    set_value(body);
+  }
+
+  /**
+   * @brief get port number
+   */
+  uint32_t
+  get_port() {
+    if (get_value().length() != 6) {
+      //throw car_names::exception("coxmatch_ofb_egress_vlan_port::get_port() value too short");
+    }
+    struct broadcom_t* bcm = (struct broadcom_t*)get_value().somem();
+    if (be16toh(bcm->value) != OFDPA_OXM_ACTSET_OUTPUT) {
+      //throw car_names::exception("coxmatch_ofb_egress_vlan_port::get_port() magic number does not match");
+    }
+    return be32toh(bcm->portno);
+  }
+
+  friend std::ostream &operator<<(std::ostream &os,
+      const coxmatch_ofb_actset_output &oxm) {
+    os << dynamic_cast<const coxmatch &>(oxm);
+    os << "<coxmatch_ofb_vlan_vid >" << std::endl;
+    return os;
+  }
+};
+
 }; // end of namespace ofdpa
-#endif
 
 static inline uint64_t
 gen_flow_mod_type_cookie(uint64_t val) {
@@ -323,7 +377,8 @@ rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id, bool up
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr& mac,
+void
+rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr& mac,
 		uint16_t vid, uint32_t port_no, bool permanent)
 {
 	assert(vid < 0x1000);
@@ -377,6 +432,33 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(const rofl::cmacaddr& ma
 	fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void
+rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid, uint16_t new_vid,
+    uint32_t backup_port) {
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG_OR_SINGLE_TO_DOUBLE) | 0);
+
+  fm.set_command(rofl::openflow::OFPFC_ADD);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(backup_port);
+  fm.set_match().set_matches().set_exp_match(OFDPA_EXP_ID, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_vlan_vid(old_vid);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_set_field(rofl::cindex(0))
+      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(new_vid));
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
 } /* namespace rofl */

@@ -9,12 +9,28 @@ extern "C"{
 
 static const uint32_t OFDPA_EXP_ID = 0x001018;
 
-/* OXM Flow match field types for OpenFlow Experimental */
-enum oxm_ofx_match_fields {
-  OFPXMT_OFX_VRF	= 1,	/* virtual routing and forwarding */
-
-  /* max value */
-  OFPXMT_OFX_MAX,
+/* OF-DPA Experimenter Match Field types */
+enum ofdpa_match_exp_type {
+  OFDPA_OXM_VRF =                        1,
+  OFDPA_OXM_TRAFFIC_CLASS =              2,
+  OFDPA_OXM_COLOR =                      3,
+  OFDPA_OXM_DEI =                        4,
+  OFDPA_OXM_QOS_INDEX =                  5,
+  OFDPA_OXM_LMEP_ID =                    6,
+  OFDPA_OXM_MPLS_TTL =                   7,
+  OFDPA_OXM_MPLS_L2_Port =               8,
+  OFDPA_OXM_OVID =                       10,
+  OFDPA_OXM_MPLS_DATA_FIRST_NIBBLE =     11,
+  OFDPA_OXM_MPLS_ACH_CHANNEL =           12,
+  OFDPA_OXM_MPLS_NEXT_LABEL_IS_GAL =     13,
+  OFDPA_OXM_OAM_Y1731_MDL =              14,
+  OFDPA_OXM_OAM_Y1731_OPCODE =           15,
+  OFDPA_OXM_COLOR_ACTIONS_INDEX =        16,
+  OFDPA_OXM_TXFCL =                      17,
+  OFDPA_OXM_RXFCL =                      18,
+  OFDPA_OXM_RX_TIMESTAMP =               19,
+  OFDPA_OXM_PROTECTION_INDEX =           20,
+  OFDPA_OXM_ACTSET_OUTPUT =              42,
 };
 
 /** Flow Table Id enumerator */
