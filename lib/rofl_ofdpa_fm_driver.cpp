@@ -139,7 +139,8 @@ rofl_ofdpa_fm_driver::enable_port_pvid_ingress(const std::string &port_name, uin
 	try {
 		port_no = dpt.get_ports().get_port(port_name).get_port_no();
 	} catch (rofl::openflow::ePortsNotFound& e) {
-		//rofcore::logging::error << __PRETTY_FUNCTION__ << " not an of-port:" << std::endl;
+		std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
+
 		return;
 	}
 
@@ -168,8 +169,7 @@ rofl_ofdpa_fm_driver::enable_port_pvid_ingress(const std::string &port_name, uin
 	fm.set_instructions().set_inst_goto_table().set_table_id(
 			OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send flow-mod:" << std::endl
-//			<< fm;
+	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -183,7 +183,7 @@ rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name, uint
 	try {
 		port_no = dpt.get_ports().get_port(port_name).get_port_no();
 	} catch (rofl::openflow::ePortsNotFound& e) {
-		//rofcore::logging::error << __PRETTY_FUNCTION__ << " not an of-port:" << std::endl;
+		std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
 		return;
 	}
 
@@ -208,8 +208,7 @@ rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name, uint
 	fm.set_instructions().set_inst_goto_table().set_table_id(
 			OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send flow-mod:" << std::endl
-//			<< fm;
+	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -225,7 +224,7 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name, uint1
 	try {
 		port_no = dpt.get_ports().get_port(port_name).get_port_no();
 	} catch (rofl::openflow::ePortsNotFound& e) {
-		//rofcore::logging::error << __PRETTY_FUNCTION__ << " not an of-port:" << std::endl;
+		std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
 		return rofl::openflow::OFPG_MAX;
 	}
 
@@ -244,7 +243,7 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name, uint1
 	gm.set_buckets().set_bucket(0).set_actions().
 			add_action_output(i++).set_port_no(port_no);
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send group-mod:" << std::endl << gm;
+	std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
 
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -280,8 +279,8 @@ rofl_ofdpa_fm_driver::enable_group_l2_multicast(uint16_t vid, uint16_t id,
 			.add_action_group(rofl::cindex(0)).set_group_id(i);
 	}
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send group-mod:" << std::endl
-//			<< gm;
+	std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+
 	dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
 	if (update) {
@@ -295,7 +294,7 @@ rofl_ofdpa_fm_driver::enable_group_l2_multicast(uint16_t vid, uint16_t id,
 		gm.set_type(rofl::openflow::OFPGT_ALL);
 		gm.set_group_id(3 << 28 | (0x0fff & vid) << 16 | (0xffff & (id | current_ident)));
 
-//		rofcore::logging::debug << __FUNCTION__ << ": send group-mod delete" << std::endl;
+		std::cerr << __PRETTY_FUNCTION__ << ": send group-mod delete" << std::endl << gm;
 		dpt.send_group_mod_message(rofl::cauxid(0), gm); // xxx this does not work currently
 
 		current_ident = next_ident;
@@ -337,7 +336,7 @@ rofl_ofdpa_fm_driver::enable_bridging_dlf_vlan(uint16_t vid, uint32_t group_id,
 	fm.set_instructions().set_inst_goto_table().set_table_id(
 			OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send flow-mod:" << std::endl
+	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl
 //			<< fm;
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -371,8 +370,7 @@ rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id, bool up
 //	fm.set_instructions().set_inst_write_actions().set_actions()
 //			.add_action_group(rofl::cindex(0)).set_group_id(group_id);
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send flow-mod:" << std::endl
-//			<< fm;
+	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -393,6 +391,8 @@ rofl_ofdpa_fm_driver::enable_policy_lldp() {
 
   fm.set_instructions().set_inst_apply_actions().set_actions().add_action_output(
       rofl::cindex(0)).set_port_no(rofl::openflow::OFPP_CONTROLLER);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -427,8 +427,7 @@ rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr& mac,
 	fm.set_instructions().set_inst_goto_table().set_table_id(
 			OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-//	rofcore::logging::debug << __FUNCTION__ << ": send flow-mod:" << std::endl
-//			<< fm;
+	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -451,6 +450,8 @@ rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(const rofl::cmacaddr& mac,
 	// fixme do not allow multicast mac here?
 	fm.set_match().set_eth_dst(mac);
 	fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+
+	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
 	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -478,6 +479,8 @@ rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid, uint16_t new_vid,
       .set_actions()
       .add_action_set_field(rofl::cindex(0))
       .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(new_vid));
+
+  std::cerr << "send flow mod "<< fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
