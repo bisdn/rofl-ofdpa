@@ -7,7 +7,7 @@ License:        BISDN
 URL:            http://www.bisdn.de/
 Source0:        rofl-ofdpa-%{version}.tar.gz
 
-BuildRequires:  autoconf, automake, libtool, rofl-common-devel, openssl-devel
+BuildRequires:  autoconf, automake, libtool, rofl-common-devel
 Requires:       rofl-common
 
 %description
@@ -17,6 +17,7 @@ TODO
 Summary:        TODO
 Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
+Requires:       rofl-common-devel
 
 %description    devel
 TODO
