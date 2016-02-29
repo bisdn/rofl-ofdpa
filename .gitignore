@@ -10,7 +10,6 @@
 *.orig
 *.swp
 *.swo
-*.m4
 *.kdev4
 *.pyc
 
@@ -19,9 +18,14 @@ Makefile
 .deps
 .libs
 
+/aclocal.m4
+/config/libtool.m4
+/config/ltoptions.m4
+/config/ltsugar.m4
+/config/ltversion.m4
+/config/lt~obsolete.m4
 /autom4te.cache
 /configure
-/config
 /build*
 /VERSION
 

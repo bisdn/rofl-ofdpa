@@ -1,11 +1,14 @@
+%define snapshotrel @SPEC_SNAPSHOTREL@
+%define snapshot @SPEC_SNAPSHOT@
+
 Name:           rofl-ofdpa
-Version:        @VERSION@
-Release:        1%{?dist}
+Version:        @SPEC_VERSION@
+Release:        1%{?snapshotrel}%{?dist}
 Summary:        TODO
 
 License:        BISDN
 URL:            http://www.bisdn.de/
-Source0:        rofl-ofdpa-%{version}.tar.gz
+Source0:        rofl-ofdpa-%{version}%{?snapshot}.tar.gz
 
 BuildRequires:  autoconf, automake, libtool, rofl-common-devel
 Requires:       rofl-common
@@ -23,7 +26,7 @@ Requires:       rofl-common-devel
 TODO
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}%{?snapshot}
 
 
 %build

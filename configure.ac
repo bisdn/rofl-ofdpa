@@ -24,6 +24,8 @@ PKG_PROG_PKG_CONFIG
 
 LT_INIT
 
+ROFL_OFDPA_VERSION
+
 # todo: add http://www.gnu.org/software/autoconf-archive/ax_cxx_compile_stdcxx_11.html
 CXXFLAGS="$CXXFLAGS -std=c++11 -Wall -Werror"
 
