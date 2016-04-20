@@ -1,0 +1,15 @@
+image: fedora:23
+
+before_script:
+  - 'dnf -y update'
+  - 'dnf install -y salt-minion git'
+  - 'salt-call state.sls hosts --local --file-root ./salt/'
+  - 'salt-call state.sls build --local --file-root ./salt/'
+  - 'salt-call state.sls rofl-common --local --file-root ./salt/'
+  - './autogen.sh'
+  - 'mkdir build'
+  - 'cd build && ../configure'
+
+unit_tests:
+  script:
+    - 'make'
