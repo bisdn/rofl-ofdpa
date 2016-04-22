@@ -6,7 +6,7 @@
 #include <rofl/common/openflow/coxmatch.h>
 
 #include <linux/if_ether.h>
-#include <rofl_ofdpa_fm_driver.hpp>
+#include <rofl/ofdpa/rofl_ofdpa_fm_driver.hpp>
 
 namespace rofl {
 
