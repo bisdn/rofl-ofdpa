@@ -137,11 +137,11 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
 
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
-  fm.set_priority(2);
+  fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_ASSIGNMENT) | 0);
 
   fm.set_match().set_in_port(port_no);
-  fm.set_match().set_vlan_vid(0, rofl::openflow::OFPVID_PRESENT | 0);
+  fm.set_match().set_vlan_vid(0);
 
   fm.set_instructions()
       .set_inst_apply_actions()
@@ -188,8 +188,7 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
 
   fm.set_match().set_in_port(port_no);
-  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid,
-                              rofl::openflow::OFPVID_PRESENT | 0xfff);
+  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid);
 
   // set vrf
   //	fm.set_instructions().set_inst_apply_actions().set_actions().add_action_set_field(
@@ -481,13 +480,16 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
   fm.set_match().set_matches().set_exp_match(
       OFDPA_EXP_ID, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
 
-  fm.set_match().set_vlan_vid(old_vid);
+  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT|old_vid);
+
+  // XXX add ALLOW_VLAN_TRANSLATION match
 
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
       .add_action_set_field(rofl::cindex(0))
-      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(new_vid));
+      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
+          rofl::openflow::OFPVID_PRESENT | new_vid));
 
   std::cerr << "send flow mod " << fm << std::endl;
 
