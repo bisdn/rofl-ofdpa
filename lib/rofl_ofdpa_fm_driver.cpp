@@ -147,7 +147,7 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
       .set_inst_apply_actions()
       .set_actions()
       .add_action_set_field(rofl::cindex(0))
-      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(vid));
+      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid));
 
   // set vrf
   //	fm.set_instructions().set_inst_apply_actions().set_actions().
