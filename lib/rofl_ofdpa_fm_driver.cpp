@@ -27,10 +27,10 @@ enum oxm_tlv_match_fields {
 class coxmatch_ofb_vrf : public rofl::openflow::coxmatch_exp {
 public:
   coxmatch_ofb_vrf(uint16_t vrf)
-      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_VRF, OFDPA_EXP_ID, vrf) {}
+      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_VRF, EXP_ID_BCM, vrf) {}
 
   coxmatch_ofb_vrf(uint16_t vrf, uint16_t mask)
-      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_VRF_MASK, OFDPA_EXP_ID, vrf, mask) {}
+      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_VRF_MASK, EXP_ID_BCM, vrf, mask) {}
 
   coxmatch_ofb_vrf(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
@@ -55,7 +55,7 @@ class coxmatch_ofb_actset_output : public rofl::openflow::coxmatch_exp {
 
 public:
   coxmatch_ofb_actset_output(uint32_t port)
-      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT, OFDPA_EXP_ID) {
+      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT, EXP_ID_BCM) {
     set_port(port);
   }
 
@@ -478,7 +478,7 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
 
   ofdpa::coxmatch_ofb_actset_output exp_match(backup_port);
   fm.set_match().set_matches().set_exp_match(
-      OFDPA_EXP_ID, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
 
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT|old_vid);
 

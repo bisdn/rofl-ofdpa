@@ -7,7 +7,42 @@
 extern "C" {
 #endif
 
-static const uint32_t OFDPA_EXP_ID = 0x001018;
+// OUI
+static const uint32_t EXP_ID_NICIRA = 0x002320; // Nicira Networks
+static const uint32_t EXP_ID_BSN = 0x5c16c7; // Big Switch Networks
+static const uint32_t EXP_ID_VELLO = 0xB0D2F5; // Vello Systems
+static const uint32_t EXP_ID_HP = 0x002481; // HP
+static const uint32_t EXP_ID_HPLABS = 0x0004EA; // HP-Labs
+static const uint32_t EXP_ID_BLOX = 0x748771; // Infoblox Inc
+static const uint32_t EXP_ID_ONL = 0xA42305; // Open Networking Laboratory
+static const uint32_t EXP_ID_FSL = 0x00049F; // Freescale
+static const uint32_t EXP_ID_NETRONOME = 0x00154D; // Netronome
+static const uint32_t EXP_ID_BCM = 0x001018; // Broadcom
+static const uint32_t EXP_ID_PMCS = 0x00E004; // PMC-Sierra
+
+// ONF
+static const uint32_t ONF_EXP_ID_ONF = 0x4F4E4600; // ONF Extensions
+static const uint32_t ONF_EXP_ID_BME = 0xff000001; // Budapest University of Technology and Economics
+static const uint32_t ONF_EXP_ID_NF  = 0xff000002; // NoviFlow
+static const uint32_t ONF_EXP_ID_L3  = 0xff000003; // L3+ Extensions (Vendor Neutral)
+static const uint32_t ONF_EXP_ID_L47 = 0xff000004; // L4-L7 Extensions
+static const uint32_t ONF_EXP_ID_WM  = 0xff000005; // Wireless and Mobility Extensions
+static const uint32_t ONF_EXP_ID_FA  = 0xff000006; // Forwarding Abstractions Extensions
+static const uint32_t ONF_EXP_ID_OT  = 0xff000007; // Open Transport Extensions
+static const uint32_t ONF_EXP_ID_NBL = 0xff000008; // Network Benchmarking Lab, National Chiao Tung University
+static const uint32_t ONF_EXP_ID_MPC = 0xff000009; // Mobile Packet Core Extensions
+
+// OXM Classes
+static const uint32_t ONF_OXM_CLASS_NICIRA0 = 0x0000; // NXM compatibility - Nicira Networks
+static const uint32_t ONF_OXM_CLASS_NICIRA1 = 0x0001; // NXM compatibility - Nicira Networks
+static const uint32_t ONF_OXM_CLASS_BSN = 0x0003; // Big Switch Networks
+static const uint32_t ONF_OXM_CLASS_HP = 0x0004; // HP
+static const uint32_t ONF_OXM_CLASS_FSL = 0x0005; // Freescale
+static const uint32_t ONF_OXM_CLASS_NETRONOME = 0x0006; // Netronome
+static const uint32_t ONF_OXM_CLASS_ONL = 0x0007; // Open Networking Lab (ON.Lab)
+static const uint32_t ONF_OXM_CLASS_BLOX = 0x0008; // Infoblox
+static const uint32_t ONF_OXM_CLASS_BCM = 0x0009; // Broadcom
+static const uint32_t ONF_OXM_CLASS_PMCS = 0x000A; // PMC-Sierra
 
 /* OF-DPA Experimenter Match Field types */
 enum ofdpa_match_exp_type {
