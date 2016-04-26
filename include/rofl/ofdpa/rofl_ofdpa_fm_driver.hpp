@@ -20,6 +20,8 @@ public:
   uint32_t enable_port_vid_egress(const std::string &port_name, uint16_t vid,
                                   bool untagged = false);
 
+  uint32_t enable_port_unfiltered_egress(const std::string &port_name);
+
   uint32_t enable_group_l2_multicast(uint16_t vid, uint16_t id,
                                      const std::list<uint32_t> &l2_interfaces,
                                      bool update = false);

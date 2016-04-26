@@ -248,6 +248,47 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name,
   return group_id;
 }
 
+uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(
+    const std::string &port_name) {
+  // equals l2 interface group, so maybe rename this
+
+  uint32_t port_no;
+
+  try {
+    port_no = dpt.get_ports().get_port(port_name).get_port_no();
+  } catch (rofl::openflow::ePortsNotFound &e) {
+    std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
+    return rofl::openflow::OFPG_MAX;
+  }
+
+  uint32_t group_id = 11 << 28 | (0xffff & port_no);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_ADD);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  rofl::cindex i(0);
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(ofdpa::coxmatch_ofb_allow_vlan_translation(1));
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_output(i++)
+      .set_port_no(port_no);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+
+  return group_id;
+}
+
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     uint16_t vid, uint16_t id, const std::list<uint32_t> &l2_interfaces,
     bool update) {
