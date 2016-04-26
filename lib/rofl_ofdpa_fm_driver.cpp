@@ -20,8 +20,11 @@ enum oxm_tlv_match_fields {
       (rofl::openflow::OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 2,
   OXM_TLV_EXPR_VRF_MASK = (rofl::openflow::OFPXMC_EXPERIMENTER << 16) |
                           (OFDPA_OXM_VRF << 9) | 4 | HAS_MASK_FLAG,
+  OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION =
+      (rofl::openflow::OFPXMC_EXPERIMENTER << 16) |
+      (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT = (rofl::openflow::OFPXMC_EXPERIMENTER << 16) |
-                               (OFDPA_OXM_ACTSET_OUTPUT << 9) | 6,
+                               (OFDPA_OXM_ACTSET_OUTPUT << 9) | 8,
 };
 
 class coxmatch_ofb_vrf : public rofl::openflow::coxmatch_exp {
@@ -46,54 +49,48 @@ public:
   }
 };
 
+class coxmatch_ofb_allow_vlan_translation
+    : public rofl::openflow::coxmatch_exp {
+public:
+  coxmatch_ofb_allow_vlan_translation(uint8_t val)
+      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION, EXP_ID_BCM,
+                     val) {}
+
+  coxmatch_ofb_allow_vlan_translation(const coxmatch_exp &oxm)
+      : coxmatch_exp(oxm) {}
+
+  virtual ~coxmatch_ofb_allow_vlan_translation() {}
+
+  friend std::ostream &
+  operator<<(std::ostream &os, const coxmatch_ofb_allow_vlan_translation &oxm) {
+    os << dynamic_cast<const coxmatch &>(oxm);
+    os << "  <coxmatch_ofb_allow_vlan_translation >" << std::endl;
+    os << "    <value: 0x" << std::hex << (int)oxm.get_u8value() << std::dec
+       << " >" << std::endl;
+    return os;
+  }
+};
+
 class coxmatch_ofb_actset_output : public rofl::openflow::coxmatch_exp {
 
   struct broadcom_t {
-    uint16_t value;
     uint32_t portno;
   } __attribute__((packed));
 
 public:
   coxmatch_ofb_actset_output(uint32_t port)
-      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT, EXP_ID_BCM) {
-    set_port(port);
-  }
+      : coxmatch_exp(ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT, ONF_EXP_ID_ONF, port) {}
 
   coxmatch_ofb_actset_output(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_actset_output() {}
 
-  /**
-   * @brief set port number
-   */
-  void set_port(uint32_t port) {
-    rofl::cmemory body(6);
-    struct broadcom_t *bcm = (struct broadcom_t *)body.somem();
-    bcm->value = htobe16(OFDPA_OXM_ACTSET_OUTPUT);
-    bcm->portno = htobe32(port);
-    set_value(body);
-  }
-
-  /**
-   * @brief get port number
-   */
-  uint32_t get_port() {
-    if (get_value().length() != 6) {
-      // throw car_names::exception("coxmatch_ofb_egress_vlan_port::get_port()
-      // value too short");
-    }
-    struct broadcom_t *bcm = (struct broadcom_t *)get_value().somem();
-    if (be16toh(bcm->value) != OFDPA_OXM_ACTSET_OUTPUT) {
-      // throw car_names::exception("coxmatch_ofb_egress_vlan_port::get_port()
-      // magic number does not match");
-    }
-    return be32toh(bcm->portno);
-  }
-
   friend std::ostream &operator<<(std::ostream &os,
                                   const coxmatch_ofb_actset_output &oxm) {
     os << dynamic_cast<const coxmatch &>(oxm);
-    os << "<coxmatch_ofb_vlan_vid >" << std::endl;
+    os << "<coxmatch_ofb_actset_output >" << std::endl;
+    os << "    <port: 0x" << std::hex << (int)oxm.get_u32value() << std::dec
+       << " >" << std::endl;
     return os;
   }
 };
@@ -147,7 +144,8 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
       .set_inst_apply_actions()
       .set_actions()
       .add_action_set_field(rofl::cindex(0))
-      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid));
+      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
+          rofl::openflow::OFPVID_PRESENT | vid));
 
   // set vrf
   //	fm.set_instructions().set_inst_apply_actions().set_actions().
@@ -230,6 +228,13 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name,
   if (untagged) {
     gm.set_buckets().add_bucket(0).set_actions().add_action_pop_vlan(i++);
   }
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(ofdpa::coxmatch_ofb_allow_vlan_translation(0));
+
   gm.set_buckets()
       .set_bucket(0)
       .set_actions()
@@ -478,11 +483,13 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
 
   ofdpa::coxmatch_ofb_actset_output exp_match(backup_port);
   fm.set_match().set_matches().set_exp_match(
-      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
 
-  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT|old_vid);
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION) =
+      ofdpa::coxmatch_ofb_allow_vlan_translation(1);
 
-  // XXX add ALLOW_VLAN_TRANSLATION match
+  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | old_vid);
 
   fm.set_instructions()
       .set_inst_apply_actions()
