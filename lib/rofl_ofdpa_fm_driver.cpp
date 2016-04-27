@@ -447,7 +447,8 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp() {
 void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
                                                      uint16_t vid,
                                                      uint32_t port_no,
-                                                     bool permanent) {
+                                                     bool permanent,
+                                                     bool filtered) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -469,7 +470,12 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
-  uint32_t group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
+  uint32_t group_id;
+  if (filtered) {
+    group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
+  } else {
+    group_id = 11 << 28 | (0xffff & port_no);
+  }
   fm.set_instructions()
       .set_inst_write_actions()
       .set_actions()
