@@ -578,7 +578,7 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
       .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
           rofl::openflow::OFPVID_PRESENT | new_vid));
 
-  std::cerr << "send flow mod " << fm << std::endl;
+  std::cerr << __PRETTY_FUNCTION__ << "send flow mod " << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
