@@ -103,7 +103,7 @@ static inline uint64_t gen_flow_mod_type_cookie(uint64_t val) {
 
 rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver(rofl::crofdpt &dpt)
     : dpt(dpt),
-      default_idle_timeout(30) // todo idle timeout should be configurable
+      default_idle_timeout(30) // TODO idle timeout should be configurable
 {}
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
@@ -112,7 +112,7 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
     const std::string &port_name, uint16_t vid) {
   // XXX This contradicts the OF-DPA ASS (p. 64) "The VLAN_VID value cannot
   // be used in a VLAN Filtering rule."
-  // todo Send ticket to BCM to clarify
+  // TODO Send ticket to BCM to clarify
   enable_port_vid_ingress(port_name, vid);
 
   // check params
@@ -147,13 +147,6 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
       .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
           rofl::openflow::OFPVID_PRESENT | vid));
 
-  // set vrf
-  //	fm.set_instructions().set_inst_apply_actions().set_actions().
-  //			add_action_set_field(rofl::cindex(1)).set_oxm(
-  //					coxmatch_ofb_vrf(vid)); // currently vid
-  //==
-  // vrf
-
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
@@ -176,7 +169,7 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
-  // todo check what happens if this is added two times?
+  // TODO check what happens if this is added two times?
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
 
@@ -187,12 +180,6 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid);
-
-  // set vrf
-  //	fm.set_instructions().set_inst_apply_actions().set_actions().add_action_set_field(
-  //			rofl::cindex(0)).set_oxm(coxmatch_ofb_vrf(vid)); //
-  // currently
-  // vid == vrf
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
@@ -372,52 +359,13 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     std::cerr << __PRETTY_FUNCTION__ << ": send group-mod delete" << std::endl
               << gm;
     dpt.send_group_mod_message(rofl::cauxid(0),
-                               gm); // xxx this does not work currently
+                               gm); // XXX this does not work currently
 
     current_ident = next_ident;
   }
 
   return group_id;
 }
-
-#if 0
-void
-rofl_ofdpa_fm_driver::enable_bridging_dlf_vlan(uint16_t vid, uint32_t group_id,
-		bool do_pkt_in)
-{
-	assert(vid < 0x1000);
-
-	rofl::crofdpt& dpt = rofl::crofdpt::get_dpt(dptid);
-
-	rofl::openflow::cofflowmod fm(dpt.get_version());
-	fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
-
-	fm.set_idle_timeout(0);
-	fm.set_hard_timeout(0);
-	fm.set_priority(2);
-	fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN)|0);
-
-	fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT, 0x0fff);
-
-	if (do_pkt_in) {
-		fm.set_out_port(rofl::openflow::OFPP_CONTROLLER);
-
-		fm.set_instructions().set_inst_apply_actions().set_actions().
-				add_action_output(rofl::cindex(0)).set_port_no(
-				rofl::openflow::OFPP_CONTROLLER);
-	}
-
-	// fixme not supported in this table... check with BCM
-	//fm.set_instructions().set_inst_clear_actions();
-
-	fm.set_instructions().set_inst_goto_table().set_table_id(
-			OFDPA_FLOW_TABLE_ID_ACL_POLICY);
-
-	std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl
-//			<< fm;
-	dpt.send_flow_mod_message(rofl::cauxid(0), fm);
-}
-#endif
 
 void rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id,
                                              bool update) {
@@ -434,19 +382,13 @@ void rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id,
   fm.set_command(update ? rofl::openflow::OFPFC_MODIFY
                         : rofl::openflow::OFPFC_ADD);
 
-  // fm.set_match().set_eth_dst(rofl::cmacaddr("ff:ff:ff:ff:ff:ff"));
   fm.set_match().set_eth_type(ETH_P_ARP);
-
-  //	fm.set_out_port(rofl::openflow::OFPP_CONTROLLER);
 
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
-
-  //	fm.set_instructions().set_inst_write_actions().set_actions()
-  //			.add_action_group(rofl::cindex(0)).set_group_id(group_id);
 
   std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
@@ -491,7 +433,7 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // fixme cookiebox here?
+                port_no); // FIXME cookiebox here?
 
   if (not permanent) {
     fm.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM);
@@ -499,7 +441,7 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
-  // fixme do not allow multicast mac here?
+  // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
@@ -531,12 +473,12 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // fixme cookiebox here?
+                port_no); // FIXME cookiebox here?
 
-  // todo do this strict?
+  // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
 
-  // fixme do not allow multicast mac here?
+  // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 

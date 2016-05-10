@@ -28,11 +28,6 @@ public:
                                      const std::list<uint32_t> &l2_interfaces,
                                      bool update = false);
 
-#if 0
-	void
-	enable_bridging_dlf_vlan(uint16_t vid, uint32_t group_id, bool do_pkt_in);
-#endif
-
   void enable_policy_arp(uint16_t vid, uint32_t group_id, bool update = false);
 
   void enable_policy_lldp();
