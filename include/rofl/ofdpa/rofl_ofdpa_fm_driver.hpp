@@ -14,8 +14,10 @@ public:
   virtual ~rofl_ofdpa_fm_driver();
 
   void enable_port_pvid_ingress(const std::string &port_name, uint16_t vid);
+  void disable_port_pvid_ingress(const std::string &port_name, uint16_t vid);
 
   void enable_port_vid_ingress(const std::string &port_name, uint16_t vid);
+  void disable_port_vid_ingress(const std::string &port_name, uint16_t vid);
 
   void enable_port_vid_allow_all(const std::string &port_name);
 

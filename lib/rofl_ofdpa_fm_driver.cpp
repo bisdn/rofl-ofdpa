@@ -155,6 +155,38 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
+void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
+    const std::string &port_name, uint16_t vid) {
+
+  // check params
+  assert(vid < 0x1000);
+  uint32_t port_no;
+
+  try {
+    port_no = dpt.get_ports().get_port(port_name).get_port_no();
+  } catch (rofl::openflow::ePortsNotFound &e) {
+    std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
+
+    return;
+  }
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
+
+  fm.set_priority(3);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_ASSIGNMENT) | 0);
+
+  fm.set_match().set_in_port(port_no);
+  fm.set_match().set_vlan_vid(0);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+
+  disable_port_vid_ingress(port_name, vid);
+}
+
 void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
                                                    uint16_t vid) {
   assert(vid < 0x1000);
@@ -183,6 +215,34 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::disable_port_vid_ingress(
+    const std::string &port_name, uint16_t vid) {
+  assert(vid < 0x1000);
+  uint32_t port_no;
+
+  try {
+    port_no = dpt.get_ports().get_port(port_name).get_port_no();
+  } catch (rofl::openflow::ePortsNotFound &e) {
+    std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
+    return;
+  }
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
+
+  fm.set_priority(3);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
+
+  fm.set_match().set_in_port(port_no);
+  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid);
 
   std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
