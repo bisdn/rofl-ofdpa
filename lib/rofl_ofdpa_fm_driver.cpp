@@ -356,7 +356,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     gm.set_group_id(3 << 28 | (0x0fff & vid) << 16 |
                     (0xffff & (id | current_ident)));
 
-    std::cerr << __PRETTY_FUNCTION__ << ": send group-mod delete" << std::endl
+    std::cerr << __PRETTY_FUNCTION__ << ": send group-mod delete:" << std::endl
               << gm;
     dpt.send_group_mod_message(rofl::cauxid(0),
                                gm); // XXX this does not work currently
