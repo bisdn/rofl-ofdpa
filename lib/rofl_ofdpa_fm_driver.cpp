@@ -279,6 +279,12 @@ void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
+void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(
+    const std::string &port_name) {
+  // XXX implement!!
+  std::cerr << __PRETTY_FUNCTION__ << ": not implemented" << std::endl;
+}
+
 uint32_t
 rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name,
                                              uint16_t vid, bool untagged) {

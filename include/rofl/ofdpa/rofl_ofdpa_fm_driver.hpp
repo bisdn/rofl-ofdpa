@@ -20,6 +20,7 @@ public:
   void disable_port_vid_ingress(const std::string &port_name, uint16_t vid);
 
   void enable_port_vid_allow_all(const std::string &port_name);
+  void disable_port_vid_allow_all(const std::string &port_name);
 
   uint32_t enable_port_vid_egress(const std::string &port_name, uint16_t vid,
                                   bool untagged = false);
