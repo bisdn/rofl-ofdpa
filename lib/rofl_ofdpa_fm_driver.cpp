@@ -110,9 +110,6 @@ rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
 
 void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
     const std::string &port_name, uint16_t vid) {
-  // XXX This contradicts the OF-DPA ASS (p. 64) "The VLAN_VID value cannot
-  // be used in a VLAN Filtering rule."
-  // TODO Send ticket to BCM to clarify
   enable_port_vid_ingress(port_name, vid);
 
   // check params
