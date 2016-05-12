@@ -575,6 +575,7 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
 
 void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
     const rofl::cmacaddr &mac, uint16_t vid, uint32_t port_no) {
+  using rofl::openflow::OFPVID_PRESENT;
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -589,7 +590,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
 
   // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
-  fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT, OFPVID_PRESENT | 0x0fff);
 
   std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
