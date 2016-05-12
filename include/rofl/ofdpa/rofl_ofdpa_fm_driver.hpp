@@ -13,6 +13,8 @@ public:
   rofl_ofdpa_fm_driver(rofl::crofdpt &dptid);
   virtual ~rofl_ofdpa_fm_driver();
 
+  void send_barrier();
+
   void enable_port_pvid_ingress(const std::string &port_name, uint16_t vid);
   void disable_port_pvid_ingress(const std::string &port_name, uint16_t vid);
 
@@ -44,6 +46,8 @@ public:
 
   void remove_bridging_unicast_vlan(const rofl::cmacaddr &mac, uint16_t vid,
                                     uint32_t port_no);
+  void remove_bridging_unicast_vlan_all(const std::string &port_name,
+                                        uint16_t vid);
 
   void rewrite_vlan_egress(uint16_t old_vid, uint16_t new_vid,
                            uint32_t backup_port);

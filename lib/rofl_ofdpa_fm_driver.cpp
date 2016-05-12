@@ -108,6 +108,10 @@ rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver(rofl::crofdpt &dpt)
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
 
+void rofl_ofdpa_fm_driver::send_barrier() {
+  dpt.send_barrier_request(rofl::cauxid(0));
+}
+
 void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
     const std::string &port_name, uint16_t vid) {
   enable_port_vid_ingress(port_name, vid);
@@ -596,6 +600,37 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
   // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
+    const std::string &port_name, uint16_t vid) {
+  using rofl::openflow::OFPVID_PRESENT;
+
+  uint32_t port_no;
+
+  try {
+    port_no = dpt.get_ports().get_port(port_name).get_port_no();
+  } catch (rofl::openflow::ePortsNotFound &e) {
+    std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
+    return;
+  }
+  assert(vid < 0x1000);
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
+                port_no); // FIXME cookiebox here?
+  fm.set_cookie_mask(-1);
+
+  // TODO do this strict?
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
   std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
