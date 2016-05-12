@@ -618,7 +618,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
     std::cerr << __PRETTY_FUNCTION__ << " ERROR: not an of-port:" << std::endl;
     return;
   }
-  assert(vid < 0x1000);
+  assert(vid < 0x1000 || (uint16_t)-1 == vid);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
@@ -630,7 +630,9 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  if ((uint16_t)-1 != vid) {
+    fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  }
 
   std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 
