@@ -6,6 +6,7 @@
 #include <rofl/common/openflow/coxmatch.h>
 
 #include <linux/if_ether.h>
+#include <linux/in.h>
 #include <rofl/ofdpa/rofl_ofdpa_fm_driver.hpp>
 
 namespace rofl {
@@ -532,6 +533,44 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp() {
       .set_actions()
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::enable_policy_dhcp() {
+  using rofl::caddress_in4;
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
+
+  fm.set_command(rofl::openflow::OFPFC_ADD);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+
+  fm.set_match().set_ipv4_dst(caddress_in4(std::string("255.255.255.255")));
+  fm.set_match().set_ip_proto(IPPROTO_UDP);
+  fm.set_match().set_udp_src(68); // bootpc
+  fm.set_match().set_udp_dst(67); // bootps
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_output(rofl::cindex(0))
+      .set_port_no(rofl::openflow::OFPP_CONTROLLER);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+
+  fm.set_match().set_udp_src(67); // bootps
+  fm.set_match().set_udp_dst(68); // bootpc
 
   std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
 

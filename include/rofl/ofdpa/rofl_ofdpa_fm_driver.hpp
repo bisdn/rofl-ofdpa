@@ -40,6 +40,8 @@ public:
 
   void enable_policy_lldp();
 
+  void enable_policy_dhcp();
+
   void add_bridging_unicast_vlan(const rofl::cmacaddr &mac, uint16_t vid,
                                  uint32_t port_no, bool permanent = false,
                                  bool filtered = true);
