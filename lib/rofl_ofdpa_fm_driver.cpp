@@ -716,4 +716,35 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
+void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(uint16_t old_vid,
+                                                        uint16_t new_vid,
+                                                        uint32_t backup_port) {
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(
+          OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG_OR_SINGLE_TO_DOUBLE) |
+      0);
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(backup_port);
+  fm.set_match().set_matches().set_exp_match(
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION) =
+      ofdpa::coxmatch_ofb_allow_vlan_translation(1);
+
+  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | old_vid);
+
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
 } /* namespace rofl */
