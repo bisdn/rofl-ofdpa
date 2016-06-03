@@ -152,7 +152,7 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -182,7 +182,7 @@ void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(0);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 
@@ -218,7 +218,7 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -246,7 +246,7 @@ void rofl_ofdpa_fm_driver::disable_port_vid_ingress(
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -279,7 +279,7 @@ void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -329,7 +329,7 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name,
       .add_action_output(i++)
       .set_port_no(port_no);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm << std::endl;
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -356,7 +356,7 @@ rofl_ofdpa_fm_driver::disable_port_vid_egress(const std::string &port_name,
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm << std::endl;
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -397,7 +397,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(
       .add_action_output(i++)
       .set_port_no(port_no);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm << std::endl;
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -422,7 +422,7 @@ uint32_t rofl_ofdpa_fm_driver::disable_port_unfiltered_egress(
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm << std::endl;
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -460,7 +460,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
         .set_group_id(i);
   }
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send group-mod:" << std::endl << gm << std::endl;
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
@@ -510,7 +510,7 @@ void rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id,
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -534,7 +534,7 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp() {
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -565,14 +565,14 @@ void rofl_ofdpa_fm_driver::enable_policy_dhcp() {
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 
   fm.set_match().set_udp_src(67); // bootps
   fm.set_match().set_udp_dst(68); // bootpc
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -617,7 +617,7 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -640,7 +640,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -673,7 +673,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
     fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   }
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -711,7 +711,7 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
       .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
           rofl::openflow::OFPVID_PRESENT | new_vid));
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
@@ -742,7 +742,7 @@ void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(uint16_t old_vid,
 
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | old_vid);
 
-  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm;
+  std::cerr << __PRETTY_FUNCTION__ << ": send flow-mod:" << std::endl << fm << std::endl;
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
