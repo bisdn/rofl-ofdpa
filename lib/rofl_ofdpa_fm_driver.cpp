@@ -468,6 +468,8 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     // update arp policy
     enable_policy_arp(vid, group_id, true);
 
+    send_barrier();
+
     // delete old entry
     rofl::openflow::cofgroupmod gm(dpt.get_version());
 
