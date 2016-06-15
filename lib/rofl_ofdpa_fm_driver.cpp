@@ -510,7 +510,6 @@ void rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id,
 
   fm.set_match().set_eth_type(ETH_P_ARP);
 
-  fm.set_instructions().set_inst_clear_actions();
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
