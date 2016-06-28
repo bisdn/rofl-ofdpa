@@ -10,7 +10,7 @@
 #include <rofl/ofdpa/rofl_ofdpa_fm_driver.hpp>
 
 #ifndef IPPROTO_VRRP
-#define IPPROTO_VRRP           112
+#define IPPROTO_VRRP 112
 #endif
 
 namespace rofl {
@@ -106,20 +106,19 @@ static inline uint64_t gen_flow_mod_type_cookie(uint64_t val) {
   return (val << 8 * 7);
 }
 
-rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver(rofl::crofdpt &dpt)
-    : dpt(dpt),
-      default_idle_timeout(30) // TODO idle timeout should be configurable
+rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver()
+    : default_idle_timeout(30) // TODO idle timeout should be configurable
 {}
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
 
-void rofl_ofdpa_fm_driver::send_barrier() {
+void rofl_ofdpa_fm_driver::send_barrier(rofl::crofdpt &dpt) {
   dpt.send_barrier_request(rofl::cauxid(0));
 }
 
 void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
-    const std::string &port_name, uint16_t vid) {
-  enable_port_vid_ingress(port_name, vid);
+    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
+  enable_port_vid_ingress(dpt, port_name, vid);
 
   // check params
   assert(vid < 0x1000);
@@ -162,7 +161,7 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
 }
 
 void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
-    const std::string &port_name, uint16_t vid) {
+    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
 
   // check params
   assert(vid < 0x1000);
@@ -190,10 +189,11 @@ void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 
-  disable_port_vid_ingress(port_name, vid);
+  disable_port_vid_ingress(dpt, port_name, vid);
 }
 
-void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
+void rofl_ofdpa_fm_driver::enable_port_vid_ingress(rofl::crofdpt &dpt,
+                                                   const std::string &port_name,
                                                    uint16_t vid) {
   assert(vid < 0x1000);
   uint32_t port_no;
@@ -228,7 +228,7 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(const std::string &port_name,
 }
 
 void rofl_ofdpa_fm_driver::disable_port_vid_ingress(
-    const std::string &port_name, uint16_t vid) {
+    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
   assert(vid < 0x1000);
   uint32_t port_no;
 
@@ -256,7 +256,7 @@ void rofl_ofdpa_fm_driver::disable_port_vid_ingress(
 }
 
 void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(
-    const std::string &port_name) {
+    rofl::crofdpt &dpt, const std::string &port_name) {
   uint32_t port_no;
 
   try {
@@ -289,13 +289,14 @@ void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(
 }
 
 void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(
-    const std::string &port_name) {
+    rofl::crofdpt &dpt, const std::string &port_name) {
   // XXX implement!!
   std::cerr << __PRETTY_FUNCTION__ << ": not implemented" << std::endl;
 }
 
 uint32_t
-rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name,
+rofl_ofdpa_fm_driver::enable_port_vid_egress(rofl::crofdpt &dpt,
+                                             const std::string &port_name,
                                              uint16_t vid, bool untagged) {
   // equals l2 interface group, so maybe rename this
 
@@ -341,7 +342,8 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(const std::string &port_name,
 }
 
 uint32_t
-rofl_ofdpa_fm_driver::disable_port_vid_egress(const std::string &port_name,
+rofl_ofdpa_fm_driver::disable_port_vid_egress(rofl::crofdpt &dpt,
+                                              const std::string &port_name,
                                               uint16_t vid, bool untagged) {
   assert(vid < 0x1000);
   uint32_t port_no;
@@ -368,7 +370,7 @@ rofl_ofdpa_fm_driver::disable_port_vid_egress(const std::string &port_name,
 }
 
 uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(
-    const std::string &port_name) {
+    rofl::crofdpt &dpt, const std::string &port_name) {
   // equals l2 interface group, so maybe rename this
 
   uint32_t port_no;
@@ -409,7 +411,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(
 }
 
 uint32_t rofl_ofdpa_fm_driver::disable_port_unfiltered_egress(
-    const std::string &port_name) {
+    rofl::crofdpt &dpt, const std::string &port_name) {
   uint32_t port_no;
 
   try {
@@ -434,8 +436,8 @@ uint32_t rofl_ofdpa_fm_driver::disable_port_unfiltered_egress(
 }
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
-    uint16_t vid, uint16_t id, const std::list<uint32_t> &l2_interfaces,
-    bool update) {
+    rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
+    const std::list<uint32_t> &l2_interfaces, bool update) {
   assert(vid < 0x1000);
 
   static const uint16_t identifier = 0x1000;
@@ -470,9 +472,9 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
 
   if (update) {
     // update arp policy
-    enable_policy_arp(vid, group_id, true);
+    enable_policy_arp(dpt, vid, group_id, true);
 
-    send_barrier();
+    send_barrier(dpt);
 
     // delete old entry
     rofl::openflow::cofgroupmod gm(dpt.get_version());
@@ -493,8 +495,8 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
   return group_id;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id,
-                                             bool update) {
+void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, uint16_t vid,
+                                             uint32_t group_id, bool update) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -521,7 +523,7 @@ void rofl_ofdpa_fm_driver::enable_policy_arp(uint16_t vid, uint32_t group_id,
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_lldp() {
+void rofl_ofdpa_fm_driver::enable_policy_lldp(rofl::crofdpt &dpt) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -545,7 +547,7 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp() {
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_dhcp() {
+void rofl_ofdpa_fm_driver::enable_policy_dhcp(rofl::crofdpt &dpt) {
   using rofl::caddress_in4;
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -583,7 +585,7 @@ void rofl_ofdpa_fm_driver::enable_policy_dhcp() {
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_vrrp() {
+void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -610,11 +612,9 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp() {
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
-                                                     uint16_t vid,
-                                                     uint32_t port_no,
-                                                     bool permanent,
-                                                     bool filtered) {
+void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
+    rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
+    uint32_t port_no, bool permanent, bool filtered) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -656,7 +656,8 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(const rofl::cmacaddr &mac,
 }
 
 void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
-    const rofl::cmacaddr &mac, uint16_t vid, uint32_t port_no) {
+    rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
+    uint32_t port_no) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -679,7 +680,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
 }
 
 void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
-    const std::string &port_name, uint16_t vid) {
+    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
   using rofl::openflow::OFPVID_PRESENT;
 
   uint32_t port_no;
@@ -711,7 +712,8 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
+void rofl_ofdpa_fm_driver::rewrite_vlan_egress(rofl::crofdpt &dpt,
+                                               uint16_t old_vid,
                                                uint16_t new_vid,
                                                uint32_t backup_port) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -749,7 +751,8 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint16_t old_vid,
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(uint16_t old_vid,
+void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(rofl::crofdpt &dpt,
+                                                        uint16_t old_vid,
                                                         uint16_t new_vid,
                                                         uint32_t backup_port) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
