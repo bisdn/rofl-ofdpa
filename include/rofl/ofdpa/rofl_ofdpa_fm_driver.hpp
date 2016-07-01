@@ -8,10 +8,10 @@
 
 namespace rofl {
 
-class rofl_ofdpa_fm_driver {
+class rofl_ofdpa_fm_driver final {
 public:
   rofl_ofdpa_fm_driver();
-  virtual ~rofl_ofdpa_fm_driver();
+  ~rofl_ofdpa_fm_driver();
 
   void send_barrier(rofl::crofdpt &dpt);
 
