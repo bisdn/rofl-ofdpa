@@ -621,6 +621,61 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
+void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(
+    rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
+    uint32_t port_no, uint32_t group_id) {
+      assert(vid < 0x1000);
+
+      rofl::openflow::cofflowmod fm(dpt.get_version());
+      fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+      fm.set_idle_timeout(0);
+      fm.set_hard_timeout(0);
+      fm.set_priority(2);
+      fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
+                    port_no); // FIXME cookiebox here?
+
+      fm.set_command(rofl::openflow::OFPFC_ADD);
+
+      fm.set_match().set_eth_dst(mac);
+      fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+
+      fm.set_instructions()
+          .set_inst_write_actions()
+          .set_actions()
+          .add_action_group(rofl::cindex(0))
+          .set_group_id(group_id);
+      fm.set_instructions().set_inst_goto_table().set_table_id(
+          OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+      DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+      dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(
+    rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
+    uint32_t port_no) {
+  assert(vid < 0x1000);
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
+                port_no); // FIXME cookiebox here?
+
+  // TODO do this strict?
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+
+  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
 void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
     rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
     uint32_t port_no, bool permanent, bool filtered) {
