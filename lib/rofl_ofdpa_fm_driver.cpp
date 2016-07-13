@@ -126,22 +126,13 @@ void rofl_ofdpa_fm_driver::send_barrier(rofl::crofdpt &dpt) {
   dpt.send_barrier_request(rofl::cauxid(0));
 }
 
-void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
-    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
-  enable_port_vid_ingress(dpt, port_name, vid);
+void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(rofl::crofdpt &dpt,
+                                                    uint32_t port_no,
+                                                    uint16_t vid) {
+  enable_port_vid_ingress(dpt, port_no, vid);
 
   // check params
   assert(vid < 0x1000);
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port: ");
-
-    return;
-  }
-
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
@@ -170,20 +161,12 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
-    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
+void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(rofl::crofdpt &dpt,
+                                                     uint32_t port_no,
+                                                     uint16_t vid) {
 
   // check params
   assert(vid < 0x1000);
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-
-    return;
-  }
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
@@ -199,22 +182,13 @@ void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
 
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 
-  disable_port_vid_ingress(dpt, port_name, vid);
+  disable_port_vid_ingress(dpt, port_no, vid);
 }
 
 void rofl_ofdpa_fm_driver::enable_port_vid_ingress(rofl::crofdpt &dpt,
-                                                   const std::string &port_name,
+                                                   uint32_t port_no,
                                                    uint16_t vid) {
   assert(vid < 0x1000);
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return;
-  }
-
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
   // TODO check what happens if this is added two times?
@@ -237,18 +211,10 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(rofl::crofdpt &dpt,
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::disable_port_vid_ingress(
-    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
+void rofl_ofdpa_fm_driver::disable_port_vid_ingress(rofl::crofdpt &dpt,
+                                                    uint32_t port_no,
+                                                    uint16_t vid) {
   assert(vid < 0x1000);
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return;
-  }
-
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
@@ -265,17 +231,8 @@ void rofl_ofdpa_fm_driver::disable_port_vid_ingress(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(
-    rofl::crofdpt &dpt, const std::string &port_name) {
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return;
-  }
-
+void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(rofl::crofdpt &dpt,
+                                                     uint32_t port_no) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
@@ -298,28 +255,19 @@ void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(
-    rofl::crofdpt &dpt, const std::string &port_name) {
+void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(rofl::crofdpt &dpt,
+                                                      uint32_t port_no) {
   // XXX implement!!
   DEBUG_LOG(": not implemented");
 }
 
-uint32_t
-rofl_ofdpa_fm_driver::enable_port_vid_egress(rofl::crofdpt &dpt,
-                                             const std::string &port_name,
-                                             uint16_t vid, bool untagged) {
+uint32_t rofl_ofdpa_fm_driver::enable_port_vid_egress(rofl::crofdpt &dpt,
+                                                      uint32_t port_no,
+                                                      uint16_t vid,
+                                                      bool untagged) {
   // equals l2 interface group, so maybe rename this
 
   assert(vid < 0x1000);
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return rofl::openflow::OFPG_MAX;
-  }
-
   uint32_t group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -351,20 +299,11 @@ rofl_ofdpa_fm_driver::enable_port_vid_egress(rofl::crofdpt &dpt,
   return group_id;
 }
 
-uint32_t
-rofl_ofdpa_fm_driver::disable_port_vid_egress(rofl::crofdpt &dpt,
-                                              const std::string &port_name,
-                                              uint16_t vid, bool untagged) {
+uint32_t rofl_ofdpa_fm_driver::disable_port_vid_egress(rofl::crofdpt &dpt,
+                                                       uint32_t port_no,
+                                                       uint16_t vid,
+                                                       bool untagged) {
   assert(vid < 0x1000);
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return rofl::openflow::OFPG_MAX;
-  }
-
   uint32_t group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -379,19 +318,9 @@ rofl_ofdpa_fm_driver::disable_port_vid_egress(rofl::crofdpt &dpt,
   return group_id;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(
-    rofl::crofdpt &dpt, const std::string &port_name) {
+uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(rofl::crofdpt &dpt,
+                                                             uint32_t port_no) {
   // equals l2 interface group, so maybe rename this
-
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return rofl::openflow::OFPG_MAX;
-  }
-
   uint32_t group_id = 11 << 28 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -420,17 +349,9 @@ uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(
   return group_id;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_port_unfiltered_egress(
-    rofl::crofdpt &dpt, const std::string &port_name) {
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port:");
-    return rofl::openflow::OFPG_MAX;
-  }
-
+uint32_t
+rofl_ofdpa_fm_driver::disable_port_unfiltered_egress(rofl::crofdpt &dpt,
+                                                     uint32_t port_no) {
   uint32_t group_id = 11 << 28 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -622,8 +543,8 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
 }
 
 void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
+                                                 uint32_t port_no, uint16_t vid,
                                                  const rofl::cmacaddr &mac,
-                                                 uint16_t vid, uint32_t port_no,
                                                  uint32_t group_id) {
   assert(vid < 0x1000);
 
@@ -655,9 +576,9 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
 }
 
 void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
-                                                    const rofl::cmacaddr &mac,
+                                                    uint32_t port_no,
                                                     uint16_t vid,
-                                                    uint32_t port_no) {
+                                                    const rofl::cmacaddr &mac) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -679,8 +600,8 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
 }
 
 void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
-    rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
-    uint32_t port_no, bool permanent, bool filtered) {
+    rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
+    const rofl::cmacaddr &mac, bool permanent, bool filtered) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -722,8 +643,8 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
 }
 
 void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
-    rofl::crofdpt &dpt, const rofl::cmacaddr &mac, uint16_t vid,
-    uint32_t port_no) {
+    rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
+    const rofl::cmacaddr &mac) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -745,18 +666,10 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
-    rofl::crofdpt &dpt, const std::string &port_name, uint16_t vid) {
+void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt,
+                                                            uint32_t port_no,
+                                                            uint16_t vid) {
   using rofl::openflow::OFPVID_PRESENT;
-
-  uint32_t port_no;
-
-  try {
-    port_no = dpt.get_ports().get_port(port_name).get_port_no();
-  } catch (rofl::openflow::ePortsNotFound &e) {
-    DEBUG_LOG(" ERROR: not an of-port: " << port_name);
-    return;
-  }
   assert(vid < 0x1000 || (uint16_t)-1 == vid);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -779,9 +692,9 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
 }
 
 void rofl_ofdpa_fm_driver::rewrite_vlan_egress(rofl::crofdpt &dpt,
+                                               uint32_t backup_port,
                                                uint16_t old_vid,
-                                               uint16_t new_vid,
-                                               uint32_t backup_port) {
+                                               uint16_t new_vid) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
 
@@ -818,9 +731,9 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(rofl::crofdpt &dpt,
 }
 
 void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(rofl::crofdpt &dpt,
+                                                        uint32_t backup_port,
                                                         uint16_t old_vid,
-                                                        uint16_t new_vid,
-                                                        uint32_t backup_port) {
+                                                        uint16_t new_vid) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
 

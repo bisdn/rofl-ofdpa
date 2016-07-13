@@ -19,32 +19,26 @@ public:
 
   void send_barrier(rofl::crofdpt &dpt);
 
-  void enable_port_pvid_ingress(rofl::crofdpt &dpt,
-                                const std::string &port_name, uint16_t vid);
-  void disable_port_pvid_ingress(rofl::crofdpt &dpt,
-                                 const std::string &port_name, uint16_t vid);
+  void enable_port_pvid_ingress(rofl::crofdpt &dpt, uint32_t port_no,
+                                uint16_t vid);
+  void disable_port_pvid_ingress(rofl::crofdpt &dpt, uint32_t port_no,
+                                 uint16_t vid);
 
-  void enable_port_vid_ingress(rofl::crofdpt &dpt, const std::string &port_name,
+  void enable_port_vid_ingress(rofl::crofdpt &dpt, uint32_t port_no,
                                uint16_t vid);
-  void disable_port_vid_ingress(rofl::crofdpt &dpt,
-                                const std::string &port_name, uint16_t vid);
+  void disable_port_vid_ingress(rofl::crofdpt &dpt, uint32_t port_no,
+                                uint16_t vid);
 
-  void enable_port_vid_allow_all(rofl::crofdpt &dpt,
-                                 const std::string &port_name);
-  void disable_port_vid_allow_all(rofl::crofdpt &dpt,
-                                  const std::string &port_name);
+  void enable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
+  void disable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
 
-  uint32_t enable_port_vid_egress(rofl::crofdpt &dpt,
-                                  const std::string &port_name, uint16_t vid,
-                                  bool untagged = false);
-  uint32_t disable_port_vid_egress(rofl::crofdpt &dpt,
-                                   const std::string &port_name, uint16_t vid,
-                                   bool untagged);
+  uint32_t enable_port_vid_egress(rofl::crofdpt &dpt, uint32_t port_no,
+                                  uint16_t vid, bool untagged = false);
+  uint32_t disable_port_vid_egress(rofl::crofdpt &dpt, uint32_t port_no,
+                                   uint16_t vid, bool untagged);
 
-  uint32_t enable_port_unfiltered_egress(rofl::crofdpt &dpt,
-                                         const std::string &port_name);
-  uint32_t disable_port_unfiltered_egress(rofl::crofdpt &dpt,
-                                          const std::string &port_name);
+  uint32_t enable_port_unfiltered_egress(rofl::crofdpt &dpt, uint32_t port_no);
+  uint32_t disable_port_unfiltered_egress(rofl::crofdpt &dpt, uint32_t port_no);
 
   uint32_t enable_group_l2_multicast(rofl::crofdpt &dpt, uint16_t vid,
                                      uint16_t id,
@@ -60,28 +54,26 @@ public:
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
 
-  void add_bridging_dlf_vlan(rofl::crofdpt &dpt, const rofl::cmacaddr &mac,
-                             uint16_t vid, uint32_t port_no, uint32_t group_id);
+  void add_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
+                             const rofl::cmacaddr &mac, uint32_t group_id);
 
-  void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, const rofl::cmacaddr &mac,
-                                uint16_t vid, uint32_t port_no);
+  void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no,
+                                uint16_t vid, const rofl::cmacaddr &mac);
 
-  void add_bridging_unicast_vlan(rofl::crofdpt &dpt, const rofl::cmacaddr &mac,
-                                 uint16_t vid, uint32_t port_no,
+  void add_bridging_unicast_vlan(rofl::crofdpt &dpt, uint32_t port_no,
+                                 uint16_t vid, const rofl::cmacaddr &mac,
                                  bool permanent = false, bool filtered = true);
 
-  void remove_bridging_unicast_vlan(rofl::crofdpt &dpt,
-                                    const rofl::cmacaddr &mac, uint16_t vid,
-                                    uint32_t port_no);
-  void remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt,
-                                        const std::string &port_name,
+  void remove_bridging_unicast_vlan(rofl::crofdpt &dpt, uint32_t port_no,
+                                    uint16_t vid, const rofl::cmacaddr &mac);
+  void remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt, uint32_t port_no,
                                         uint16_t vid);
 
-  void rewrite_vlan_egress(rofl::crofdpt &dpt, uint16_t old_vid,
-                           uint16_t new_vid, uint32_t backup_port);
+  void rewrite_vlan_egress(rofl::crofdpt &dpt, uint32_t backup_port,
+                           uint16_t old_vid, uint16_t new_vid);
 
-  void remove_rewritten_vlan_egress(rofl::crofdpt &dpt, uint16_t old_vid,
-                                    uint16_t new_vid, uint32_t backup_port);
+  void remove_rewritten_vlan_egress(rofl::crofdpt &dpt, uint32_t backup_port,
+                                    uint16_t old_vid, uint16_t new_vid);
 
 private:
   const uint16_t default_idle_timeout;
