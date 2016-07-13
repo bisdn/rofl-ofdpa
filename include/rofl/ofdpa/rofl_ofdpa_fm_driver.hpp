@@ -60,6 +60,12 @@ public:
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
 
+  void add_bridging_dlf_vlan(rofl::crofdpt &dpt, const rofl::cmacaddr &mac,
+                             uint16_t vid, uint32_t port_no, uint32_t group_id);
+
+  void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, const rofl::cmacaddr &mac,
+                                uint16_t vid, uint32_t port_no);
+
   void add_bridging_unicast_vlan(rofl::crofdpt &dpt, const rofl::cmacaddr &mac,
                                  uint16_t vid, uint32_t port_no,
                                  bool permanent = false, bool filtered = true);
