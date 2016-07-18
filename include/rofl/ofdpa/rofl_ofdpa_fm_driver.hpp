@@ -45,6 +45,11 @@ public:
                                      const std::list<uint32_t> &l2_interfaces,
                                      bool update = false);
 
+   uint32_t enable_group_l2_flood(rofl::crofdpt &dpt, uint16_t vid,
+                                  uint16_t id,
+                                  const std::list<uint32_t> &l2_interfaces,
+                                  bool update = false);
+
   void enable_policy_arp(rofl::crofdpt &dpt, uint16_t vid, uint32_t group_id,
                          bool update = false);
 
