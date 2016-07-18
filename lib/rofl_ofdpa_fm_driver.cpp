@@ -261,10 +261,10 @@ void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(rofl::crofdpt &dpt,
   DEBUG_LOG(": not implemented");
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_port_vid_egress(rofl::crofdpt &dpt,
-                                                      uint32_t port_no,
-                                                      uint16_t vid,
-                                                      bool untagged) {
+uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
+                                                         uint32_t port_no,
+                                                         uint16_t vid,
+                                                         bool untagged) {
   // equals l2 interface group, so maybe rename this
 
   assert(vid < 0x1000);
@@ -299,10 +299,10 @@ uint32_t rofl_ofdpa_fm_driver::enable_port_vid_egress(rofl::crofdpt &dpt,
   return group_id;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_port_vid_egress(rofl::crofdpt &dpt,
-                                                       uint32_t port_no,
-                                                       uint16_t vid,
-                                                       bool untagged) {
+uint32_t rofl_ofdpa_fm_driver::disable_group_l2_interface(rofl::crofdpt &dpt,
+                                                          uint32_t port_no,
+                                                          uint16_t vid,
+                                                          bool untagged) {
   assert(vid < 0x1000);
   uint32_t group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
@@ -318,8 +318,9 @@ uint32_t rofl_ofdpa_fm_driver::disable_port_vid_egress(rofl::crofdpt &dpt,
   return group_id;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(rofl::crofdpt &dpt,
-                                                             uint32_t port_no) {
+uint32_t
+rofl_ofdpa_fm_driver::enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
+                                                           uint32_t port_no) {
   // equals l2 interface group, so maybe rename this
   uint32_t group_id = 11 << 28 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
@@ -350,8 +351,8 @@ uint32_t rofl_ofdpa_fm_driver::enable_port_unfiltered_egress(rofl::crofdpt &dpt,
 }
 
 uint32_t
-rofl_ofdpa_fm_driver::disable_port_unfiltered_egress(rofl::crofdpt &dpt,
-                                                     uint32_t port_no) {
+rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
+                                                            uint32_t port_no) {
   uint32_t group_id = 11 << 28 | (0xffff & port_no);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 

@@ -32,13 +32,15 @@ public:
   void enable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
   void disable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
 
-  uint32_t enable_port_vid_egress(rofl::crofdpt &dpt, uint32_t port_no,
-                                  uint16_t vid, bool untagged = false);
-  uint32_t disable_port_vid_egress(rofl::crofdpt &dpt, uint32_t port_no,
-                                   uint16_t vid, bool untagged);
+  uint32_t enable_group_l2_interface(rofl::crofdpt &dpt, uint32_t port_no,
+                                     uint16_t vid, bool untagged = false);
+  uint32_t disable_group_l2_interface(rofl::crofdpt &dpt, uint32_t port_no,
+                                      uint16_t vid, bool untagged);
 
-  uint32_t enable_port_unfiltered_egress(rofl::crofdpt &dpt, uint32_t port_no);
-  uint32_t disable_port_unfiltered_egress(rofl::crofdpt &dpt, uint32_t port_no);
+  uint32_t enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
+                                                uint32_t port_no);
+  uint32_t disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
+                                                 uint32_t port_no);
 
   uint32_t enable_group_l2_multicast(rofl::crofdpt &dpt, uint16_t vid,
                                      uint16_t id,
