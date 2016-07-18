@@ -425,11 +425,9 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
   return group_id;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(rofl::crofdpt &dpt,
-                                                     uint16_t vid, uint16_t id,
-                                                     const std::list<uint32_t>
-                                                     &l2_interfaces,
-                                                     bool update) {
+uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
+    rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
+    const std::list<uint32_t> &l2_interfaces, bool update) {
   assert(vid < 0x1000);
 
   static const uint16_t identifier = 0x1000;
