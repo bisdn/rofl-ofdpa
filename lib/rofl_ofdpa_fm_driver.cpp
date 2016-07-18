@@ -425,6 +425,67 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
   return group_id;
 }
 
+uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(rofl::crofdpt &dpt,
+                                                     uint16_t vid, uint16_t id,
+                                                     const std::list<uint32_t>
+                                                     &l2_interfaces,
+                                                     bool update) {
+  assert(vid < 0x1000);
+
+  static const uint16_t identifier = 0x1000;
+  static uint16_t current_ident = 0;
+  uint16_t next_ident = current_ident;
+  if (update) {
+    next_ident ^= identifier;
+  }
+
+  uint32_t group_id =
+      4 << 28 | (0x0fff & vid) << 16 | (0xffff & (id | next_ident));
+
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_ADD);
+  gm.set_type(rofl::openflow::OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  uint32_t bucket_id = 0;
+
+  for (const uint32_t &i : l2_interfaces) {
+    gm.set_buckets()
+        .add_bucket(bucket_id++)
+        .set_actions()
+        .add_action_group(rofl::cindex(0))
+        .set_group_id(i);
+  }
+
+  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+
+  if (update) {
+    // update arp policy
+    enable_policy_arp(dpt, vid, group_id, true);
+
+    send_barrier(dpt);
+
+    // delete old entry
+    rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+    gm.set_command(rofl::openflow::OFPGC_DELETE);
+    gm.set_type(rofl::openflow::OFPGT_ALL);
+    gm.set_group_id(4 << 28 | (0x0fff & vid) << 16 |
+                    (0xffff & (id | current_ident)));
+
+    DEBUG_LOG(": send group-mod delete:" << std::endl << gm);
+    dpt.send_group_mod_message(rofl::cauxid(0),
+                               gm); // XXX this does not work currently
+
+    current_ident = next_ident;
+  }
+
+  return group_id;
+}
+
 void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, uint16_t vid,
                                              uint32_t group_id, bool update) {
   assert(vid < 0x1000);
