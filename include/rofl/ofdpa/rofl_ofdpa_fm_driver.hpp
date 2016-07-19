@@ -2,13 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef ROFL_OFDPA_FM_DRIVER_HPP_
-#define ROFL_OFDPA_FM_DRIVER_HPP_
+#pragma once
 
 #include <list>
 
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofdpt.h>
+
+#define GROUP_ID_FUNC_PORT_VLAN(name, type_id)                                 \
+  inline uint32_t group_id_##name(uint32_t port_no, uint16_t vid) {            \
+    /* FIXME check port_no */                                                  \
+    return type_id << 28 | (0x0fff & vid) << 16 | (0xffff & port_no);          \
+  }                                                                            \
+  struct __##name##_useless__
+
+#define GROUP_ID_FUNC_PORT_ID(name, type_id)                                   \
+  inline uint32_t group_id_##name(uint16_t id, uint16_t vid) {                 \
+    return type_id << 28 | (0x0fff & vid) << 16 | id;                          \
+  }                                                                            \
+  struct __##name##_useless__
 
 namespace rofl {
 
@@ -19,6 +31,12 @@ public:
 
   /* OF utils */
   void send_barrier(rofl::crofdpt &dpt);
+
+  GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
+  GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
+  GROUP_ID_FUNC_PORT_ID(l2_multicast, 3);
+  GROUP_ID_FUNC_PORT_ID(l2_flood, 4);
+  GROUP_ID_FUNC_PORT_ID(l3_multicast, 6);
 
   /* OF-DPA Flow-Mods */
 
@@ -96,5 +114,3 @@ private:
 };
 
 } /* namespace rofl */
-
-#endif /* ROFL_OFDPA_FM_DRIVER_HPP_ */
