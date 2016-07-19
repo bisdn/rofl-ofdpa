@@ -268,7 +268,8 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
   // equals l2 interface group, so maybe rename this
 
   assert(vid < 0x1000);
-  uint32_t group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
+  uint32_t group_id =
+      (0x0fff & vid) << 16 | (0xffff & port_no); // FIXME validate port no
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
@@ -304,7 +305,8 @@ uint32_t rofl_ofdpa_fm_driver::disable_group_l2_interface(rofl::crofdpt &dpt,
                                                           uint16_t vid,
                                                           bool untagged) {
   assert(vid < 0x1000);
-  uint32_t group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
+  uint32_t group_id =
+      (0x0fff & vid) << 16 | (0xffff & port_no); // // FIXME validate port no
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
@@ -369,18 +371,10 @@ rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-    const std::list<uint32_t> &l2_interfaces, bool update) {
+    const std::list<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
-  static const uint16_t identifier = 0x1000;
-  static uint16_t current_ident = 0;
-  uint16_t next_ident = current_ident;
-  if (update) {
-    next_ident ^= identifier;
-  }
-
-  uint32_t group_id =
-      3 << 28 | (0x0fff & vid) << 16 | (0xffff & (id | next_ident));
+  uint32_t group_id = 3 << 28 | (0x0fff & vid) << 16 | (0xffff & id);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -401,45 +395,16 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
   DEBUG_LOG(": send group-mod:" << std::endl << gm);
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  if (update) {
-    // update arp policy
-    enable_policy_arp(dpt, vid, group_id, true);
-
-    send_barrier(dpt);
-
-    // delete old entry
-    rofl::openflow::cofgroupmod gm(dpt.get_version());
-
-    gm.set_command(rofl::openflow::OFPGC_DELETE);
-    gm.set_type(rofl::openflow::OFPGT_ALL);
-    gm.set_group_id(3 << 28 | (0x0fff & vid) << 16 |
-                    (0xffff & (id | current_ident)));
-
-    DEBUG_LOG(": send group-mod delete:" << std::endl << gm);
-    dpt.send_group_mod_message(rofl::cauxid(0),
-                               gm); // XXX this does not work currently
-
-    current_ident = next_ident;
-  }
 
   return group_id;
 }
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
     rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-    const std::list<uint32_t> &l2_interfaces, bool update) {
+    const std::list<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
-  static const uint16_t identifier = 0x1000;
-  static uint16_t current_ident = 0;
-  uint16_t next_ident = current_ident;
-  if (update) {
-    next_ident ^= identifier;
-  }
-
-  uint32_t group_id =
-      4 << 28 | (0x0fff & vid) << 16 | (0xffff & (id | next_ident));
+  uint32_t group_id = 4 << 28 | (0x0fff & vid) << 16 | (0xffff & id);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -460,27 +425,6 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
   DEBUG_LOG(": send group-mod:" << std::endl << gm);
 
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  if (update) {
-    // update arp policy
-    enable_policy_arp(dpt, vid, group_id, true);
-
-    send_barrier(dpt);
-
-    // delete old entry
-    rofl::openflow::cofgroupmod gm(dpt.get_version());
-
-    gm.set_command(rofl::openflow::OFPGC_DELETE);
-    gm.set_type(rofl::openflow::OFPGT_ALL);
-    gm.set_group_id(4 << 28 | (0x0fff & vid) << 16 |
-                    (0xffff & (id | current_ident)));
-
-    DEBUG_LOG(": send group-mod delete:" << std::endl << gm);
-    dpt.send_group_mod_message(rofl::cauxid(0),
-                               gm); // XXX this does not work currently
-
-    current_ident = next_ident;
-  }
 
   return group_id;
 }
