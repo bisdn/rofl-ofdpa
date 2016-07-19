@@ -6,8 +6,8 @@
 
 #include <rofl/common/crofdpt.h>
 #include <rofl/common/openflow/cofflowmod.h>
-#include <rofl/common/openflow/openflow_common.h>
 #include <rofl/common/openflow/coxmatch.h>
+#include <rofl/common/openflow/openflow_common.h>
 
 #include <linux/if_ether.h>
 #include <linux/in.h>
@@ -361,6 +361,53 @@ rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
+
+  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+
+  return group_id;
+}
+
+uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
+    rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid,
+    const rofl::cmacaddr src_mac, const rofl::cmacaddr dst_mac) {
+
+  assert(vid < 0x1000);
+
+  uint32_t group_id = 1 << 28 | (0xffff & id);
+
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_ADD);
+  gm.set_type(rofl::openflow::OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  uint32_t bucket_id = 0;
+
+  rofl::openflow::cofactions &action_set =
+      gm.set_buckets().add_bucket(bucket_id).set_actions();
+
+  if (vid != 0) {
+    action_set
+        .set_action_set_vlan_vid(
+            rofl::cindex(rofl::openflow::OFPAT_SET_VLAN_VID))
+        .set_vlan_vid(vid);
+  }
+
+  if (src_mac.str() != "00:00:00:00:00:00") {
+    action_set
+        .set_action_set_dl_src(rofl::cindex(rofl::openflow::OFPAT_SET_DL_SRC))
+        .set_dl_src(src_mac);
+  }
+
+  if (dst_mac.str() != "00:00:00:00:00:00") {
+    action_set
+        .set_action_set_dl_dst(rofl::cindex(rofl::openflow::OFPAT_SET_DL_DST))
+        .set_dl_dst(dst_mac);
+  }
+
+  action_set.set_action_group(rofl::cindex(0)).set_group_id(port_group_id);
 
   DEBUG_LOG(": send group-mod:" << std::endl << gm);
 
