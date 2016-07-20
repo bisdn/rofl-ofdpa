@@ -413,7 +413,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-    const std::list<uint32_t> &l2_interfaces) {
+    const std::set<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_multicast(id, vid);
@@ -443,7 +443,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
     rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-    const std::list<uint32_t> &l2_interfaces) {
+    const std::set<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_flood(id, vid);
