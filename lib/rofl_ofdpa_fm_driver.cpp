@@ -471,6 +471,24 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
   return group_id;
 }
 
+uint32_t rofl_ofdpa_fm_driver::disable_group_l2_flood(rofl::crofdpt &dpt,
+                                                      uint16_t vid,
+                                                      uint16_t id) {
+  assert(vid < 0x1000);
+
+  uint32_t group_id = group_id_l2_flood(id, vid);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_DELETE);
+  gm.set_type(rofl::openflow::OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+
+  return group_id;
+}
+
 void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, uint16_t vid,
                                              uint32_t group_id, bool update) {
   assert(vid < 0x1000);

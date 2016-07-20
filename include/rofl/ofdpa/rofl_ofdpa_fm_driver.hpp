@@ -103,6 +103,8 @@ public:
 
   uint32_t enable_group_l2_flood(rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
                                  const std::set<uint32_t> &l2_interfaces);
+  uint32_t disable_group_l2_flood(rofl::crofdpt &dpt, uint16_t vid,
+                                  uint16_t id);
 
   uint32_t enable_group_l2_rewrite(
       rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid = 0,
