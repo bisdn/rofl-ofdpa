@@ -56,9 +56,9 @@ public:
 
   // Briding
   void add_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
-                             const rofl::cmacaddr &mac, uint32_t group_id);
+                             uint32_t group_id);
   void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no,
-                                uint16_t vid, const rofl::cmacaddr &mac);
+                                uint16_t vid);
 
   void add_bridging_unicast_vlan(rofl::crofdpt &dpt, uint32_t port_no,
                                  uint16_t vid, const rofl::cmacaddr &mac,

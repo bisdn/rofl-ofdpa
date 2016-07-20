@@ -590,7 +590,6 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
 
 void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
                                                  uint32_t port_no, uint16_t vid,
-                                                 const rofl::cmacaddr &mac,
                                                  uint32_t group_id) {
   assert(vid < 0x1000);
 
@@ -605,7 +604,6 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
-  fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
   fm.set_instructions()
@@ -623,8 +621,7 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
 void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
                                                     uint32_t port_no,
-                                                    uint16_t vid,
-                                                    const rofl::cmacaddr &mac) {
+                                                    uint16_t vid) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -637,7 +634,6 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
 
-  fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
