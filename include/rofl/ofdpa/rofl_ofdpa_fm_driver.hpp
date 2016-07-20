@@ -7,8 +7,8 @@
 
 #include <list>
 
-#include <rofl/common/crofdpt.h>
 #include <rofl/common/caddress.h>
+#include <rofl/common/crofdpt.h>
 
 namespace rofl {
 
@@ -41,6 +41,11 @@ public:
                                                 uint32_t port_no);
   uint32_t disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
                                                  uint32_t port_no);
+
+  uint32_t enable_group_l2_rewrite(
+      rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid = 0,
+      const rofl::cmacaddr src_mac = rofl::cmacaddr{"00:00:00:00:00:00"},
+      const rofl::cmacaddr dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
 
   uint32_t enable_group_l2_multicast(rofl::crofdpt &dpt, uint16_t vid,
                                      uint16_t id,
