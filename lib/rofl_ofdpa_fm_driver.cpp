@@ -365,12 +365,12 @@ rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
 }
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
-    rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid,
+    rofl::crofdpt &dpt, uint32_t id, uint32_t port_group_id, uint16_t vid,
     const rofl::cmacaddr src_mac, const rofl::cmacaddr dst_mac) {
 
   assert(vid < 0x1000);
 
-  uint32_t group_id = 1 << 28 | (0xffff & id);
+  uint32_t group_id = group_id_l2_rewrite(id);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 

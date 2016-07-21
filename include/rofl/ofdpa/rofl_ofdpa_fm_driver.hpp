@@ -22,6 +22,12 @@
   }                                                                            \
   struct __##name##_useless__
 
+#define GROUP_ID_FUNC_ID(name, type_id)                                        \
+  inline uint32_t group_id_##name(uint32_t id) {                               \
+    return type_id << 28 | (0xffffff & id);                                    \
+  }                                                                            \
+  struct __##name##_useless__
+
 namespace rofl {
 
 class rofl_ofdpa_fm_driver final {
@@ -33,10 +39,11 @@ public:
   void send_barrier(rofl::crofdpt &dpt);
 
   GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
-  GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
+  GROUP_ID_FUNC_ID(l2_rewrite, 1);
   GROUP_ID_FUNC_ID_VLAN(l2_multicast, 3);
   GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
+  GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
 
   /* OF-DPA Flow-Mods */
 
@@ -107,7 +114,7 @@ public:
                                   uint16_t id);
 
   uint32_t enable_group_l2_rewrite(
-      rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid = 0,
+      rofl::crofdpt &dpt, uint32_t id, uint32_t port_group_id, uint16_t vid = 0,
       const rofl::cmacaddr src_mac = rofl::cmacaddr{"00:00:00:00:00:00"},
       const rofl::cmacaddr dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
 
