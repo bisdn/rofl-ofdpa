@@ -2,13 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifndef ROFL_OFDPA_FM_DRIVER_HPP_
-#define ROFL_OFDPA_FM_DRIVER_HPP_
+#pragma once
 
-#include <list>
+#include <set>
 
 #include <rofl/common/caddress.h>
 #include <rofl/common/crofdpt.h>
+
+#define GROUP_ID_FUNC_PORT_VLAN(name, type_id)                                 \
+  inline uint32_t group_id_##name(uint32_t port_no, uint16_t vid) {            \
+    /* FIXME check port_no */                                                  \
+    return type_id << 28 | (0x0fff & vid) << 16 | (0xffff & port_no);          \
+  }                                                                            \
+  struct __##name##_useless__
+
+#define GROUP_ID_FUNC_ID_VLAN(name, type_id)                                   \
+  inline uint32_t group_id_##name(uint16_t id, uint16_t vid) {                 \
+    return type_id << 28 | (0x0fff & vid) << 16 | id;                          \
+  }                                                                            \
+  struct __##name##_useless__
+
+#define GROUP_ID_FUNC_ID(name, type_id)                                        \
+  inline uint32_t group_id_##name(uint32_t id) {                               \
+    return type_id << 28 | (0xffffff & id);                                    \
+  }                                                                            \
+  struct __##name##_useless__
 
 namespace rofl {
 
@@ -19,6 +37,13 @@ public:
 
   /* OF utils */
   void send_barrier(rofl::crofdpt &dpt);
+
+  GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
+  GROUP_ID_FUNC_ID(l2_rewrite, 1);
+  GROUP_ID_FUNC_ID_VLAN(l2_multicast, 3);
+  GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
+  GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
+  GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
 
   /* OF-DPA Flow-Mods */
 
@@ -38,9 +63,9 @@ public:
 
   // Briding
   void add_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
-                             const rofl::cmacaddr &mac, uint32_t group_id);
+                             uint32_t group_id);
   void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no,
-                                uint16_t vid, const rofl::cmacaddr &mac);
+                                uint16_t vid);
 
   void add_bridging_unicast_vlan(rofl::crofdpt &dpt, uint32_t port_no,
                                  uint16_t vid, const rofl::cmacaddr &mac,
@@ -81,13 +106,15 @@ public:
 
   uint32_t enable_group_l2_multicast(rofl::crofdpt &dpt, uint16_t vid,
                                      uint16_t id,
-                                     const std::list<uint32_t> &l2_interfaces);
+                                     const std::set<uint32_t> &l2_interfaces);
 
   uint32_t enable_group_l2_flood(rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-                                 const std::list<uint32_t> &l2_interfaces);
+                                 const std::set<uint32_t> &l2_interfaces);
+  uint32_t disable_group_l2_flood(rofl::crofdpt &dpt, uint16_t vid,
+                                  uint16_t id);
 
   uint32_t enable_group_l2_rewrite(
-      rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid = 0,
+      rofl::crofdpt &dpt, uint32_t id, uint32_t port_group_id, uint16_t vid = 0,
       const rofl::cmacaddr src_mac = rofl::cmacaddr{"00:00:00:00:00:00"},
       const rofl::cmacaddr dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
 
@@ -96,5 +123,3 @@ private:
 };
 
 } /* namespace rofl */
-
-#endif /* ROFL_OFDPA_FM_DRIVER_HPP_ */

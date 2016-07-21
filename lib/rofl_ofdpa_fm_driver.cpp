@@ -265,11 +265,8 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
                                                          uint32_t port_no,
                                                          uint16_t vid,
                                                          bool untagged) {
-  // equals l2 interface group, so maybe rename this
-
   assert(vid < 0x1000);
-  uint32_t group_id =
-      (0x0fff & vid) << 16 | (0xffff & port_no); // FIXME validate port no
+  uint32_t group_id = group_id_l2_interface(port_no, vid);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
@@ -305,8 +302,7 @@ uint32_t rofl_ofdpa_fm_driver::disable_group_l2_interface(rofl::crofdpt &dpt,
                                                           uint16_t vid,
                                                           bool untagged) {
   assert(vid < 0x1000);
-  uint32_t group_id =
-      (0x0fff & vid) << 16 | (0xffff & port_no); // // FIXME validate port no
+  uint32_t group_id = group_id_l2_interface(port_no, vid);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
@@ -323,8 +319,7 @@ uint32_t rofl_ofdpa_fm_driver::disable_group_l2_interface(rofl::crofdpt &dpt,
 uint32_t
 rofl_ofdpa_fm_driver::enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
                                                            uint32_t port_no) {
-  // equals l2 interface group, so maybe rename this
-  uint32_t group_id = 11 << 28 | (0xffff & port_no);
+  uint32_t group_id = group_id_l2_unfiltered_interface(port_no, 0);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
@@ -355,7 +350,7 @@ rofl_ofdpa_fm_driver::enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
 uint32_t
 rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
                                                             uint32_t port_no) {
-  uint32_t group_id = 11 << 28 | (0xffff & port_no);
+  uint32_t group_id = group_id_l2_unfiltered_interface(port_no, 0);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
@@ -370,12 +365,12 @@ rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
 }
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
-    rofl::crofdpt &dpt, uint16_t id, uint32_t port_group_id, uint16_t vid,
+    rofl::crofdpt &dpt, uint32_t id, uint32_t port_group_id, uint16_t vid,
     const rofl::cmacaddr src_mac, const rofl::cmacaddr dst_mac) {
 
   assert(vid < 0x1000);
 
-  uint32_t group_id = 1 << 28 | (0xffff & id);
+  uint32_t group_id = group_id_l2_rewrite(id);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -418,10 +413,10 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-    const std::list<uint32_t> &l2_interfaces) {
+    const std::set<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
-  uint32_t group_id = 3 << 28 | (0x0fff & vid) << 16 | (0xffff & id);
+  uint32_t group_id = group_id_l2_multicast(id, vid);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -448,10 +443,10 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
 
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
     rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
-    const std::list<uint32_t> &l2_interfaces) {
+    const std::set<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
-  uint32_t group_id = 4 << 28 | (0x0fff & vid) << 16 | (0xffff & id);
+  uint32_t group_id = group_id_l2_flood(id, vid);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
@@ -471,6 +466,24 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
 
   DEBUG_LOG(": send group-mod:" << std::endl << gm);
 
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+
+  return group_id;
+}
+
+uint32_t rofl_ofdpa_fm_driver::disable_group_l2_flood(rofl::crofdpt &dpt,
+                                                      uint16_t vid,
+                                                      uint16_t id) {
+  assert(vid < 0x1000);
+
+  uint32_t group_id = group_id_l2_flood(id, vid);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_DELETE);
+  gm.set_type(rofl::openflow::OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": send group-mod:" << std::endl << gm);
   dpt.send_group_mod_message(rofl::cauxid(0), gm);
 
   return group_id;
@@ -595,7 +608,6 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
 
 void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
                                                  uint32_t port_no, uint16_t vid,
-                                                 const rofl::cmacaddr &mac,
                                                  uint32_t group_id) {
   assert(vid < 0x1000);
 
@@ -606,11 +618,10 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
-  fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
   fm.set_instructions()
@@ -628,8 +639,7 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
 void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
                                                     uint32_t port_no,
-                                                    uint16_t vid,
-                                                    const rofl::cmacaddr &mac) {
+                                                    uint16_t vid) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
@@ -637,12 +647,11 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
 
-  fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
@@ -662,7 +671,7 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   if (not permanent) {
     fm.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM);
@@ -676,9 +685,9 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
 
   uint32_t group_id;
   if (filtered) {
-    group_id = (0x0fff & vid) << 16 | (0xffff & port_no);
+    group_id = group_id_l2_interface(port_no, vid);
   } else {
-    group_id = 11 << 28 | (0xffff & port_no);
+    group_id = group_id_l2_unfiltered_interface(port_no, 0);
   }
   fm.set_instructions()
       .set_inst_write_actions()
@@ -703,7 +712,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
@@ -728,7 +737,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt,
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
   fm.set_cookie_mask(-1);
 
   // TODO do this strict?
