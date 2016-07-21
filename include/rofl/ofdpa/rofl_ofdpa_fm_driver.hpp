@@ -16,7 +16,7 @@
   }                                                                            \
   struct __##name##_useless__
 
-#define GROUP_ID_FUNC_PORT_ID(name, type_id)                                   \
+#define GROUP_ID_FUNC_ID_VLAN(name, type_id)                                   \
   inline uint32_t group_id_##name(uint16_t id, uint16_t vid) {                 \
     return type_id << 28 | (0x0fff & vid) << 16 | id;                          \
   }                                                                            \
@@ -34,9 +34,9 @@ public:
 
   GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
   GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
-  GROUP_ID_FUNC_PORT_ID(l2_multicast, 3);
-  GROUP_ID_FUNC_PORT_ID(l2_flood, 4);
-  GROUP_ID_FUNC_PORT_ID(l3_multicast, 6);
+  GROUP_ID_FUNC_ID_VLAN(l2_multicast, 3);
+  GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
+  GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
 
   /* OF-DPA Flow-Mods */
 
