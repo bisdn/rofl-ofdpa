@@ -618,7 +618,7 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
@@ -647,7 +647,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
@@ -671,7 +671,7 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   if (not permanent) {
     fm.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM);
@@ -712,7 +712,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
@@ -737,7 +737,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt,
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
-                port_no); // FIXME cookiebox here?
+                port_no);
   fm.set_cookie_mask(-1);
 
   // TODO do this strict?
