@@ -299,8 +299,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
 
 uint32_t rofl_ofdpa_fm_driver::disable_group_l2_interface(rofl::crofdpt &dpt,
                                                           uint32_t port_no,
-                                                          uint16_t vid,
-                                                          bool untagged) {
+                                                          uint16_t vid) {
   assert(vid < 0x1000);
   uint32_t group_id = group_id_l2_interface(port_no, vid);
   rofl::openflow::cofgroupmod gm(dpt.get_version());
@@ -607,7 +606,7 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
 }
 
 void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
-                                                 uint32_t port_no, uint16_t vid,
+                                                 uint16_t vid,
                                                  uint32_t group_id) {
   assert(vid < 0x1000);
 
@@ -617,8 +616,7 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
-                port_no);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
@@ -638,7 +636,6 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
 }
 
 void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
-                                                    uint32_t port_no,
                                                     uint16_t vid) {
   assert(vid < 0x1000);
 
@@ -646,8 +643,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_priority(2);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN) |
-                port_no);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
