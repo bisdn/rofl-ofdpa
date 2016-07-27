@@ -62,10 +62,9 @@ public:
   void disable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
 
   // Briding
-  void add_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
+  void add_bridging_dlf_vlan(rofl::crofdpt &dpt, uint16_t vid,
                              uint32_t group_id);
-  void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, uint32_t port_no,
-                                uint16_t vid);
+  void remove_bridging_dlf_vlan(rofl::crofdpt &dpt, uint16_t vid);
 
   void add_bridging_unicast_vlan(rofl::crofdpt &dpt, uint32_t port_no,
                                  uint16_t vid, const rofl::cmacaddr &mac,
@@ -97,7 +96,7 @@ public:
   uint32_t enable_group_l2_interface(rofl::crofdpt &dpt, uint32_t port_no,
                                      uint16_t vid, bool untagged = false);
   uint32_t disable_group_l2_interface(rofl::crofdpt &dpt, uint32_t port_no,
-                                      uint16_t vid, bool untagged);
+                                      uint16_t vid);
 
   uint32_t enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
                                                 uint32_t port_no);
