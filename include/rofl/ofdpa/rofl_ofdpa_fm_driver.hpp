@@ -38,10 +38,18 @@ public:
   /* OF utils */
   void send_barrier(rofl::crofdpt &dpt);
 
+  inline uint8_t get_group_type(uint32_t group_id) { return group_id >> 28; }
+
+  inline uint16_t get_group_vid(uint32_t group_id) {
+    return (group_id >> 16) & 0x0fff;
+  }
+
   GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
   GROUP_ID_FUNC_ID(l2_rewrite, 1);
+  GROUP_ID_FUNC_ID(l3_unicast, 2);
   GROUP_ID_FUNC_ID_VLAN(l2_multicast, 3);
   GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
+  GROUP_ID_FUNC_ID(l3_interface, 5);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
   GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
 
@@ -116,6 +124,20 @@ public:
       rofl::crofdpt &dpt, uint32_t id, uint32_t port_group_id, uint16_t vid = 0,
       const rofl::cmacaddr src_mac = rofl::cmacaddr{"00:00:00:00:00:00"},
       const rofl::cmacaddr dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
+
+  uint32_t enable_group_l3_interface(
+      rofl::crofdpt &dpt, uint32_t id, rofl::caddress_ll &src_mac,
+      uint32_t l2_interface,
+      const rofl::cmacaddr &dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
+
+  uint32_t disable_group_l3_interface(rofl::crofdpt &dpt, uint32_t id);
+
+  uint32_t enable_group_l3_unicast(rofl::crofdpt &dpt, uint32_t id,
+                                   rofl::caddress_ll &src_mac,
+                                   const rofl::cmacaddr &dst_mac,
+                                   uint32_t l2_interface);
+
+  uint32_t disable_group_l3_unicast(rofl::crofdpt &dpt, uint32_t id);
 
 private:
   const uint16_t default_idle_timeout;

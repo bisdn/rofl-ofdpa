@@ -818,4 +818,114 @@ void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(rofl::crofdpt &dpt,
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
+uint32_t rofl_ofdpa_fm_driver::enable_group_l3_interface(
+    rofl::crofdpt &dpt, uint32_t id, rofl::caddress_ll &src_mac,
+    uint32_t l2_interface, const rofl::cmacaddr &dst_mac) {
+
+  uint32_t group_id = group_id_l3_interface(id);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  assert(5 == get_group_type(l2_interface) &&
+         "wrong l2 group in enable_group_l3_interface");
+
+  gm.set_command(rofl::openflow::OFPGC_ADD);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  rofl::cindex i(0);
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_dl_src(i++)
+      .set_dl_src(src_mac);
+
+  if (dst_mac != rofl::caddress_ll("00:00:00:00:00:00")) {
+    gm.set_buckets()
+        .set_bucket(0)
+        .set_actions()
+        .add_action_set_dl_dst(i++)
+        .set_dl_dst(dst_mac);
+  }
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
+          rofl::openflow::OFPVID_PRESENT | get_group_vid(l2_interface)));
+
+  gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
+      l2_interface);
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+  return group_id;
+}
+
+uint32_t rofl_ofdpa_fm_driver::disable_group_l3_interface(rofl::crofdpt &dpt,
+                                                          uint32_t id) {
+
+  uint32_t group_id = group_id_l3_interface(id);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_DELETE);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+  return group_id;
+}
+
+uint32_t rofl_ofdpa_fm_driver::enable_group_l3_unicast(
+    rofl::crofdpt &dpt, uint32_t id, rofl::caddress_ll &src_mac,
+    const rofl::cmacaddr &dst_mac, uint32_t l2_interface) {
+  uint32_t group_id = group_id_l3_unicast(id);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  assert(2 == get_group_type(l2_interface) &&
+         "wrong l2 interface in enable_group_l3_unicast");
+
+  gm.set_command(rofl::openflow::OFPGC_ADD);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  rofl::cindex i(0);
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_dl_src(i++)
+      .set_dl_src(src_mac);
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_dl_dst(i++)
+      .set_dl_dst(dst_mac);
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
+          rofl::openflow::OFPVID_PRESENT | get_group_vid(l2_interface)));
+
+  gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
+      l2_interface);
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+  return group_id;
+}
+
+uint32_t rofl_ofdpa_fm_driver::disable_group_l3_unicast(rofl::crofdpt &dpt,
+                                                        uint32_t id) {
+  uint32_t group_id = group_id_l3_unicast(id);
+  rofl::openflow::cofgroupmod gm(dpt.get_version());
+
+  gm.set_command(rofl::openflow::OFPGC_DELETE);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+  return group_id;
+}
+
 } /* namespace rofl */
