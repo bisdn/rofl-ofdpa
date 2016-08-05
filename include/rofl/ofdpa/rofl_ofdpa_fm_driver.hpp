@@ -46,6 +46,7 @@ public:
 
   GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
   GROUP_ID_FUNC_ID(l2_rewrite, 1);
+  GROUP_ID_FUNC_ID(l3_unicast, 2);
   GROUP_ID_FUNC_ID_VLAN(l2_multicast, 3);
   GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
   GROUP_ID_FUNC_ID(l3_interface, 5);
@@ -130,6 +131,13 @@ public:
       const rofl::cmacaddr &dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
 
   uint32_t disable_group_l3_interface(rofl::crofdpt &dpt, uint32_t id);
+
+  uint32_t enable_group_l3_unicast(rofl::crofdpt &dpt, uint32_t id,
+                                   rofl::caddress_ll &src_mac,
+                                   const rofl::cmacaddr &dst_mac,
+                                   uint32_t l2_interface);
+
+  uint32_t disable_group_l3_unicast(rofl::crofdpt &dpt, uint32_t id);
 
 private:
   const uint16_t default_idle_timeout;
