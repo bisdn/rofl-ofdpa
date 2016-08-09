@@ -893,18 +893,16 @@ void rofl_ofdpa_fm_driver::policy_acl_ipv4_vlan(
   // * none or any of fiels set: COLOR_ACTIONS_INDEX, COLOR, SET_FIELD
   // * none or one output: CONTROLLER
   if (apply_actions.size() > 0) {
-    fm.set_instructions().set_inst_apply_actions() =
-        rofl::openflow::cofinstruction_apply_actions(
-            rofl::openflow::OFP_VERSION_UNKNOWN, apply_actions);
+    fm.set_instructions().set_inst_apply_actions().set_actions() =
+        apply_actions;
   }
 
   // Allowed write actions:
   // * zero or one group
   // * none or any of fields set: IP_DSCP, IP_ECN, VLAN_PCP
   if (write_actions.size() > 0) {
-    fm.set_instructions().set_inst_write_actions() =
-        rofl::openflow::cofinstruction_write_actions(
-            rofl::openflow::OFP_VERSION_UNKNOWN, write_actions);
+    fm.set_instructions().set_inst_write_actions().set_actions() =
+        write_actions;
   }
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
