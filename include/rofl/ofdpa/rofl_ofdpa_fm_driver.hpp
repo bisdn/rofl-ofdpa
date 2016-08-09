@@ -111,14 +111,16 @@ public:
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
 
-  void policy_acl_ipv4_vlan(rofl::crofdpt &dpt,
-                            const rofl::openflow::cofmatch &matches,
-                            bool clear_actions = false, uint32_t meter_id = 0,
-                            uint32_t table_id = 0,
-                            const rofl::openflow::cofactions &apply_actions =
-                                rofl::openflow::cofactions(),
-                            const rofl::openflow::cofactions &write_actions =
-                                rofl::openflow::cofactions());
+  void enable_policy_acl_ipv4_vlan(
+      rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
+      bool clear_actions = false, uint32_t meter_id = 0, uint32_t table_id = 0,
+      const rofl::openflow::cofactions &apply_actions =
+          rofl::openflow::cofactions(),
+      const rofl::openflow::cofactions &write_actions =
+          rofl::openflow::cofactions());
+
+  void disable_policy_acl_ipv4_vlan(rofl::crofdpt &dpt,
+                                    const rofl::openflow::cofmatch &matches);
 
   // VLAN Egress
   void rewrite_vlan_egress(rofl::crofdpt &dpt, uint32_t backup_port,

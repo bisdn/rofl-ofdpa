@@ -785,7 +785,7 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
 // TODO: For future reference:
 // The contents of apply_actions and write_actions arguments should be checked,
 // rofl-common also currently does not match on VLAN_DEI and VRF.
-void rofl_ofdpa_fm_driver::policy_acl_ipv4_vlan(
+void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
     rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
     bool clear_actions, uint32_t meter_id, uint32_t table_id,
     const rofl::openflow::cofactions &apply_actions,
@@ -900,6 +900,94 @@ void rofl_ofdpa_fm_driver::policy_acl_ipv4_vlan(
   if (write_actions.size() > 0) {
     fm.set_instructions().set_inst_write_actions().set_actions() =
         write_actions;
+  }
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
+    rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches) {
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+
+  // TODO VLAN_DEI, VRF
+  if (matches.has_in_port()) {
+    fm.set_match().set_in_port(matches.get_in_port());
+  }
+  if (matches.has_eth_type()) {
+    fm.set_match().set_eth_type(matches.get_eth_type());
+  }
+  if (matches.has_eth_src_mask() && matches.has_eth_src()) {
+    fm.set_match().set_eth_src(matches.get_eth_src(),
+                               matches.get_eth_src_mask());
+  }
+  if (matches.has_eth_dst_mask() && matches.has_eth_dst()) {
+    fm.set_match().set_eth_dst(matches.get_eth_dst(),
+                               matches.get_eth_dst_mask());
+  }
+  if (matches.has_vlan_vid_mask() && matches.has_vlan_vid()) {
+    assert(matches.get_vlan_vid() < 0x1000);
+    fm.set_match().set_vlan_vid(matches.get_vlan_vid(),
+                                matches.get_vlan_vid_mask());
+  }
+  if (matches.has_vlan_pcp()) {
+    fm.set_match().set_vlan_pcp(matches.get_vlan_pcp());
+  }
+  if (matches.has_ipv4_src_mask() && matches.has_ipv4_src()) {
+    fm.set_match().set_ipv4_src(matches.get_ipv4_src(),
+                                matches.get_ipv4_src_mask());
+  }
+  if (matches.has_ipv4_dst_mask() && matches.has_ipv4_dst()) {
+    fm.set_match().set_ipv4_dst(matches.get_ipv4_dst(),
+                                matches.get_ipv4_dst_mask());
+  }
+  if (matches.has_ip_proto()) {
+    fm.set_match().set_ip_proto(matches.get_ip_proto());
+  }
+  if (matches.has_ip_dscp()) {
+    fm.set_match().set_ip_dscp(matches.get_ip_dscp());
+  }
+  if (matches.has_ip_ecn()) {
+    fm.set_match().set_ip_ecn(matches.get_ip_ecn());
+  }
+  if (matches.has_tcp_src()) {
+    fm.set_match().set_tcp_src(matches.get_tcp_src());
+  }
+  if (matches.has_udp_src()) {
+    fm.set_match().set_udp_src(matches.get_udp_src());
+  }
+  if (matches.has_sctp_src()) {
+    fm.set_match().set_sctp_src(matches.get_sctp_src());
+  }
+  if (matches.has_icmpv4_type()) {
+    fm.set_match().set_icmpv4_type(matches.get_icmpv4_type());
+  }
+  if (matches.has_icmpv4_code()) {
+    fm.set_match().set_icmpv4_code(matches.get_icmpv4_code());
+  }
+  if (matches.has_tcp_dst()) {
+    fm.set_match().set_tcp_dst(matches.get_tcp_dst());
+  }
+  if (matches.has_udp_dst()) {
+    fm.set_match().set_udp_dst(matches.get_udp_dst());
+  }
+  if (matches.has_sctp_dst()) {
+    fm.set_match().set_sctp_dst(matches.get_sctp_dst());
+  }
+  if (matches.has_arp_spa_mask() && matches.has_arp_spa()) {
+    fm.set_match().set_arp_spa(matches.get_arp_spa(),
+                               matches.get_arp_spa_mask());
   }
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
