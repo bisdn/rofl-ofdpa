@@ -69,6 +69,24 @@ public:
   void enable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
   void disable_port_vid_allow_all(rofl::crofdpt &dpt, uint32_t port_no);
 
+  // Termination MAC
+  void enable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt, uint32_t in_port,
+                                    rofl::caddress_ll &dmac, uint16_t vid);
+  void disable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt, uint32_t in_port,
+                                     rofl::caddress_ll &dmac, uint16_t vid);
+
+  // Unicast Routing
+  void enable_ipv4_unicast_host(rofl::crofdpt &dpt, rofl::caddress_in4 &dst,
+                                uint32_t group);
+  void disable_ipv4_unicast_host(rofl::crofdpt &dpt, rofl::caddress_in4 &dst,
+                                 uint32_t group);
+
+  void enable_ipv4_unicast_lpm(rofl::crofdpt &dpt,
+                               const rofl::caddress_in4 &dst,
+                               const rofl::caddress_in4 &mask, uint32_t group);
+  void disable_ipv4_unicast_lpm(rofl::crofdpt &dpt,
+                                const rofl::caddress_in4 &dst,
+                                const rofl::caddress_in4 &mask, uint32_t group);
   // Briding
   void add_bridging_dlf_vlan(rofl::crofdpt &dpt, uint16_t vid,
                              uint32_t group_id);

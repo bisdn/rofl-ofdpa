@@ -261,6 +261,186 @@ void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(rofl::crofdpt &dpt,
   DEBUG_LOG(": not implemented");
 }
 
+void rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt,
+                                                        uint32_t in_port,
+                                                        rofl::caddress_ll &dmac,
+                                                        uint16_t vid) {
+  assert(vid < 0x1000);
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV4_UNICAST_MAC) | 0);
+
+  fm.set_match().set_in_port(in_port);
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+  fm.set_match().set_eth_dst(dmac);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt,
+                                                        uint32_t in_port,
+                                                        rofl::caddress_ll &dmac,
+                                                        uint16_t vid) {
+  assert(vid < 0x1000);
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV4_UNICAST_MAC) | 0);
+
+  fm.set_match().set_in_port(in_port);
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+  fm.set_match().set_eth_dst(dmac);
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(rofl::crofdpt &dpt,
+                                                    rofl::caddress_in4 &dst,
+                                                    uint32_t group) {
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(3);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_HOST) |
+      0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst);
+  // TODO VRF
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .set_action_group(rofl::cindex(0))
+      .set_group_id(group);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .set_action_dec_nw_ttl(rofl::cindex(1));
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(rofl::crofdpt &dpt,
+                                                     rofl::caddress_in4 &dst,
+                                                     uint32_t group) {
+
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(3);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_HOST) |
+      0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst);
+  // TODO VRF
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
+    rofl::crofdpt &dpt, const rofl::caddress_in4 &dst,
+    const rofl::caddress_in4 &mask, uint32_t group) {
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_LPM) |
+      0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst, mask);
+  // TODO VRF
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .set_action_group(rofl::cindex(0))
+      .set_group_id(group);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .set_action_dec_nw_ttl(rofl::cindex(1));
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
+    rofl::crofdpt &dpt, const rofl::caddress_in4 &dst,
+    const rofl::caddress_in4 &mask, uint32_t group) {
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_LPM) |
+      0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst, mask);
+  // TODO VRF
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
 uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
                                                          uint32_t port_no,
                                                          uint16_t vid,
