@@ -111,6 +111,31 @@ public:
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
 
+  void enable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
+                                 const rofl::caddress_ll &dst,
+                                 uint32_t group_id) {
+    // TODO add checks
+    rofl::openflow::cofmatch match(dpt.get_version());
+    match.set_vlan_vid(vid);
+    match.set_eth_dst(dst);
+
+    rofl::openflow::cofactions write_actions(dpt.get_version());
+    write_actions.set_action_group(rofl::cindex(0)).set_group_id(group_id);
+
+    enable_policy_acl_ipv4_vlan(dpt, match, false, 0, 0,
+                                rofl::openflow::cofactions(), write_actions);
+  }
+
+  void disable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
+                                  const rofl::caddress_ll &dst) {
+    // TODO add checks
+    rofl::openflow::cofmatch match(dpt.get_version());
+    match.set_vlan_vid(vid);
+    match.set_eth_dst(dst);
+
+    disable_policy_acl_ipv4_vlan(dpt, match);
+  }
+
   void enable_policy_acl_ipv4_vlan(
       rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
       bool clear_actions = false, uint32_t meter_id = 0, uint32_t table_id = 0,
