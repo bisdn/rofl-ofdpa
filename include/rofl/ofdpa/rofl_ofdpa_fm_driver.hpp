@@ -77,7 +77,7 @@ public:
 
   // Unicast Routing
   void enable_ipv4_unicast_host(rofl::crofdpt &dpt, rofl::caddress_in4 &dst,
-                                uint32_t group);
+                                uint32_t group, bool send_to_ctl = false);
   void disable_ipv4_unicast_host(rofl::crofdpt &dpt, rofl::caddress_in4 &dst,
                                  uint32_t group);
 
