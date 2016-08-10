@@ -332,7 +332,10 @@ void rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
 
 void rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(rofl::crofdpt &dpt,
                                                     rofl::caddress_in4 &dst,
-                                                    uint32_t group) {
+                                                    uint32_t group,
+                                                    bool send_to_ctl) {
+  assert(group != 0 || send_to_ctl != false);
+
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
@@ -352,15 +355,25 @@ void rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(rofl::crofdpt &dpt,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_instructions()
-      .set_inst_write_actions()
-      .set_actions()
-      .set_action_group(rofl::cindex(0))
-      .set_group_id(group);
-  fm.set_instructions()
-      .set_inst_write_actions()
-      .set_actions()
-      .set_action_dec_nw_ttl(rofl::cindex(1));
+  rofl::cindex index(0);
+  if (send_to_ctl) {
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .add_action_output(index++)
+        .set_port_no(rofl::openflow::OFPP_CONTROLLER);
+  }
+  if (group) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_group(index++)
+        .set_group_id(group);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_dec_nw_ttl(index);
+  }
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
 
