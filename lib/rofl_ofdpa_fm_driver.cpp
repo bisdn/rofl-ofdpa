@@ -257,8 +257,21 @@ void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(rofl::crofdpt &dpt,
 
 void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(rofl::crofdpt &dpt,
                                                       uint32_t port_no) {
-  // XXX implement!!
-  DEBUG_LOG(": not implemented");
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
+
+  fm.set_priority(7);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_ALLOW_ALL) | 0);
+
+  fm.set_match().set_in_port(port_no);
+  fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT,
+                              rofl::openflow::OFPVID_PRESENT);
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
 void rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt,
