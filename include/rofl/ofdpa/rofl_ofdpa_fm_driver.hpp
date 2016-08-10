@@ -175,6 +175,8 @@ public:
       const rofl::cmacaddr src_mac = rofl::cmacaddr{"00:00:00:00:00:00"},
       const rofl::cmacaddr dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
 
+  uint32_t disable_group_l2_rewrite(rofl::crofdpt &dpt, uint32_t id);
+
   uint32_t enable_group_l3_interface(
       rofl::crofdpt &dpt, uint32_t id, rofl::caddress_ll &src_mac,
       uint32_t l2_interface,
