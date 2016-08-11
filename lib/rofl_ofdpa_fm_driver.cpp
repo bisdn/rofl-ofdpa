@@ -854,7 +854,7 @@ void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
     fm.set_match().set_eth_src(matches.get_eth_src(),
                                matches.get_eth_src_mask());
   } else if (matches.has_eth_src()) {
-    fm.set_match().set_eth_src(matches.get_eth_src());
+    fm.set_match().set_eth_src(matches.get_eth_dst());
   }
   if (matches.has_eth_dst_mask() && matches.has_eth_dst()) {
     fm.set_match().set_eth_dst(matches.get_eth_dst(),
