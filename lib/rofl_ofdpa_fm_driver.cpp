@@ -987,7 +987,7 @@ void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
     fm.set_match().set_eth_dst(matches.get_eth_dst(),
                                matches.get_eth_dst_mask());
   } else if (matches.has_eth_dst()) {
-    fm.set_match().set_eth_dst(matches.get_eth_src());
+    fm.set_match().set_eth_dst(matches.get_eth_dst());
   }
   if (matches.has_vlan_vid_mask() && matches.has_vlan_vid()) {
     assert((matches.get_vlan_vid() & ~rofl::openflow::OFPVID_PRESENT) < 0x1000);
