@@ -592,16 +592,16 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
   }
 
   if (src_mac.str() != "00:00:00:00:00:00") {
-    action_set.add_action_set_field(rofl::cindex(0))
+    action_set.add_action_set_field(rofl::cindex(1))
         .set_oxm(rofl::openflow::coxmatch_ofb_eth_src(src_mac));
   }
 
   if (dst_mac.str() != "00:00:00:00:00:00") {
-    action_set.add_action_set_field(rofl::cindex(0))
+    action_set.add_action_set_field(rofl::cindex(2))
         .set_oxm(rofl::openflow::coxmatch_ofb_eth_dst(dst_mac));
   }
 
-  action_set.set_action_group(rofl::cindex(0)).set_group_id(port_group_id);
+  action_set.set_action_group(rofl::cindex(3)).set_group_id(port_group_id);
 
   DEBUG_LOG(": send group-mod:" << std::endl << gm);
 
