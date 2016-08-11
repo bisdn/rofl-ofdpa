@@ -116,7 +116,7 @@ public:
                                  uint32_t group_id) {
     // TODO add checks
     rofl::openflow::cofmatch match(dpt.get_version());
-    match.set_vlan_vid(vid);
+    match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
     match.set_eth_dst(dst);
 
     rofl::openflow::cofactions write_actions(dpt.get_version());
@@ -130,7 +130,7 @@ public:
                                   const rofl::caddress_ll &dst) {
     // TODO add checks
     rofl::openflow::cofmatch match(dpt.get_version());
-    match.set_vlan_vid(vid);
+    match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
     match.set_eth_dst(dst);
 
     disable_policy_acl_ipv4_vlan(dpt, match);
