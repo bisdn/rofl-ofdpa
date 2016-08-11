@@ -586,22 +586,19 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
       gm.set_buckets().add_bucket(bucket_id).set_actions();
 
   if (vid != 0) {
-    action_set
-        .set_action_set_vlan_vid(
-            rofl::cindex(rofl::openflow::OFPAT_SET_VLAN_VID))
-        .set_vlan_vid(vid);
+    action_set.add_action_set_field(rofl::cindex(0))
+        .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
+            rofl::openflow::OFPVID_PRESENT | vid));
   }
 
   if (src_mac.str() != "00:00:00:00:00:00") {
-    action_set
-        .set_action_set_dl_src(rofl::cindex(rofl::openflow::OFPAT_SET_DL_SRC))
-        .set_dl_src(src_mac);
+    action_set.add_action_set_field(rofl::cindex(0))
+        .set_oxm(rofl::openflow::coxmatch_ofb_eth_src(src_mac));
   }
 
   if (dst_mac.str() != "00:00:00:00:00:00") {
-    action_set
-        .set_action_set_dl_dst(rofl::cindex(rofl::openflow::OFPAT_SET_DL_DST))
-        .set_dl_dst(dst_mac);
+    action_set.add_action_set_field(rofl::cindex(0))
+        .set_oxm(rofl::openflow::coxmatch_ofb_eth_dst(dst_mac));
   }
 
   action_set.set_action_group(rofl::cindex(0)).set_group_id(port_group_id);
