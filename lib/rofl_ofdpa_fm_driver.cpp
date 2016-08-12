@@ -577,7 +577,7 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
-  gm.set_type(rofl::openflow::OFPGT_ALL);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
   uint32_t bucket_id = 0;
@@ -612,13 +612,12 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
 
 uint32_t rofl_ofdpa_fm_driver::disable_group_l2_rewrite(rofl::crofdpt &dpt,
                                                         uint32_t id) {
-
   uint32_t group_id = group_id_l2_rewrite(id);
 
   rofl::openflow::cofgroupmod gm(dpt.get_version());
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
-  gm.set_type(rofl::openflow::OFPGT_ALL);
+  gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
   DEBUG_LOG(": send group-mod:" << std::endl << gm);
