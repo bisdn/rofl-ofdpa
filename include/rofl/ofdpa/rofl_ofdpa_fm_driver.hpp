@@ -111,30 +111,12 @@ public:
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
 
-  inline void enable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
+  void enable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
                                  const rofl::caddress_ll &dst,
-                                 uint32_t group_id) {
-    // TODO add checks
-    rofl::openflow::cofmatch match(dpt.get_version());
-    match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
-    match.set_eth_dst(dst);
+                                 uint32_t group_id);
 
-    rofl::openflow::cofactions write_actions(dpt.get_version());
-    write_actions.set_action_group(rofl::cindex(0)).set_group_id(group_id);
-
-    enable_policy_acl_ipv4_vlan(dpt, match, false, 0, 0,
-                                rofl::openflow::cofactions(), write_actions);
-  }
-
-  inline void disable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
-                                  const rofl::caddress_ll &dst) {
-    // TODO add checks
-    rofl::openflow::cofmatch match(dpt.get_version());
-    match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
-    match.set_eth_dst(dst);
-
-    disable_policy_acl_ipv4_vlan(dpt, match);
-  }
+  void disable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
+                                  const rofl::caddress_ll &dst);
 
   void enable_policy_acl_ipv4_vlan(
       rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,

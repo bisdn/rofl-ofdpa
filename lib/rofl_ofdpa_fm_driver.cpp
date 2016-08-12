@@ -822,6 +822,31 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
+void rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
+    rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst,
+    uint32_t group_id) {
+  // TODO add checks
+  rofl::openflow::cofmatch match(dpt.get_version());
+  match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+  match.set_eth_dst(dst);
+
+  rofl::openflow::cofactions write_actions(dpt.get_version());
+  write_actions.set_action_group(rofl::cindex(0)).set_group_id(group_id);
+
+  enable_policy_acl_ipv4_vlan(dpt, match, false, 0, 0,
+                              rofl::openflow::cofactions(), write_actions);
+}
+
+void rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite(
+    rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst) {
+  // TODO add checks
+  rofl::openflow::cofmatch match(dpt.get_version());
+  match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+  match.set_eth_dst(dst);
+
+  disable_policy_acl_ipv4_vlan(dpt, match);
+}
+
 // TODO: For future reference:
 // The contents of apply_actions and write_actions arguments should be checked,
 // rofl-common also currently does not match on VLAN_DEI and VRF.
