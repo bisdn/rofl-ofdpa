@@ -111,7 +111,7 @@ public:
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
 
-  void enable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
+  inline void enable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
                                  const rofl::caddress_ll &dst,
                                  uint32_t group_id) {
     // TODO add checks
@@ -126,7 +126,7 @@ public:
                                 rofl::openflow::cofactions(), write_actions);
   }
 
-  void disable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
+  inline void disable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
                                   const rofl::caddress_ll &dst) {
     // TODO add checks
     rofl::openflow::cofmatch match(dpt.get_version());
