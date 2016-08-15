@@ -107,6 +107,8 @@ public:
 
   void enable_policy_lldp(rofl::crofdpt &dpt);
 
+  void enable_policy_lacp(rofl::crofdpt &dpt);
+
   void enable_policy_dhcp(rofl::crofdpt &dpt);
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
