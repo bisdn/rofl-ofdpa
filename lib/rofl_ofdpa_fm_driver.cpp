@@ -122,10 +122,6 @@ rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver()
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
 
-uint32_t rofl_ofdpa_fm_driver::send_barrier(rofl::crofdpt &dpt) {
-  return dpt.send_barrier_request(rofl::cauxid(0));
-}
-
 void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(rofl::crofdpt &dpt,
                                                     uint32_t port_no,
                                                     uint16_t vid) {

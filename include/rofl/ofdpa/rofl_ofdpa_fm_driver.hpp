@@ -35,9 +35,6 @@ public:
   rofl_ofdpa_fm_driver();
   ~rofl_ofdpa_fm_driver();
 
-  /* OF utils */
-  uint32_t send_barrier(rofl::crofdpt &dpt);
-
   inline uint8_t get_group_type(uint32_t group_id) { return group_id >> 28; }
 
   inline uint16_t get_group_vid(uint32_t group_id) {
