@@ -16,6 +16,13 @@
   }                                                                            \
   struct __##name##_useless__
 
+#define GROUP_ID_FUNC_PORT(name, type_id)                                      \
+  inline uint32_t group_id_##name(uint32_t port_no) {                          \
+    /* FIXME check port_no */                                                  \
+    return type_id << 28 | (0x0fff & 0) << 16 | (0xffff & port_no);            \
+  }                                                                            \
+  struct __##name##_useless__
+
 #define GROUP_ID_FUNC_ID_VLAN(name, type_id)                                   \
   inline uint32_t group_id_##name(uint16_t id, uint16_t vid) {                 \
     return type_id << 28 | (0x0fff & vid) << 16 | id;                          \
@@ -52,7 +59,7 @@ public:
   GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
   GROUP_ID_FUNC_ID(l3_interface, 5);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
-  GROUP_ID_FUNC_PORT_VLAN(l2_unfiltered_interface, 11);
+  GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
 
   /* OF-DPA Flow-Mods */
 
