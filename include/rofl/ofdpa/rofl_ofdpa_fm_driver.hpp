@@ -38,7 +38,11 @@ public:
   inline uint8_t get_group_type(uint32_t group_id) { return group_id >> 28; }
 
   inline uint16_t get_group_vid(uint32_t group_id) {
-    return (group_id >> 16) & 0x0fff;
+    return (group_id >> 16) & 0x0fff; /* FIXME check type_id */
+  }
+
+  inline uint32_t get_group_port(uint32_t group_id) {
+    return group_id & 0xffff; /* FIXME check type_id */
   }
 
   GROUP_ID_FUNC_PORT_VLAN(l2_interface, 0);
