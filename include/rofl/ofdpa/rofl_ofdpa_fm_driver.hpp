@@ -19,7 +19,7 @@
 #define GROUP_ID_FUNC_PORT(name, type_id)                                      \
   inline uint32_t group_id_##name(uint32_t port_no) {                          \
     /* FIXME check port_no */                                                  \
-    return type_id << 28 | (0x0fff & 0) << 16 | (0xffff & port_no);            \
+    return type_id << 28 | (0xffff & port_no);            \
   }                                                                            \
   struct __##name##_useless__
 
