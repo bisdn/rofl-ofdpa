@@ -109,6 +109,8 @@ public:
 
   void enable_policy_lacp(rofl::crofdpt &dpt);
 
+  void enable_policy_specific_lacp(rofl::crofdpt &dpt, rofl::caddress_ll eth_src);
+
   void enable_policy_dhcp(rofl::crofdpt &dpt);
 
   void enable_policy_vrrp(rofl::crofdpt &dpt);
