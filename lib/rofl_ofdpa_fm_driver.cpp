@@ -788,7 +788,7 @@ void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(rofl::crofdpt &dpt, rofl:
 
   fm.set_idle_timeout(timeout_seconds);
   fm.set_hard_timeout(0);
-  fm.set_priority(5);
+  fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
