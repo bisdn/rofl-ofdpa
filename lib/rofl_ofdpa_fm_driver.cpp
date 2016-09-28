@@ -817,6 +817,7 @@ void rofl_ofdpa_fm_driver::disable_policy_lacp(rofl::crofdpt &dpt) {
   fm.set_priority(4);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
   fm.set_command(rofl::openflow::OFPFC_DELETE);
+
   fm.set_match().set_eth_type(ETH_P_SLOW);
   fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:02"));
 
