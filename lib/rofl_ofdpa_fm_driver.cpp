@@ -741,6 +741,7 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp(rofl::crofdpt &dpt) {
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
   fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:00"));
+  fm.set_match().set_eth_type(0x88cc);
 
   fm.set_instructions()
       .set_inst_apply_actions()
