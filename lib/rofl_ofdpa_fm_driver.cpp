@@ -778,13 +778,13 @@ void rofl_ofdpa_fm_driver::enable_policy_lacp(rofl::crofdpt &dpt) {
   dpt.send_flow_mod_message(rofl::cauxid(0), fm);
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(rofl::crofdpt &dpt, rofl::caddress_ll eth_src) {
+void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(rofl::crofdpt &dpt, rofl::caddress_ll eth_src, uint8_t timeout_seconds) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(timeout_seconds);
   fm.set_hard_timeout(0);
-  fm.set_priority(3);
+  fm.set_priority(5);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
