@@ -795,6 +795,8 @@ void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
 
+  fm.set_flags(rofl::openflow::OFPFF_SEND_FLOW_REM);
+
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
   fm.set_match().set_eth_type(ETH_P_SLOW);
