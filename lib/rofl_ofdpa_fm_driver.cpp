@@ -748,6 +748,7 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp(rofl::crofdpt &dpt) {
       .set_actions()
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
+  fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
 
@@ -773,6 +774,7 @@ void rofl_ofdpa_fm_driver::enable_policy_lacp(rofl::crofdpt &dpt) {
       .set_actions()
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
+  fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
 
@@ -804,6 +806,7 @@ void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
       .set_actions()
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
+  fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
 
