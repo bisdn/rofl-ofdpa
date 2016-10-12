@@ -782,7 +782,7 @@ void rofl_ofdpa_fm_driver::enable_policy_lacp(rofl::crofdpt &dpt) {
 }
 
 void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
-    rofl::crofdpt &dpt, rofl::caddress_ll eth_src, uint8_t timeout_seconds) {
+    rofl::crofdpt &dpt, rofl::caddress_ll eth_src, uint8_t timeout_seconds, uint32_t in_port) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -802,6 +802,7 @@ void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
   fm.set_match().set_eth_type(ETH_P_SLOW);
   fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:02"));
   fm.set_match().set_eth_src(eth_src);
+  fm.set_match().set_in_port(in_port);
 
   fm.set_instructions()
       .set_inst_apply_actions()

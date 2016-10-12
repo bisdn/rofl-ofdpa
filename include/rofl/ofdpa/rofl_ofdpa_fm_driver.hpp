@@ -119,7 +119,7 @@ public:
 
   void enable_policy_specific_lacp(rofl::crofdpt &dpt,
                                      rofl::caddress_ll eth_src,
-                                     uint8_t timeout_seconds);
+                                     uint8_t timeout_seconds, uint32_t in_port);
 
   void disable_policy_lacp(rofl::crofdpt &dpt);
 
