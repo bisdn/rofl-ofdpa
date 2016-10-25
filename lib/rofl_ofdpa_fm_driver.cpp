@@ -782,7 +782,8 @@ void rofl_ofdpa_fm_driver::enable_policy_lacp(rofl::crofdpt &dpt) {
 }
 
 void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
-    rofl::crofdpt &dpt, rofl::caddress_ll eth_src, uint8_t timeout_seconds, uint32_t in_port) {
+    rofl::crofdpt &dpt, const rofl::caddress_ll &eth_src,
+    uint8_t timeout_seconds, const uint32_t in_port) {
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -826,6 +827,24 @@ void rofl_ofdpa_fm_driver::disable_policy_lacp(rofl::crofdpt &dpt) {
 
   fm.set_match().set_eth_type(ETH_P_SLOW);
   fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:02"));
+
+  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+
+  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+}
+
+void rofl_ofdpa_fm_driver::disable_policy_specific_lacp(
+    rofl::crofdpt &dpt, const uint32_t in_port) {
+  rofl::openflow::cofflowmod fm(dpt.get_version());
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_priority(4);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
+  fm.set_command(rofl::openflow::OFPFC_DELETE);
+
+  fm.set_match().set_eth_type(ETH_P_SLOW);
+  fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:02"));
+  fm.set_match().set_in_port(in_port);
 
   DEBUG_LOG(": send flow-mod:" << std::endl << fm);
 

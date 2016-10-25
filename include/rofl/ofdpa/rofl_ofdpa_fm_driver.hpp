@@ -118,10 +118,13 @@ public:
   void enable_policy_lacp(rofl::crofdpt &dpt);
 
   void enable_policy_specific_lacp(rofl::crofdpt &dpt,
-                                     rofl::caddress_ll eth_src,
-                                     uint8_t timeout_seconds, uint32_t in_port);
+                                   const rofl::caddress_ll &eth_src,
+                                   uint8_t timeout_seconds,
+                                   const uint32_t in_port);
 
   void disable_policy_lacp(rofl::crofdpt &dpt);
+
+  void disable_policy_specific_lacp(rofl::crofdpt &dpt, const uint32_t in_port);
 
   void enable_policy_dhcp(rofl::crofdpt &dpt);
 
