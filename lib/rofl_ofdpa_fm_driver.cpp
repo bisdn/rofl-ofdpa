@@ -1209,6 +1209,7 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
+  fm.set_cookie_mask(-1);
 
   // TODO do this strict?
   fm.set_command(rofl::openflow::OFPFC_DELETE);
