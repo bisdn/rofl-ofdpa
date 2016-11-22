@@ -31,7 +31,7 @@
 
 #define GROUP_ID_FUNC_ID(name, type_id)                                        \
   inline uint32_t group_id_##name(uint32_t id) {                               \
-    return type_id << 28 | (0xffffff & id);                                    \
+    return type_id << 28 | (0x0fffffff & id);                                  \
   }                                                                            \
   struct __##name##_useless__
 
