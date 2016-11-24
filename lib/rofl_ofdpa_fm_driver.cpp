@@ -701,9 +701,7 @@ uint32_t rofl_ofdpa_fm_driver::disable_group_l2_flood(rofl::crofdpt &dpt,
   return group_id;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, uint16_t vid,
-                                             uint32_t group_id, bool update) {
-  assert(vid < 0x1000);
+void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, bool update) {
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
