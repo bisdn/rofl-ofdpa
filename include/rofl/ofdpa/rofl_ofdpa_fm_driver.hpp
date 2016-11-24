@@ -110,8 +110,7 @@ public:
                                         uint16_t vid);
 
   // Policy ACL
-  void enable_policy_arp(rofl::crofdpt &dpt, uint16_t vid, uint32_t group_id,
-                         bool update = false);
+  void enable_policy_arp(rofl::crofdpt &dpt, bool update = false);
 
   void enable_policy_lldp(rofl::crofdpt &dpt);
 
