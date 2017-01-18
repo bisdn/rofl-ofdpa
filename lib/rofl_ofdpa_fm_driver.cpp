@@ -912,8 +912,9 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
 
 void rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
     rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst,
-    uint32_t group_id) {
+    uint32_t group_id, uint64_t cookie) {
   // TODO add checks
+
   rofl::openflow::cofmatch match(dpt.get_version());
   match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
   match.set_eth_dst(dst);
@@ -921,26 +922,38 @@ void rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
   rofl::openflow::cofactions write_actions(dpt.get_version());
   write_actions.set_action_group(rofl::cindex(0)).set_group_id(group_id);
 
-  enable_policy_acl_ipv4_vlan(dpt, match, false, 0, 0,
+  enable_policy_acl_ipv4_vlan(dpt, match, false, 0, 0, cookie,
                               rofl::openflow::cofactions(), write_actions);
 }
 
 void rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite(
-    rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst) {
+    rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst,
+    uint64_t cookie) {
   // TODO add checks
+
   rofl::openflow::cofmatch match(dpt.get_version());
   match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
   match.set_eth_dst(dst);
 
-  disable_policy_acl_ipv4_vlan(dpt, match);
+  disable_policy_acl_ipv4_vlan(dpt, match, cookie);
 }
 
+void rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite_all(rofl::crofdpt &dpt,
+                                                          uint16_t vid,
+                                                          uint64_t cookie) {
+  // TODO add checks
+
+  rofl::openflow::cofmatch match(dpt.get_version());
+  match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
+
+  disable_policy_acl_ipv4_vlan(dpt, match, cookie);
+}
 // TODO: For future reference:
 // The contents of apply_actions and write_actions arguments should be checked,
 // rofl-common also currently does not match on VLAN_DEI and VRF.
 void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
     rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
-    bool clear_actions, uint32_t meter_id, uint32_t table_id,
+    bool clear_actions, uint32_t meter_id, uint32_t table_id, uint64_t cookie,
     const rofl::openflow::cofactions &apply_actions,
     const rofl::openflow::cofactions &write_actions) {
 
@@ -950,9 +963,8 @@ void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
-
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
-
+  fm.set_cookie(cookie);
+  fm.set_cookie_mask(-1);
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
   // Matches
@@ -1069,7 +1081,8 @@ void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
 }
 
 void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
-    rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches) {
+    rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
+    uint32_t cookie) {
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
@@ -1077,9 +1090,8 @@ void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
-
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
-
+  fm.set_cookie(cookie);
+  fm.set_cookie_mask(-1);
   fm.set_command(rofl::openflow::OFPFC_DELETE);
 
   // TODO VLAN_DEI, VRF
