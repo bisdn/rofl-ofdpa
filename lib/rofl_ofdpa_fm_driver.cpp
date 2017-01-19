@@ -9,8 +9,8 @@
 #include <rofl/common/openflow/coxmatch.h>
 #include <rofl/common/openflow/openflow_common.h>
 
-#include <linux/if_ether.h>
-#include <linux/in.h>
+#include <netinet/if_ether.h>
+#include <netinet/in.h>
 #include <rofl/ofdpa/rofl_ofdpa_fm_driver.hpp>
 
 #ifndef IPPROTO_VRRP
