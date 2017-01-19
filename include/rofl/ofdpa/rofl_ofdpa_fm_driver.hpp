@@ -131,21 +131,26 @@ public:
 
   void enable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
                                  const rofl::caddress_ll &dst,
-                                 uint32_t group_id);
+                                 uint32_t group_id, uint64_t cookie);
 
   void disable_send_to_l2_rewrite(rofl::crofdpt &dpt, uint16_t vid,
-                                  const rofl::caddress_ll &dst);
+                                  const rofl::caddress_ll &dst,
+                                  uint64_t cookie);
+
+  void disable_send_to_l2_rewrite_all(rofl::crofdpt &dpt, uint16_t vid,
+                                      uint64_t cookie);
 
   void enable_policy_acl_ipv4_vlan(
       rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
       bool clear_actions = false, uint32_t meter_id = 0, uint32_t table_id = 0,
-      const rofl::openflow::cofactions &apply_actions =
-          rofl::openflow::cofactions(),
+      uint64_t cookie = 0, const rofl::openflow::cofactions &apply_actions =
+                               rofl::openflow::cofactions(),
       const rofl::openflow::cofactions &write_actions =
           rofl::openflow::cofactions());
 
   void disable_policy_acl_ipv4_vlan(rofl::crofdpt &dpt,
-                                    const rofl::openflow::cofmatch &matches);
+                                    const rofl::openflow::cofmatch &matches,
+                                    uint32_t cookie);
 
   // VLAN Egress
   void rewrite_vlan_egress(rofl::crofdpt &dpt, uint32_t backup_port,
