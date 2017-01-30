@@ -1082,7 +1082,7 @@ void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
 
 void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
     rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
-    uint32_t cookie) {
+    uint64_t cookie) {
 
   rofl::openflow::cofflowmod fm(dpt.get_version());
 
