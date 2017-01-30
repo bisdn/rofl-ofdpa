@@ -150,7 +150,7 @@ public:
 
   void disable_policy_acl_ipv4_vlan(rofl::crofdpt &dpt,
                                     const rofl::openflow::cofmatch &matches,
-                                    uint32_t cookie);
+                                    uint64_t cookie);
 
   // VLAN Egress
   void rewrite_vlan_egress(rofl::crofdpt &dpt, uint32_t backup_port,
