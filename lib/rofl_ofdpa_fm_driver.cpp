@@ -964,7 +964,6 @@ void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(cookie);
-  fm.set_cookie_mask(-1);
   fm.set_command(rofl::openflow::OFPFC_ADD);
 
   // Matches
