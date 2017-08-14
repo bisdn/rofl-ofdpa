@@ -4,10 +4,7 @@
 
 #include "ofdpa_datatypes.h"
 
-#include <rofl/common/crofdpt.h>
-#include <rofl/common/openflow/cofflowmod.h>
 #include <rofl/common/openflow/coxmatch.h>
-#include <rofl/common/openflow/openflow_common.h>
 
 #include <netinet/if_ether.h>
 #include <netinet/in.h>
@@ -122,14 +119,12 @@ rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver()
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
 
-void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(rofl::crofdpt &dpt,
-                                                    uint32_t port_no,
-                                                    uint16_t vid) {
-  enable_port_vid_ingress(dpt, port_no, vid);
-
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
+                                               uint32_t port_no, uint16_t vid) {
   // check params
   assert(vid < 0x1000);
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
@@ -152,18 +147,17 @@ void rofl_ofdpa_fm_driver::enable_port_pvid_ingress(rofl::crofdpt &dpt,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(rofl::crofdpt &dpt,
-                                                     uint32_t port_no,
-                                                     uint16_t vid) {
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_port_pvid_ingress(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid) {
 
   // check params
   assert(vid < 0x1000);
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
@@ -174,18 +168,16 @@ void rofl_ofdpa_fm_driver::disable_port_pvid_ingress(rofl::crofdpt &dpt,
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(0);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
-
-  disable_port_vid_ingress(dpt, port_no, vid);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_port_vid_ingress(rofl::crofdpt &dpt,
-                                                   uint32_t port_no,
-                                                   uint16_t vid) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
+                                              uint32_t port_no, uint16_t vid) {
   assert(vid < 0x1000);
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   // TODO check what happens if this is added two times?
   fm.set_command(rofl::openflow::OFPFC_ADD);
@@ -202,16 +194,16 @@ void rofl_ofdpa_fm_driver::enable_port_vid_ingress(rofl::crofdpt &dpt,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_port_vid_ingress(rofl::crofdpt &dpt,
-                                                    uint32_t port_no,
-                                                    uint16_t vid) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
+                                               uint32_t port_no, uint16_t vid) {
   assert(vid < 0x1000);
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
@@ -222,14 +214,15 @@ void rofl_ofdpa_fm_driver::disable_port_vid_ingress(rofl::crofdpt &dpt,
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | vid);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(rofl::crofdpt &dpt,
-                                                     uint32_t port_no) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_port_vid_allow_all(uint8_t ofp_version,
+                                                uint32_t port_no) {
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
@@ -246,14 +239,15 @@ void rofl_ofdpa_fm_driver::enable_port_vid_allow_all(rofl::crofdpt &dpt,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(rofl::crofdpt &dpt,
-                                                      uint32_t port_no) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::disable_port_vid_allow_all(uint8_t ofp_version,
+                                                 uint32_t port_no) {
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
@@ -265,18 +259,17 @@ void rofl_ofdpa_fm_driver::disable_port_vid_allow_all(rofl::crofdpt &dpt,
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT,
                               rofl::openflow::OFPVID_PRESENT);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt,
-                                                        uint32_t in_port,
-                                                        rofl::caddress_ll &dmac,
-                                                        uint16_t vid) {
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
+    uint8_t ofp_version, uint32_t in_port, rofl::caddress_ll &dmac,
+    uint16_t vid) {
   assert(vid < 0x1000);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
@@ -295,17 +288,17 @@ void rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(rofl::crofdpt &dpt,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
-    rofl::crofdpt &dpt, uint32_t in_port, rofl::caddress_ll &dmac,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
+    uint8_t ofp_version, uint32_t in_port, rofl::caddress_ll &dmac,
     uint16_t vid) {
   assert(vid < 0x1000);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
@@ -321,18 +314,17 @@ void rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
   fm.set_match().set_eth_dst(dmac);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(rofl::crofdpt &dpt,
-                                                    rofl::caddress_in4 &dst,
-                                                    uint32_t group,
-                                                    bool send_to_ctl) {
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
+    uint8_t ofp_version, rofl::caddress_in4 &dst, uint32_t group,
+    bool send_to_ctl) {
   assert(group != 0 || send_to_ctl != false);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -371,16 +363,15 @@ void rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(rofl::crofdpt &dpt,
         .set_action_dec_nw_ttl(index);
   }
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(rofl::crofdpt &dpt,
-                                                     rofl::caddress_in4 &dst,
-                                                     uint32_t group) {
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(
+    uint8_t ofp_version, rofl::caddress_in4 &dst, uint32_t group) {
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -396,15 +387,15 @@ void rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(rofl::crofdpt &dpt,
   fm.set_match().set_ipv4_dst(dst);
   // TODO VRF
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
-    rofl::crofdpt &dpt, const rofl::caddress_in4 &dst,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
+    uint8_t ofp_version, const rofl::caddress_in4 &dst,
     const rofl::caddress_in4 &mask, uint32_t group) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -432,15 +423,15 @@ void rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
       .set_actions()
       .set_action_dec_nw_ttl(rofl::cindex(1));
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
-    rofl::crofdpt &dpt, const rofl::caddress_in4 &dst,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
+    uint8_t ofp_version, const rofl::caddress_in4 &dst,
     const rofl::caddress_in4 &mask, uint32_t group) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -455,18 +446,16 @@ void rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
   fm.set_match().set_ipv4_dst(dst, mask);
   // TODO VRF
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
-                                                         uint32_t port_no,
-                                                         uint16_t vid,
-                                                         bool untagged) {
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_interface(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid, bool untagged) {
   assert(vid < 0x1000);
   uint32_t group_id = group_id_l2_interface(port_no, vid);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
@@ -489,36 +478,31 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_interface(rofl::crofdpt &dpt,
       .add_action_output(i++)
       .set_port_no(port_no);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_group_l2_interface(rofl::crofdpt &dpt,
-                                                          uint32_t port_no,
-                                                          uint16_t vid) {
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_interface(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid) {
   assert(vid < 0x1000);
   uint32_t group_id = group_id_l2_interface(port_no, vid);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t
-rofl_ofdpa_fm_driver::enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
+rofl::openflow::cofgroupmod
+rofl_ofdpa_fm_driver::enable_group_l2_unfiltered_interface(uint8_t ofp_version,
                                                            uint32_t port_no) {
   uint32_t group_id = group_id_l2_unfiltered_interface(port_no);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
@@ -538,39 +522,35 @@ rofl_ofdpa_fm_driver::enable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
       .add_action_output(i++)
       .set_port_no(port_no);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t
-rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(rofl::crofdpt &dpt,
+rofl::openflow::cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l2_unfiltered_interface(uint8_t ofp_version,
                                                             uint32_t port_no) {
   uint32_t group_id = group_id_l2_unfiltered_interface(port_no);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
-    rofl::crofdpt &dpt, uint32_t id, uint32_t port_group_id, uint16_t vid,
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
+    uint8_t ofp_version, uint32_t id, uint32_t port_group_id, uint16_t vid,
     const rofl::cmacaddr src_mac, const rofl::cmacaddr dst_mac) {
 
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_rewrite(id);
 
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
@@ -599,38 +579,35 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_rewrite(
 
   action_set.set_action_group(rofl::cindex(3)).set_group_id(port_group_id);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_group_l2_rewrite(rofl::crofdpt &dpt,
-                                                        uint32_t id) {
+rofl::openflow::cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l2_rewrite(uint8_t ofp_version,
+                                               uint32_t id) {
   uint32_t group_id = group_id_l2_rewrite(id);
 
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
-    rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
+    uint8_t ofp_version, uint16_t vid, uint16_t id,
     const std::set<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_multicast(id, vid);
 
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
   gm.set_type(rofl::openflow::OFPGT_ALL);
@@ -646,21 +623,19 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_multicast(
         .set_group_id(i);
   }
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
-    rofl::crofdpt &dpt, uint16_t vid, uint16_t id,
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_flood(
+    uint8_t ofp_version, uint16_t vid, uint16_t id,
     const std::set<uint32_t> &l2_interfaces) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_flood(id, vid);
 
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
   gm.set_type(rofl::openflow::OFPGT_ALL);
@@ -676,34 +651,32 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l2_flood(
         .set_group_id(i);
   }
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_group_l2_flood(rofl::crofdpt &dpt,
-                                                      uint16_t vid,
-                                                      uint16_t id) {
+rofl::openflow::cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l2_flood(uint8_t ofp_version, uint16_t vid,
+                                             uint16_t id) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_flood(id, vid);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_ALL);
   gm.set_group_id(group_id);
 
-  DEBUG_LOG(": send group-mod:" << std::endl << gm);
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
 
-  return group_id;
+  return gm;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, bool update) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version, bool update) {
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(0);
@@ -722,13 +695,14 @@ void rofl_ofdpa_fm_driver::enable_policy_arp(rofl::crofdpt &dpt, bool update) {
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_lldp(rofl::crofdpt &dpt) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_policy_lldp(uint8_t ofp_version) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(0);
@@ -748,13 +722,14 @@ void rofl_ofdpa_fm_driver::enable_policy_lldp(rofl::crofdpt &dpt) {
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
   fm.set_instructions().set_inst_clear_actions();
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_lacp(rofl::crofdpt &dpt) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_policy_lacp(uint8_t ofp_version) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(0);
@@ -774,15 +749,15 @@ void rofl_ofdpa_fm_driver::enable_policy_lacp(rofl::crofdpt &dpt) {
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
   fm.set_instructions().set_inst_clear_actions();
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
-    rofl::crofdpt &dpt, const rofl::caddress_ll &eth_src,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
+    uint8_t ofp_version, const rofl::caddress_ll &eth_src,
     const uint16_t timeout_seconds, const uint32_t in_port) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(timeout_seconds);
@@ -806,13 +781,14 @@ void rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
   fm.set_instructions().set_inst_clear_actions();
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_policy_lacp(rofl::crofdpt &dpt) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::disable_policy_lacp(uint8_t ofp_version) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_priority(4);
@@ -822,14 +798,15 @@ void rofl_ofdpa_fm_driver::disable_policy_lacp(rofl::crofdpt &dpt) {
   fm.set_match().set_eth_type(ETH_P_SLOW);
   fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:02"));
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_policy_specific_lacp(
-    rofl::crofdpt &dpt, const uint32_t in_port) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::disable_policy_specific_lacp(uint8_t ofp_version,
+                                                   const uint32_t in_port) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_priority(4);
@@ -840,15 +817,17 @@ void rofl_ofdpa_fm_driver::disable_policy_specific_lacp(
   fm.set_match().set_eth_dst(rofl::cmacaddr("01:80:c2:00:00:02"));
   fm.set_match().set_in_port(in_port);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_dhcp(rofl::crofdpt &dpt) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
+                                         int16_t dst_port) {
   using rofl::caddress_in4;
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(0);
@@ -862,8 +841,8 @@ void rofl_ofdpa_fm_driver::enable_policy_dhcp(rofl::crofdpt &dpt) {
 
   fm.set_match().set_ipv4_dst(caddress_in4(std::string("255.255.255.255")));
   fm.set_match().set_ip_proto(IPPROTO_UDP);
-  fm.set_match().set_udp_src(68); // bootpc
-  fm.set_match().set_udp_dst(67); // bootps
+  fm.set_match().set_udp_src(src_port); // bootpc
+  fm.set_match().set_udp_dst(dst_port); // bootps
 
   fm.set_instructions()
       .set_inst_apply_actions()
@@ -871,20 +850,14 @@ void rofl_ofdpa_fm_driver::enable_policy_dhcp(rofl::crofdpt &dpt) {
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
-
-  fm.set_match().set_udp_src(67); // bootps
-  fm.set_match().set_udp_dst(68); // bootpc
-
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
-
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(0);
@@ -905,59 +878,59 @@ void rofl_ofdpa_fm_driver::enable_policy_vrrp(rofl::crofdpt &dpt) {
       .add_action_output(rofl::cindex(0))
       .set_port_no(rofl::openflow::OFPP_CONTROLLER);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
-    rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
+    uint8_t ofp_version, uint16_t vid, const rofl::caddress_ll &dst,
     uint32_t group_id, uint64_t cookie) {
   // TODO add checks
 
-  rofl::openflow::cofmatch match(dpt.get_version());
+  rofl::openflow::cofmatch match(ofp_version);
   match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
   match.set_eth_dst(dst);
 
-  rofl::openflow::cofactions write_actions(dpt.get_version());
+  rofl::openflow::cofactions write_actions(ofp_version);
   write_actions.set_action_group(rofl::cindex(0)).set_group_id(group_id);
 
-  enable_policy_acl_ipv4_vlan(dpt, match, false, 0, 0, cookie,
-                              rofl::openflow::cofactions(), write_actions);
+  return enable_policy_acl_ipv4_vlan(ofp_version, match, false, 0, 0, cookie,
+                                     rofl::openflow::cofactions(),
+                                     write_actions);
 }
 
-void rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite(
-    rofl::crofdpt &dpt, uint16_t vid, const rofl::caddress_ll &dst,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite(
+    uint8_t ofp_version, uint16_t vid, const rofl::caddress_ll &dst,
     uint64_t cookie) {
   // TODO add checks
 
-  rofl::openflow::cofmatch match(dpt.get_version());
+  rofl::openflow::cofmatch match(ofp_version);
   match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
   match.set_eth_dst(dst);
 
-  disable_policy_acl_ipv4_vlan(dpt, match, cookie);
+  return disable_policy_acl_ipv4_vlan(ofp_version, match, cookie);
 }
 
-void rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite_all(rofl::crofdpt &dpt,
-                                                          uint16_t vid,
-                                                          uint64_t cookie) {
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite_all(
+    uint8_t ofp_version, uint16_t vid, uint64_t cookie) {
   // TODO add checks
 
-  rofl::openflow::cofmatch match(dpt.get_version());
+  rofl::openflow::cofmatch match(ofp_version);
   match.set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
-  disable_policy_acl_ipv4_vlan(dpt, match, cookie);
+  return disable_policy_acl_ipv4_vlan(ofp_version, match, cookie);
 }
 // TODO: For future reference:
 // The contents of apply_actions and write_actions arguments should be checked,
 // rofl-common also currently does not match on VLAN_DEI and VRF.
-void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
-    rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
+    uint8_t ofp_version, const rofl::openflow::cofmatch &matches,
     bool clear_actions, uint32_t meter_id, uint32_t table_id, uint64_t cookie,
     const rofl::openflow::cofactions &apply_actions,
     const rofl::openflow::cofactions &write_actions) {
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
   fm.set_idle_timeout(0);
@@ -1074,16 +1047,16 @@ void rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
         write_actions;
   }
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
-    rofl::crofdpt &dpt, const rofl::openflow::cofmatch &matches,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
+    uint8_t ofp_version, const rofl::openflow::cofmatch &matches,
     uint64_t cookie) {
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
   fm.set_idle_timeout(0);
@@ -1170,17 +1143,17 @@ void rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
                                matches.get_arp_spa_mask());
   }
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
-                                                 uint16_t vid,
-                                                 uint32_t group_id) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
+                                            uint32_t group_id) {
   assert(vid < 0x1000);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_idle_timeout(0);
@@ -1200,16 +1173,17 @@ void rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(rofl::crofdpt &dpt,
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
-                                                    uint16_t vid) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(uint8_t ofp_version,
+                                               uint16_t vid) {
   assert(vid < 0x1000);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_priority(2);
@@ -1221,17 +1195,17 @@ void rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(rofl::crofdpt &dpt,
 
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
-    rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid,
     const rofl::cmacaddr &mac, bool permanent, bool filtered) {
   assert(vid < 0x1000);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_idle_timeout(permanent ? 0 : default_idle_timeout);
@@ -1264,17 +1238,17 @@ void rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
-    rofl::crofdpt &dpt, uint32_t port_no, uint16_t vid,
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid,
     const rofl::cmacaddr &mac) {
   assert(vid < 0x1000);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_priority(2);
@@ -1288,18 +1262,19 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | rofl::openflow::OFPVID_PRESENT);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt,
-                                                            uint32_t port_no,
-                                                            uint16_t vid) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(uint8_t ofp_version,
+                                                       uint32_t port_no,
+                                                       uint16_t vid) {
   using rofl::openflow::OFPVID_PRESENT;
   assert(vid < 0x1000 || (uint16_t)-1 == vid);
 
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_priority(2);
@@ -1313,16 +1288,16 @@ void rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(rofl::crofdpt &dpt,
     fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   }
 
-  DEBUG_LOG(": send flow-mod: " << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::rewrite_vlan_egress(rofl::crofdpt &dpt,
-                                               uint32_t backup_port,
-                                               uint16_t old_vid,
-                                               uint16_t new_vid) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint8_t ofp_version,
+                                          uint32_t backup_port,
+                                          uint16_t old_vid, uint16_t new_vid) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
 
   fm.set_idle_timeout(0);
@@ -1352,16 +1327,15 @@ void rofl_ofdpa_fm_driver::rewrite_vlan_egress(rofl::crofdpt &dpt,
       .set_oxm(rofl::openflow::coxmatch_ofb_vlan_vid(
           rofl::openflow::OFPVID_PRESENT | new_vid));
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(rofl::crofdpt &dpt,
-                                                        uint32_t backup_port,
-                                                        uint16_t old_vid,
-                                                        uint16_t new_vid) {
-  rofl::openflow::cofflowmod fm(dpt.get_version());
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
+    uint8_t ofp_version, uint32_t backup_port, uint16_t old_vid,
+    uint16_t new_vid) {
+  rofl::openflow::cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
 
   fm.set_idle_timeout(0);
@@ -1384,17 +1358,17 @@ void rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(rofl::crofdpt &dpt,
 
   fm.set_match().set_vlan_vid(rofl::openflow::OFPVID_PRESENT | old_vid);
 
-  DEBUG_LOG(": send flow-mod:" << std::endl << fm);
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
-  dpt.send_flow_mod_message(rofl::cauxid(0), fm);
+  return fm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l3_interface(
-    rofl::crofdpt &dpt, uint32_t id, rofl::caddress_ll &src_mac,
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_interface(
+    uint8_t ofp_version, uint32_t id, rofl::caddress_ll &src_mac,
     uint32_t l2_interface, const rofl::cmacaddr &dst_mac) {
 
   uint32_t group_id = group_id_l3_interface(id);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   assert(5 == get_group_type(l2_interface) &&
          "wrong l2 group in enable_group_l3_interface");
@@ -1428,29 +1402,28 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l3_interface(
   gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
       l2_interface);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_group_l3_interface(rofl::crofdpt &dpt,
-                                                          uint32_t id) {
+rofl::openflow::cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
+                                                 uint32_t id) {
 
   uint32_t group_id = group_id_l3_interface(id);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::enable_group_l3_unicast(
-    rofl::crofdpt &dpt, uint32_t id, rofl::caddress_ll &src_mac,
+rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
+    uint8_t ofp_version, uint32_t id, rofl::caddress_ll &src_mac,
     const rofl::cmacaddr &dst_mac, uint32_t l2_interface) {
   uint32_t group_id = group_id_l3_unicast(id);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   assert(2 == get_group_type(l2_interface) &&
          "wrong l2 interface in enable_group_l3_unicast");
@@ -1482,21 +1455,20 @@ uint32_t rofl_ofdpa_fm_driver::enable_group_l3_unicast(
   gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
       l2_interface);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-  return group_id;
+  return gm;
 }
 
-uint32_t rofl_ofdpa_fm_driver::disable_group_l3_unicast(rofl::crofdpt &dpt,
-                                                        uint32_t id) {
+rofl::openflow::cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l3_unicast(uint8_t ofp_version,
+                                               uint32_t id) {
   uint32_t group_id = group_id_l3_unicast(id);
-  rofl::openflow::cofgroupmod gm(dpt.get_version());
+  rofl::openflow::cofgroupmod gm(ofp_version);
 
   gm.set_command(rofl::openflow::OFPGC_DELETE);
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
-  dpt.send_group_mod_message(rofl::cauxid(0), gm);
-  return group_id;
+  return gm;
 }
 
 } /* namespace rofl */
