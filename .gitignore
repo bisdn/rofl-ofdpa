@@ -28,4 +28,6 @@ Makefile
 /rofl_ofdpa.pc
 /tags
 
+!.clang-format
+!.travis.yml
 !.gitignore

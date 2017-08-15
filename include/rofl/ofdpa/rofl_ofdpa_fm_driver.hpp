@@ -139,8 +139,9 @@ public:
   rofl::openflow::cofflowmod
   disable_policy_specific_lacp(uint8_t ofp_version, const uint32_t in_port);
 
-  rofl::openflow::cofflowmod
-  enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port, int16_t dst_port);
+  rofl::openflow::cofflowmod enable_policy_broadcast_udp(uint8_t ofp_version,
+                                                         int16_t src_port,
+                                                         int16_t dst_port);
 
   rofl::openflow::cofflowmod enable_policy_vrrp(uint8_t ofp_version);
 
@@ -157,13 +158,15 @@ public:
                                                             uint16_t vid,
                                                             uint64_t cookie);
 
-  rofl::openflow::cofflowmod enable_policy_acl_ipv4_vlan(
-      uint8_t ofp_version, const rofl::openflow::cofmatch &matches,
-      bool clear_actions = false, uint32_t meter_id = 0, uint32_t table_id = 0,
-      uint64_t cookie = 0, const rofl::openflow::cofactions &apply_actions =
-                               rofl::openflow::cofactions(),
-      const rofl::openflow::cofactions &write_actions =
-          rofl::openflow::cofactions());
+  rofl::openflow::cofflowmod
+  enable_policy_acl_ipv4_vlan(uint8_t ofp_version,
+                              const rofl::openflow::cofmatch &matches,
+                              bool clear_actions = false, uint32_t meter_id = 0,
+                              uint32_t table_id = 0, uint64_t cookie = 0,
+                              const rofl::openflow::cofactions &apply_actions =
+                                  rofl::openflow::cofactions(),
+                              const rofl::openflow::cofactions &write_actions =
+                                  rofl::openflow::cofactions());
 
   rofl::openflow::cofflowmod
   disable_policy_acl_ipv4_vlan(uint8_t ofp_version,

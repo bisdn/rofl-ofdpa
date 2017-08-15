@@ -822,9 +822,8 @@ rofl_ofdpa_fm_driver::disable_policy_specific_lacp(uint8_t ofp_version,
   return fm;
 }
 
-rofl::openflow::cofflowmod
-rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
-                                         int16_t dst_port) {
+rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(
+    uint8_t ofp_version, int16_t src_port, int16_t dst_port) {
   using rofl::caddress_in4;
 
   rofl::openflow::cofflowmod fm(ofp_version);

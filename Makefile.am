@@ -19,5 +19,8 @@ EXTRA_DIST = \
 	autogen.sh \
 	VERSION
 
+format:
+	find $(top_srcdir) -regex '.*\.\(hh?\|cc?\|hpp\|cpp\)$$' | xargs clang-format -i -style=file
+
 maintainer-clean-local:
 	rm -rf $(top_srcdir)/build-aux
