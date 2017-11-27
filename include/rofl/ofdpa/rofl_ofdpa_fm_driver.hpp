@@ -84,19 +84,18 @@ public:
   // Termination MAC
   rofl::openflow::cofflowmod
   enable_tmac_ipv4_unicast_mac(uint8_t ofp_version, uint32_t in_port,
-                               rofl::caddress_ll &dmac, uint16_t vid);
+                               uint16_t vid, const rofl::caddress_ll &dmac);
   rofl::openflow::cofflowmod
   disable_tmac_ipv4_unicast_mac(uint8_t ofp_version, uint32_t in_port,
-                                rofl::caddress_ll &dmac, uint16_t vid);
+                                uint16_t vid, const rofl::caddress_ll &dmac);
 
   // Unicast Routing
-  rofl::openflow::cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
-                                                      rofl::caddress_in4 &dst,
-                                                      uint32_t group,
-                                                      bool send_to_ctl = false);
-  rofl::openflow::cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
-                                                       rofl::caddress_in4 &dst,
-                                                       uint32_t group);
+  rofl::openflow::cofflowmod
+  enable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst,
+                           uint32_t group, bool send_to_ctl = false);
+  rofl::openflow::cofflowmod
+  disable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst,
+                            uint32_t group);
 
   rofl::openflow::cofflowmod
   enable_ipv4_unicast_lpm(uint8_t ofp_version, const rofl::caddress_in4 &dst,
@@ -218,7 +217,7 @@ public:
                                                        uint32_t id);
 
   rofl::openflow::cofgroupmod enable_group_l3_interface(
-      uint8_t ofp_version, uint32_t id, rofl::caddress_ll &src_mac,
+      uint8_t ofp_version, uint32_t id, const rofl::caddress_ll &src_mac,
       uint32_t l2_interface,
       const rofl::cmacaddr &dst_mac = rofl::cmacaddr{"00:00:00:00:00:00"});
 
@@ -227,7 +226,7 @@ public:
 
   rofl::openflow::cofgroupmod
   enable_group_l3_unicast(uint8_t ofp_version, uint32_t id,
-                          rofl::caddress_ll &src_mac,
+                          const rofl::caddress_ll &src_mac,
                           const rofl::cmacaddr &dst_mac, uint32_t l2_interface);
 
   rofl::openflow::cofgroupmod disable_group_l3_unicast(uint8_t ofp_version,
