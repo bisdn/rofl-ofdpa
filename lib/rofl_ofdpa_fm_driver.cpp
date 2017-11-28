@@ -265,8 +265,8 @@ rofl_ofdpa_fm_driver::disable_port_vid_allow_all(uint8_t ofp_version,
 }
 
 rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
-    uint8_t ofp_version, uint32_t in_port, rofl::caddress_ll &dmac,
-    uint16_t vid) {
+    uint8_t ofp_version, uint32_t in_port, uint16_t vid,
+    const rofl::caddress_ll &dmac) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(ofp_version);
@@ -294,8 +294,8 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
 }
 
 rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
-    uint8_t ofp_version, uint32_t in_port, rofl::caddress_ll &dmac,
-    uint16_t vid) {
+    uint8_t ofp_version, uint32_t in_port, uint16_t vid,
+    const rofl::caddress_ll &dmac) {
   assert(vid < 0x1000);
 
   rofl::openflow::cofflowmod fm(ofp_version);
@@ -320,7 +320,7 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
 }
 
 rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
-    uint8_t ofp_version, rofl::caddress_in4 &dst, uint32_t group,
+    uint8_t ofp_version, const rofl::caddress_in4 &dst, uint32_t group,
     bool send_to_ctl) {
   assert(group != 0 || send_to_ctl != false);
 
@@ -369,7 +369,7 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
 }
 
 rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(
-    uint8_t ofp_version, rofl::caddress_in4 &dst, uint32_t group) {
+    uint8_t ofp_version, const rofl::caddress_in4 &dst, uint32_t group) {
 
   rofl::openflow::cofflowmod fm(ofp_version);
 
@@ -920,6 +920,7 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite_all(
 
   return disable_policy_acl_ipv4_vlan(ofp_version, match, cookie);
 }
+
 // TODO: For future reference:
 // The contents of apply_actions and write_actions arguments should be checked,
 // rofl-common also currently does not match on VLAN_DEI and VRF.
@@ -1363,7 +1364,7 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
 }
 
 rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_interface(
-    uint8_t ofp_version, uint32_t id, rofl::caddress_ll &src_mac,
+    uint8_t ofp_version, uint32_t id, const rofl::caddress_ll &src_mac,
     uint32_t l2_interface, const rofl::cmacaddr &dst_mac) {
 
   uint32_t group_id = group_id_l3_interface(id);
@@ -1380,15 +1381,15 @@ rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_interface(
   gm.set_buckets()
       .set_bucket(0)
       .set_actions()
-      .add_action_set_dl_src(i++)
-      .set_dl_src(src_mac);
+      .add_action_set_field(i++)
+      .set_oxm(rofl::openflow::coxmatch_ofb_eth_src(src_mac));
 
   if (dst_mac != rofl::caddress_ll("00:00:00:00:00:00")) {
     gm.set_buckets()
         .set_bucket(0)
         .set_actions()
-        .add_action_set_dl_dst(i++)
-        .set_dl_dst(dst_mac);
+        .add_action_set_field(i++)
+        .set_oxm(rofl::openflow::coxmatch_ofb_eth_dst(dst_mac));
   }
 
   gm.set_buckets()
@@ -1401,6 +1402,7 @@ rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_interface(
   gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
       l2_interface);
 
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
   return gm;
 }
 
@@ -1415,16 +1417,17 @@ rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
   return gm;
 }
 
 rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
-    uint8_t ofp_version, uint32_t id, rofl::caddress_ll &src_mac,
+    uint8_t ofp_version, uint32_t id, const rofl::caddress_ll &src_mac,
     const rofl::cmacaddr &dst_mac, uint32_t l2_interface) {
   uint32_t group_id = group_id_l3_unicast(id);
   rofl::openflow::cofgroupmod gm(ofp_version);
 
-  assert(2 == get_group_type(l2_interface) &&
+  assert(0 == get_group_type(l2_interface) &&
          "wrong l2 interface in enable_group_l3_unicast");
 
   gm.set_command(rofl::openflow::OFPGC_ADD);
@@ -1435,14 +1438,14 @@ rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
   gm.set_buckets()
       .set_bucket(0)
       .set_actions()
-      .add_action_set_dl_src(i++)
-      .set_dl_src(src_mac);
+      .add_action_set_field(i++)
+      .set_oxm(rofl::openflow::coxmatch_ofb_eth_src(src_mac));
 
   gm.set_buckets()
       .set_bucket(0)
       .set_actions()
-      .add_action_set_dl_dst(i++)
-      .set_dl_dst(dst_mac);
+      .add_action_set_field(i++)
+      .set_oxm(rofl::openflow::coxmatch_ofb_eth_dst(dst_mac));
 
   gm.set_buckets()
       .set_bucket(0)
@@ -1454,6 +1457,7 @@ rofl::openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
   gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
       l2_interface);
 
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
   return gm;
 }
 
@@ -1467,6 +1471,7 @@ rofl_ofdpa_fm_driver::disable_group_l3_unicast(uint8_t ofp_version,
   gm.set_type(rofl::openflow::OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
   return gm;
 }
 
