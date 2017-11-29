@@ -320,11 +320,10 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
 }
 
 rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
-    uint8_t ofp_version, const rofl::caddress_in4 &dst, uint32_t group,
-    bool send_to_ctl) {
-  assert(group != 0 || send_to_ctl != false);
-
+    uint8_t ofp_version, const rofl::caddress_in4 &dst, uint32_t group) {
   rofl::openflow::cofflowmod fm(ofp_version);
+
+  rofl::cindex index(0);
 
   fm.set_command(rofl::openflow::OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -336,21 +335,12 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_HOST) |
       0);
 
+  // TODO match VRF
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst);
-  // TODO VRF
-
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  rofl::cindex index(0);
-  if (send_to_ctl) {
-    fm.set_instructions()
-        .set_inst_apply_actions()
-        .set_actions()
-        .add_action_output(index++)
-        .set_port_no(rofl::openflow::OFPP_CONTROLLER);
-  }
   if (group) {
     fm.set_instructions()
         .set_inst_write_actions()
@@ -361,6 +351,13 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
         .set_inst_write_actions()
         .set_actions()
         .set_action_dec_nw_ttl(index);
+  } else {
+    // send to controller
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(index)
+        .set_port_no(rofl::openflow::OFPP_CONTROLLER);
   }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
