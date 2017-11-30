@@ -92,7 +92,7 @@ public:
   // Unicast Routing
   rofl::openflow::cofflowmod
   enable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst,
-                           uint32_t group, bool send_to_ctl = false);
+                           uint32_t group);
   rofl::openflow::cofflowmod
   disable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst,
                             uint32_t group);
