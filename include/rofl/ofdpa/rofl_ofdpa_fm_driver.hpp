@@ -94,15 +94,14 @@ public:
   enable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst,
                            uint32_t group);
   rofl::openflow::cofflowmod
-  disable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst,
-                            uint32_t group);
+  disable_ipv4_unicast_host(uint8_t ofp_version, const rofl::caddress_in4 &dst);
 
   rofl::openflow::cofflowmod
   enable_ipv4_unicast_lpm(uint8_t ofp_version, const rofl::caddress_in4 &dst,
                           const rofl::caddress_in4 &mask, uint32_t group);
   rofl::openflow::cofflowmod
   disable_ipv4_unicast_lpm(uint8_t ofp_version, const rofl::caddress_in4 &dst,
-                           const rofl::caddress_in4 &mask, uint32_t group);
+                           const rofl::caddress_in4 &mask);
   // Bridging
   rofl::openflow::cofflowmod
   add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid, uint32_t group_id);
