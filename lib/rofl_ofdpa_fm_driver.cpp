@@ -365,8 +365,9 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
   return fm;
 }
 
-rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(
-    uint8_t ofp_version, const rofl::caddress_in4 &dst, uint32_t group) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
+                                                const rofl::caddress_in4 &dst) {
 
   rofl::openflow::cofflowmod fm(ofp_version);
 
@@ -425,9 +426,10 @@ rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
   return fm;
 }
 
-rofl::openflow::cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
-    uint8_t ofp_version, const rofl::caddress_in4 &dst,
-    const rofl::caddress_in4 &mask, uint32_t group) {
+rofl::openflow::cofflowmod
+rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(uint8_t ofp_version,
+                                               const rofl::caddress_in4 &dst,
+                                               const rofl::caddress_in4 &mask) {
   rofl::openflow::cofflowmod fm(ofp_version);
 
   fm.set_command(rofl::openflow::OFPFC_DELETE);
