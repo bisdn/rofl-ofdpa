@@ -204,7 +204,8 @@ public:
 
   openflow::cofgroupmod
   enable_group_l2_flood(uint8_t ofp_version, uint16_t vid, uint16_t id,
-                        const std::set<uint32_t> &l2_interfaces);
+                        const std::set<uint32_t> &l2_interfaces,
+                        bool modify = false);
   openflow::cofgroupmod disable_group_l2_flood(uint8_t ofp_version,
                                                uint16_t vid, uint16_t id);
 
