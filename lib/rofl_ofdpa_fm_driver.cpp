@@ -624,14 +624,14 @@ openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
 
 openflow::cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_flood(
     uint8_t ofp_version, uint16_t vid, uint16_t id,
-    const std::set<uint32_t> &l2_interfaces) {
+    const std::set<uint32_t> &l2_interfaces, bool modify) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_flood(id, vid);
 
   openflow::cofgroupmod gm(ofp_version);
-
-  gm.set_command(openflow::OFPGC_ADD);
+  uint16_t command = (modify) ? openflow::OFPGC_MODIFY : openflow::OFPGC_ADD;
+  gm.set_command(command);
   gm.set_type(openflow::OFPGT_ALL);
   gm.set_group_id(group_id);
 
