@@ -18,11 +18,11 @@ AC_ARG_WITH(
     [ROFL_LDFLAGS+=" -L$withval"],
     [rofl_common_found="no"]
 )
-CPPFLAGS="$ROFL_INCLUDES $CPPFLAGS "
-LDFLAGS="$ROFL_LDFLAGS $LDFLAGS "
 
 if test "$rolf_common_found" = "yes"; then
     AC_MSG_RESULT(done)
+    CPPFLAGS="$ROFL_INCLUDES $CPPFLAGS "
+    LDFLAGS="$ROFL_LDFLAGS $LDFLAGS "
 else
     AC_MSG_RESULT([not found, checking via pkg-config])
     PKG_CHECK_MODULES([ROFL], rofl_common >= 0.11.0, [],
