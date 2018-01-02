@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -x $(which git) -a -d .git ]
+if [ -x $(which git) -a -e .git ]
 then
 	VERSION=$(git describe  --dirty --always --tags)
 	echo ${VERSION} > VERSION
