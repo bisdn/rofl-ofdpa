@@ -19,7 +19,7 @@ AC_ARG_WITH(
     [rofl_common_found="no"]
 )
 
-if test "$rolf_common_found" = "yes"; then
+if test "$rofl_common_found" = "yes"; then
     AC_MSG_RESULT(done)
     CPPFLAGS="$ROFL_INCLUDES $CPPFLAGS "
     LDFLAGS="$ROFL_LDFLAGS $LDFLAGS "
