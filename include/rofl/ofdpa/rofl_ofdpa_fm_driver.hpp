@@ -37,6 +37,7 @@
   struct __##name##_useless__
 
 namespace rofl {
+namespace openflow {
 
 class rofl_ofdpa_fm_driver final {
 public:
@@ -65,177 +66,153 @@ public:
   /* OF-DPA Flow-Mods */
 
   // VLAN
-  openflow::cofflowmod enable_port_pvid_ingress(uint8_t ofp_version,
-                                                uint32_t port_no, uint16_t vid);
-  openflow::cofflowmod disable_port_pvid_ingress(uint8_t ofp_version,
-                                                 uint32_t port_no,
-                                                 uint16_t vid);
+  cofflowmod enable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
+                                      uint16_t vid);
+  cofflowmod disable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
+                                       uint16_t vid);
 
-  openflow::cofflowmod enable_port_vid_ingress(uint8_t ofp_version,
-                                               uint32_t port_no, uint16_t vid);
-  openflow::cofflowmod disable_port_vid_ingress(uint8_t ofp_version,
-                                                uint32_t port_no, uint16_t vid);
+  cofflowmod enable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
+                                     uint16_t vid);
+  cofflowmod disable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
+                                      uint16_t vid);
 
-  openflow::cofflowmod enable_port_vid_allow_all(uint8_t ofp_version,
-                                                 uint32_t port_no);
-  openflow::cofflowmod disable_port_vid_allow_all(uint8_t ofp_version,
-                                                  uint32_t port_no);
+  cofflowmod enable_port_vid_allow_all(uint8_t ofp_version, uint32_t port_no);
+  cofflowmod disable_port_vid_allow_all(uint8_t ofp_version, uint32_t port_no);
 
   // Termination MAC
-  openflow::cofflowmod enable_tmac_ipv4_unicast_mac(uint8_t ofp_version,
-                                                    uint32_t in_port,
-                                                    uint16_t vid,
-                                                    const caddress_ll &dmac);
-  openflow::cofflowmod disable_tmac_ipv4_unicast_mac(uint8_t ofp_version,
-                                                     uint32_t in_port,
-                                                     uint16_t vid,
-                                                     const caddress_ll &dmac);
+  cofflowmod enable_tmac_ipv4_unicast_mac(uint8_t ofp_version, uint32_t in_port,
+                                          uint16_t vid,
+                                          const caddress_ll &dmac);
+  cofflowmod disable_tmac_ipv4_unicast_mac(uint8_t ofp_version,
+                                           uint32_t in_port, uint16_t vid,
+                                           const caddress_ll &dmac);
 
   // Bridging
-  openflow::cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
-                                             uint32_t group_id);
-  openflow::cofflowmod remove_bridging_dlf_vlan(uint8_t ofp_version,
-                                                uint16_t vid);
+  cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
+                                   uint32_t group_id);
+  cofflowmod remove_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid);
 
-  openflow::cofflowmod add_bridging_unicast_vlan(uint8_t ofp_version,
-                                                 uint32_t port_no, uint16_t vid,
-                                                 const cmacaddr &mac,
-                                                 bool permanent = false,
-                                                 bool filtered = true);
+  cofflowmod add_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
+                                       uint16_t vid, const cmacaddr &mac,
+                                       bool permanent = false,
+                                       bool filtered = true);
 
-  openflow::cofflowmod remove_bridging_unicast_vlan(uint8_t ofp_version,
-                                                    uint32_t port_no,
-                                                    uint16_t vid,
-                                                    const cmacaddr &mac);
-  openflow::cofflowmod remove_bridging_unicast_vlan_all(uint8_t ofp_version,
-                                                        uint32_t port_no,
-                                                        uint16_t vid);
+  cofflowmod remove_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
+                                          uint16_t vid, const cmacaddr &mac);
+  cofflowmod remove_bridging_unicast_vlan_all(uint8_t ofp_version,
+                                              uint32_t port_no, uint16_t vid);
 
   // Unicast Routing
-  openflow::cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
-                                                const caddress_in4 &dst,
-                                                uint32_t group);
-  openflow::cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
-                                                 const caddress_in4 &dst);
+  cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
+                                      const caddress_in4 &dst, uint32_t group);
+  cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
+                                       const caddress_in4 &dst);
 
-  openflow::cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
-                                               const caddress_in4 &dst,
-                                               const caddress_in4 &mask,
-                                               uint32_t group);
-  openflow::cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
-                                                const caddress_in4 &dst,
-                                                const caddress_in4 &mask);
+  cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
+                                     const caddress_in4 &dst,
+                                     const caddress_in4 &mask, uint32_t group);
+  cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
+                                      const caddress_in4 &dst,
+                                      const caddress_in4 &mask);
   // Policy ACL
-  openflow::cofflowmod enable_policy_arp(uint8_t ofp_version,
-                                         bool update = false);
+  cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
-  openflow::cofflowmod enable_policy_lldp(uint8_t ofp_version);
+  cofflowmod enable_policy_lldp(uint8_t ofp_version);
 
-  openflow::cofflowmod enable_policy_lacp(uint8_t ofp_version);
+  cofflowmod enable_policy_lacp(uint8_t ofp_version);
 
-  openflow::cofflowmod
-  enable_policy_specific_lacp(uint8_t ofp_version, const caddress_ll &eth_src,
-                              const uint16_t timeout_seconds,
-                              const uint32_t in_port);
+  cofflowmod enable_policy_specific_lacp(uint8_t ofp_version,
+                                         const caddress_ll &eth_src,
+                                         const uint16_t timeout_seconds,
+                                         const uint32_t in_port);
 
-  openflow::cofflowmod disable_policy_lacp(uint8_t ofp_version);
+  cofflowmod disable_policy_lacp(uint8_t ofp_version);
 
-  openflow::cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
-                                                    const uint32_t in_port);
+  cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
+                                          const uint32_t in_port);
 
-  openflow::cofflowmod enable_policy_broadcast_udp(uint8_t ofp_version,
-                                                   int16_t src_port,
-                                                   int16_t dst_port);
+  cofflowmod enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
+                                         int16_t dst_port);
 
-  openflow::cofflowmod enable_policy_vrrp(uint8_t ofp_version);
+  cofflowmod enable_policy_vrrp(uint8_t ofp_version);
 
-  openflow::cofflowmod enable_send_to_l2_rewrite(uint8_t ofp_version,
-                                                 uint16_t vid,
-                                                 const caddress_ll &dst,
-                                                 uint32_t group_id,
-                                                 uint64_t cookie);
+  cofflowmod enable_send_to_l2_rewrite(uint8_t ofp_version, uint16_t vid,
+                                       const caddress_ll &dst,
+                                       uint32_t group_id, uint64_t cookie);
 
-  openflow::cofflowmod disable_send_to_l2_rewrite(uint8_t ofp_version,
-                                                  uint16_t vid,
-                                                  const caddress_ll &dst,
-                                                  uint64_t cookie);
+  cofflowmod disable_send_to_l2_rewrite(uint8_t ofp_version, uint16_t vid,
+                                        const caddress_ll &dst,
+                                        uint64_t cookie);
 
-  openflow::cofflowmod disable_send_to_l2_rewrite_all(uint8_t ofp_version,
-                                                      uint16_t vid,
-                                                      uint64_t cookie);
+  cofflowmod disable_send_to_l2_rewrite_all(uint8_t ofp_version, uint16_t vid,
+                                            uint64_t cookie);
 
-  openflow::cofflowmod enable_policy_acl_ipv4_vlan(
-      uint8_t ofp_version, const openflow::cofmatch &matches,
-      bool clear_actions = false, uint32_t meter_id = 0, uint32_t table_id = 0,
-      uint64_t cookie = 0,
-      const openflow::cofactions &apply_actions = openflow::cofactions(),
-      const openflow::cofactions &write_actions = openflow::cofactions());
+  cofflowmod
+  enable_policy_acl_ipv4_vlan(uint8_t ofp_version, const cofmatch &matches,
+                              bool clear_actions = false, uint32_t meter_id = 0,
+                              uint32_t table_id = 0, uint64_t cookie = 0,
+                              const cofactions &apply_actions = cofactions(),
+                              const cofactions &write_actions = cofactions());
 
-  openflow::cofflowmod disable_policy_acl_ipv4_vlan(
-      uint8_t ofp_version, const openflow::cofmatch &matches, uint64_t cookie);
+  cofflowmod disable_policy_acl_ipv4_vlan(uint8_t ofp_version,
+                                          const cofmatch &matches,
+                                          uint64_t cookie);
 
   // VLAN Egress
-  openflow::cofflowmod rewrite_vlan_egress(uint8_t ofp_version,
-                                           uint32_t backup_port,
-                                           uint16_t old_vid, uint16_t new_vid);
+  cofflowmod rewrite_vlan_egress(uint8_t ofp_version, uint32_t backup_port,
+                                 uint16_t old_vid, uint16_t new_vid);
 
-  openflow::cofflowmod remove_rewritten_vlan_egress(uint8_t ofp_version,
-                                                    uint32_t backup_port,
-                                                    uint16_t old_vid,
-                                                    uint16_t new_vid);
+  cofflowmod remove_rewritten_vlan_egress(uint8_t ofp_version,
+                                          uint32_t backup_port,
+                                          uint16_t old_vid, uint16_t new_vid);
 
   /* OF-DPA Group-Mods */
-  openflow::cofgroupmod enable_group_l2_interface(uint8_t ofp_version,
-                                                  uint32_t port_no,
-                                                  uint16_t vid,
-                                                  bool untagged = false);
-  openflow::cofgroupmod disable_group_l2_interface(uint8_t ofp_version,
-                                                   uint32_t port_no,
-                                                   uint16_t vid);
+  cofgroupmod enable_group_l2_interface(uint8_t ofp_version, uint32_t port_no,
+                                        uint16_t vid, bool untagged = false);
+  cofgroupmod disable_group_l2_interface(uint8_t ofp_version, uint32_t port_no,
+                                         uint16_t vid);
 
-  openflow::cofgroupmod
-  enable_group_l2_unfiltered_interface(uint8_t ofp_version, uint32_t port_no);
-  openflow::cofgroupmod
-  disable_group_l2_unfiltered_interface(uint8_t ofp_version, uint32_t port_no);
+  cofgroupmod enable_group_l2_unfiltered_interface(uint8_t ofp_version,
+                                                   uint32_t port_no);
+  cofgroupmod disable_group_l2_unfiltered_interface(uint8_t ofp_version,
+                                                    uint32_t port_no);
 
-  openflow::cofgroupmod
+  cofgroupmod
   enable_group_l2_multicast(uint8_t ofp_version, uint16_t vid, uint16_t id,
                             const std::set<uint32_t> &l2_interfaces);
 
-  openflow::cofgroupmod
-  enable_group_l2_flood(uint8_t ofp_version, uint16_t vid, uint16_t id,
-                        const std::set<uint32_t> &l2_interfaces,
-                        bool modify = false);
-  openflow::cofgroupmod disable_group_l2_flood(uint8_t ofp_version,
-                                               uint16_t vid, uint16_t id);
+  cofgroupmod enable_group_l2_flood(uint8_t ofp_version, uint16_t vid,
+                                    uint16_t id,
+                                    const std::set<uint32_t> &l2_interfaces,
+                                    bool modify = false);
+  cofgroupmod disable_group_l2_flood(uint8_t ofp_version, uint16_t vid,
+                                     uint16_t id);
 
-  openflow::cofgroupmod enable_group_l2_rewrite(
+  cofgroupmod enable_group_l2_rewrite(
       uint8_t ofp_version, uint32_t id, uint32_t port_group_id,
       uint16_t vid = 0, const cmacaddr src_mac = cmacaddr{"00:00:00:00:00:00"},
       const cmacaddr dst_mac = cmacaddr{"00:00:00:00:00:00"});
 
-  openflow::cofgroupmod disable_group_l2_rewrite(uint8_t ofp_version,
-                                                 uint32_t id);
+  cofgroupmod disable_group_l2_rewrite(uint8_t ofp_version, uint32_t id);
 
-  openflow::cofgroupmod enable_group_l3_interface(
-      uint8_t ofp_version, uint32_t id, const caddress_ll &src_mac,
-      uint32_t l2_interface,
-      const cmacaddr &dst_mac = cmacaddr{"00:00:00:00:00:00"});
+  cofgroupmod enable_group_l3_interface(uint8_t ofp_version, uint32_t id,
+                                        const caddress_ll &src_mac,
+                                        uint32_t l2_interface,
+                                        const cmacaddr &dst_mac = cmacaddr{
+                                            "00:00:00:00:00:00"});
 
-  openflow::cofgroupmod disable_group_l3_interface(uint8_t ofp_version,
-                                                   uint32_t id);
+  cofgroupmod disable_group_l3_interface(uint8_t ofp_version, uint32_t id);
 
-  openflow::cofgroupmod enable_group_l3_unicast(uint8_t ofp_version,
-                                                uint32_t id,
-                                                const caddress_ll &src_mac,
-                                                const cmacaddr &dst_mac,
-                                                uint32_t l2_interface);
+  cofgroupmod enable_group_l3_unicast(uint8_t ofp_version, uint32_t id,
+                                      const caddress_ll &src_mac,
+                                      const cmacaddr &dst_mac,
+                                      uint32_t l2_interface);
 
-  openflow::cofgroupmod disable_group_l3_unicast(uint8_t ofp_version,
-                                                 uint32_t id);
+  cofgroupmod disable_group_l3_unicast(uint8_t ofp_version, uint32_t id);
 
 private:
   const uint16_t default_idle_timeout;
 };
 
+} /* namespace openflow */
 } /* namespace rofl */
