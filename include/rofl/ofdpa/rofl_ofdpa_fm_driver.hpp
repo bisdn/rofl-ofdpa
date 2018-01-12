@@ -91,20 +91,6 @@ public:
                                                      uint16_t vid,
                                                      const caddress_ll &dmac);
 
-  // Unicast Routing
-  openflow::cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
-                                                const caddress_in4 &dst,
-                                                uint32_t group);
-  openflow::cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
-                                                 const caddress_in4 &dst);
-
-  openflow::cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
-                                               const caddress_in4 &dst,
-                                               const caddress_in4 &mask,
-                                               uint32_t group);
-  openflow::cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
-                                                const caddress_in4 &dst,
-                                                const caddress_in4 &mask);
   // Bridging
   openflow::cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
                                              uint32_t group_id);
@@ -125,6 +111,20 @@ public:
                                                         uint32_t port_no,
                                                         uint16_t vid);
 
+  // Unicast Routing
+  openflow::cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
+                                                const caddress_in4 &dst,
+                                                uint32_t group);
+  openflow::cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
+                                                 const caddress_in4 &dst);
+
+  openflow::cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
+                                               const caddress_in4 &dst,
+                                               const caddress_in4 &mask,
+                                               uint32_t group);
+  openflow::cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
+                                                const caddress_in4 &dst,
+                                                const caddress_in4 &mask);
   // Policy ACL
   openflow::cofflowmod enable_policy_arp(uint8_t ofp_version,
                                          bool update = false);
