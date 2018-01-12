@@ -129,7 +129,10 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_ASSIGNMENT) | 0);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(
+          OFDPA_FTT_VLAN_VLAN_ASSIGNMENT_UNTAGGED_PORT_VLAN_ASSIGNMENT) |
+      0);
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(0);
@@ -160,7 +163,10 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_pvid_ingress(uint8_t ofp_version,
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
 
   fm.set_priority(3);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_ASSIGNMENT) | 0);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(
+          OFDPA_FTT_VLAN_VLAN_ASSIGNMENT_UNTAGGED_PORT_VLAN_ASSIGNMENT) |
+      0);
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(0);
@@ -1275,10 +1281,9 @@ cofflowmod rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint8_t ofp_version,
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
-  fm.set_cookie(
-      gen_flow_mod_type_cookie(
-          OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG_OR_SINGLE_TO_DOUBLE) |
-      0);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG) |
+                0);
 
   fm.set_command(OFPFC_ADD);
 
@@ -1312,10 +1317,9 @@ cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
-  fm.set_cookie(
-      gen_flow_mod_type_cookie(
-          OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG_OR_SINGLE_TO_DOUBLE) |
-      0);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG) |
+                0);
 
   fm.set_command(OFPFC_DELETE);
 
