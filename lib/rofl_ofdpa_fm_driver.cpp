@@ -1186,7 +1186,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
 
   fm.set_idle_timeout(permanent ? 0 : default_idle_timeout);
   fm.set_hard_timeout(0);
-  fm.set_priority(2);
+  fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
                 port_no);
 
@@ -1226,7 +1226,7 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
-  fm.set_priority(2);
+  fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
                 port_no);
 
