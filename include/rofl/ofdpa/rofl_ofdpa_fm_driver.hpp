@@ -117,16 +117,17 @@ public:
   // Policy ACL
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
-  cofflowmod enable_policy_lldp(uint8_t ofp_version);
-
-  cofflowmod enable_policy_lacp(uint8_t ofp_version);
+  cofflowmod enable_policy_l2(uint8_t ofp_version, const rofl::caddress_ll &mac,
+                              const uint16_t type);
 
   cofflowmod enable_policy_specific_lacp(uint8_t ofp_version,
                                          const caddress_ll &eth_src,
                                          const uint16_t timeout_seconds,
                                          const uint32_t in_port);
 
-  cofflowmod disable_policy_lacp(uint8_t ofp_version);
+  cofflowmod disable_policy_l2(uint8_t ofp_version,
+                               const rofl::caddress_ll &mac,
+                               const uint16_t type);
 
   cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
                                           const uint32_t in_port);
