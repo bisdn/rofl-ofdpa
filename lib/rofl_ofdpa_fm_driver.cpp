@@ -696,7 +696,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
                                                   const rofl::caddress_ll &mac,
-                                                  const uint16_t type) {
+                                                  const uint16_t type,
+                                                  const uint16_t max_len) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -715,6 +716,11 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
       .set_actions()
       .add_action_output(cindex(0))
       .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
   fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
