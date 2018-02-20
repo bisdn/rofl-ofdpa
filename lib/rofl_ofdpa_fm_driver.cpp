@@ -319,7 +319,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
-    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group) {
+    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group,
+    const uint16_t max_len) {
   cofflowmod fm(ofp_version);
 
   cindex index(0);
@@ -357,6 +358,11 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
         .set_actions()
         .add_action_output(index)
         .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
   }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
@@ -696,7 +702,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
                                                   const rofl::caddress_ll &mac,
-                                                  const uint16_t type) {
+                                                  const uint16_t type,
+                                                  const uint16_t max_len) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -715,6 +722,12 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
       .set_actions()
       .add_action_output(cindex(0))
       .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
+
   fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
@@ -724,7 +737,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
     uint8_t ofp_version, const caddress_ll &eth_src,
-    const uint16_t timeout_seconds, const uint32_t in_port) {
+    const uint16_t timeout_seconds, const uint32_t in_port,
+    const uint16_t max_len) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -747,6 +761,11 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
       .set_actions()
       .add_action_output(cindex(0))
       .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
   fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
@@ -793,7 +812,8 @@ rofl_ofdpa_fm_driver::disable_policy_specific_lacp(uint8_t ofp_version,
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(
-    uint8_t ofp_version, int16_t src_port, int16_t dst_port) {
+    uint8_t ofp_version, int16_t src_port, int16_t dst_port,
+    const uint16_t max_len) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -816,13 +836,19 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(
       .set_actions()
       .add_action_output(cindex(0))
       .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version) {
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version,
+                                                    const uint16_t max_len) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -843,6 +869,11 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version) {
       .set_actions()
       .add_action_output(cindex(0))
       .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 

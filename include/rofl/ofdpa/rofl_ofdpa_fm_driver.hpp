@@ -10,6 +10,8 @@
 #include <rofl/common/openflow/cofflowmod.h>
 #include <rofl/common/openflow/cofgroupmod.h>
 
+#define OFPCML_NO_BUFFER 0xffff
+
 #define GROUP_ID_FUNC_PORT_VLAN(name, type_id)                                 \
   inline uint32_t group_id_##name(uint32_t port_no, uint16_t vid) {            \
     /* FIXME check port_no */                                                  \
@@ -40,6 +42,8 @@ namespace rofl {
 namespace openflow {
 
 class rofl_ofdpa_fm_driver final {
+  static const uint16_t DEFAULT_MAX_LEN = OFPCML_NO_BUFFER;
+
 public:
   rofl_ofdpa_fm_driver();
   ~rofl_ofdpa_fm_driver();
@@ -104,7 +108,8 @@ public:
 
   // Unicast Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
-                                      const caddress_in4 &dst, uint32_t group);
+                                      const caddress_in4 &dst, uint32_t group,
+                                      const uint16_t max_len = DEFAULT_MAX_LEN);
   cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
                                        const caddress_in4 &dst);
 
@@ -118,12 +123,14 @@ public:
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
   cofflowmod enable_policy_l2(uint8_t ofp_version, const rofl::caddress_ll &mac,
-                              const uint16_t type);
+                              const uint16_t type,
+                              const uint16_t max_len = DEFAULT_MAX_LEN);
 
-  cofflowmod enable_policy_specific_lacp(uint8_t ofp_version,
-                                         const caddress_ll &eth_src,
-                                         const uint16_t timeout_seconds,
-                                         const uint32_t in_port);
+  cofflowmod
+  enable_policy_specific_lacp(uint8_t ofp_version, const caddress_ll &eth_src,
+                              const uint16_t timeout_seconds,
+                              const uint32_t in_port,
+                              const uint16_t max_len = DEFAULT_MAX_LEN);
 
   cofflowmod disable_policy_l2(uint8_t ofp_version,
                                const rofl::caddress_ll &mac,
@@ -132,10 +139,13 @@ public:
   cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
                                           const uint32_t in_port);
 
-  cofflowmod enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
-                                         int16_t dst_port);
+  cofflowmod
+  enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
+                              int16_t dst_port,
+                              const uint16_t max_len = DEFAULT_MAX_LEN);
 
-  cofflowmod enable_policy_vrrp(uint8_t ofp_version);
+  cofflowmod enable_policy_vrrp(uint8_t ofp_version,
+                                const uint16_t max_len = DEFAULT_MAX_LEN);
 
   cofflowmod enable_send_to_l2_rewrite(uint8_t ofp_version, uint16_t vid,
                                        const caddress_ll &dst,
