@@ -41,6 +41,7 @@ namespace openflow {
 
 class rofl_ofdpa_fm_driver final {
   static const uint16_t DEFAULT_MAX_LEN = 1522;
+
 public:
   rofl_ofdpa_fm_driver();
   ~rofl_ofdpa_fm_driver();
@@ -119,7 +120,8 @@ public:
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
   cofflowmod enable_policy_l2(uint8_t ofp_version, const rofl::caddress_ll &mac,
-                              const uint16_t type, const uint16_t max_len = DEFAULT_MAX_LEN);
+                              const uint16_t type,
+                              const uint16_t max_len = DEFAULT_MAX_LEN);
 
   cofflowmod enable_policy_specific_lacp(uint8_t ofp_version,
                                          const caddress_ll &eth_src,
