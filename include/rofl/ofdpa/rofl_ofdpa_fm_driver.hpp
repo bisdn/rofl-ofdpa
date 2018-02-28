@@ -69,6 +69,10 @@ public:
 
   /* OF-DPA Flow-Mods */
 
+  // Overlay Tunnel
+  cofflowmod enable_overlay_tunnel(uint8_t ofp_version, uint32_t tunnel_id);
+  cofflowmod disable_overlay_tunnel(uint8_t ofp_version, uint32_t tunnel_id);
+
   // VLAN
   cofflowmod enable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
                                       uint16_t vid);
@@ -105,6 +109,17 @@ public:
                                           uint16_t vid, const cmacaddr &mac);
   cofflowmod remove_bridging_unicast_vlan_all(uint8_t ofp_version,
                                               uint32_t port_no, uint16_t vid);
+
+  cofflowmod add_bridging_unicast_overlay(uint8_t ofp_version,
+                                          uint32_t lport_no, uint32_t tunnel_id,
+                                          const cmacaddr &mac);
+  cofflowmod remove_bridging_unicast_overlay(uint8_t ofp_version,
+                                             uint32_t tunnel_id,
+                                             const cmacaddr &mac);
+  cofflowmod remove_bridging_unicast_overlay_all_lport(uint8_t ofp_version,
+                                                       uint32_t lport_no);
+  cofflowmod remove_bridging_unicast_overlay_all_tunnel(uint8_t ofp_version,
+                                                        uint32_t tunnel_id);
 
   // Unicast Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,

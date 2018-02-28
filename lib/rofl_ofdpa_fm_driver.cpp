@@ -8,6 +8,7 @@
 
 #include <netinet/if_ether.h>
 #include <netinet/in.h>
+
 #include <rofl/ofdpa/rofl_ofdpa_fm_driver.hpp>
 
 #ifndef IPPROTO_VRRP
@@ -36,6 +37,8 @@ enum oxm_tlv_match_fields {
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ACTSET_OUTPUT << 9) | 8,
+  OXM_TLV_EXPR_LMEP_ID =
+      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_LMEP_ID << 9) | 8,
 };
 
 class coxmatch_ofb_vrf : public coxmatch_exp {
@@ -49,15 +52,6 @@ public:
   coxmatch_ofb_vrf(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_vrf() {}
-
-  friend std::ostream &operator<<(std::ostream &os,
-                                  const coxmatch_ofb_vrf &oxm) {
-    os << dynamic_cast<const coxmatch &>(oxm);
-    os << "  <coxmatch_ofb_vlan_vid >" << std::endl;
-    os << "    <vlan-vid: 0x" << std::hex << (int)oxm.get_u16value() << "/0x"
-       << (int)oxm.get_u16mask() << std::dec << " >" << std::endl;
-    return os;
-  }
 };
 
 class coxmatch_ofb_allow_vlan_translation : public coxmatch_exp {
@@ -69,23 +63,9 @@ public:
       : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_allow_vlan_translation() {}
-
-  friend std::ostream &
-  operator<<(std::ostream &os, const coxmatch_ofb_allow_vlan_translation &oxm) {
-    os << dynamic_cast<const coxmatch &>(oxm);
-    os << "  <coxmatch_ofb_allow_vlan_translation >" << std::endl;
-    os << "    <value: 0x" << std::hex << (int)oxm.get_u8value() << std::dec
-       << " >" << std::endl;
-    return os;
-  }
 };
 
 class coxmatch_ofb_actset_output : public coxmatch_exp {
-
-  struct broadcom_t {
-    uint32_t portno;
-  } __attribute__((packed));
-
 public:
   coxmatch_ofb_actset_output(uint32_t port)
       : coxmatch_exp(OXM_TLV_EXPR_ACTSET_OUTPUT, ONF_EXP_ID_ONF, port) {}
@@ -93,18 +73,19 @@ public:
   coxmatch_ofb_actset_output(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_actset_output() {}
-
-  friend std::ostream &operator<<(std::ostream &os,
-                                  const coxmatch_ofb_actset_output &oxm) {
-    os << dynamic_cast<const coxmatch &>(oxm);
-    os << "<coxmatch_ofb_actset_output >" << std::endl;
-    os << "    <port: 0x" << std::hex << (int)oxm.get_u32value() << std::dec
-       << " >" << std::endl;
-    return os;
-  }
 };
 
-}; // end of namespace ofdpa
+class coxmatch_ofb_lmep_id : public coxmatch_exp {
+public:
+  coxmatch_ofb_lmep_id(uint32_t lmep_id)
+      : coxmatch_exp(OXM_TLV_EXPR_LMEP_ID, EXP_ID_BCM, lmep_id) {}
+
+  coxmatch_ofb_lmep_id(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
+
+  virtual ~coxmatch_ofb_lmep_id() {}
+};
+
+} // end of namespace ofdpa
 
 static inline uint64_t gen_flow_mod_type_cookie(uint64_t val) {
   return (val << 8 * 7);
@@ -115,6 +96,41 @@ rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver()
 {}
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
+
+cofflowmod rofl_ofdpa_fm_driver::enable_overlay_tunnel(uint8_t ofp_version,
+                                                       uint32_t tunnel_id) {
+  cofflowmod fm(ofp_version);
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_INGRESS_PORT);
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(3);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_INGRESS_PORT_OVERLAY_TUNNEL) | 0);
+
+  fm.set_match().set_tunnel_id(tunnel_id);
+  ofdpa::coxmatch_ofb_lmep_id exp_match(0);
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_LMEP_ID) = exp_match;
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_overlay_tunnel(uint8_t ofp_version,
+                                                        uint32_t tunnel_id) {
+  cofflowmod fm(ofp_version);
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_INGRESS_PORT);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_INGRESS_PORT_OVERLAY_TUNNEL) | 0);
+
+  fm.set_match().set_tunnel_id(tunnel_id);
+
+  return fm;
+}
 
 cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
                                                           uint32_t port_no,
@@ -1277,6 +1293,79 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan_all(
   }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_overlay(
+    uint8_t ofp_version, uint32_t lport_no, uint32_t tunnel_id,
+    const cmacaddr &mac) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+  fm.set_priority(5);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_OVERLAY) |
+                lport_no);
+  fm.set_cookie_mask(-1);
+
+  fm.set_command(OFPFC_ADD);
+
+  // XXX TODO check for unicast
+  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_tunnel_id(tunnel_id);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .add_action_output(cindex(0))
+      .set_port_no(lport_no);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_overlay(
+    uint8_t ofp_version, uint32_t tunnel_id, const cmacaddr &mac) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+  fm.set_priority(5);
+
+  fm.set_command(OFPFC_DELETE);
+
+  // XXX TODO check for unicast
+  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_tunnel_id(tunnel_id);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_overlay_all_lport(
+    uint8_t ofp_version, uint32_t lport_no) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+  fm.set_priority(5);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_OVERLAY) |
+                lport_no);
+  fm.set_cookie_mask(-1);
+
+  fm.set_command(OFPFC_DELETE);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_overlay_all_tunnel(
+    uint8_t ofp_version, uint32_t tunnel_id) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+  fm.set_priority(5);
+
+  fm.set_command(OFPFC_DELETE);
+
+  fm.set_match().set_tunnel_id(tunnel_id);
 
   return fm;
 }
