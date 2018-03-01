@@ -375,9 +375,9 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
         .add_action_output(index)
         .set_port_no(OFPP_CONTROLLER);
     fm.set_instructions()
-        .set_inst_apply_actions()
+        .set_inst_write_actions()
         .set_actions()
-        .set_action_output(cindex(0))
+        .set_action_output(index)
         .set_max_len(max_len);
   }
 
