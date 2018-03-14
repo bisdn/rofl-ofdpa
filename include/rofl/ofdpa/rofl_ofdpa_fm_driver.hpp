@@ -38,6 +38,18 @@
   }                                                                            \
   struct __##name##_useless__
 
+#define GROUP_ID_FUNC_ID_INDEX_1(name, type_id)                                \
+  inline uint32_t group_id_##name(uint16_t index, uint16_t id) {               \
+    return type_id << 28 | (0xffff & id) << 12 | 1 << 10 | (0x0fff & index);   \
+  }                                                                            \
+  struct __##name##_useless__
+
+#define GROUP_ID_FUNC_ID_INDEX_2(name, type_id)                                \
+  inline uint32_t group_id_##name(uint16_t index, uint16_t id) {               \
+    return type_id << 28 | (0xffff & id) << 12 | 2 << 10 | (0x0fff & index);   \
+  }                                                                            \
+  struct __##name##_useless__
+
 namespace rofl {
 namespace openflow {
 
@@ -66,6 +78,8 @@ public:
   GROUP_ID_FUNC_ID(l3_interface, 5);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
   GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
+  GROUP_ID_FUNC_ID_INDEX_1(l2_overlay_flood, 8);
+  GROUP_ID_FUNC_ID_INDEX_2(l2_overlay_multicast, 8);
 
   /* OF-DPA Flow-Mods */
 
@@ -95,6 +109,11 @@ public:
   cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
                                    uint32_t group_id);
   cofflowmod remove_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid);
+
+  cofflowmod add_bridging_dlf_overlay(uint8_t ofp_version, uint16_t tunnel_id,
+                                      uint32_t group_id);
+  cofflowmod remove_bridging_dlf_overlay(uint8_t ofp_version,
+                                         uint16_t tunnel_id);
 
   cofflowmod add_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
                                        uint16_t vid, const cmacaddr &mac,
@@ -198,6 +217,21 @@ public:
                                     bool modify = false);
   cofgroupmod disable_group_l2_flood(uint8_t ofp_version, uint16_t vid,
                                      uint16_t id);
+
+  cofgroupmod enable_group_l2_overlay_flood(uint8_t ofp_version,
+                                            uint16_t tunnel_id, uint16_t index,
+                                            const std::set<uint32_t> &lport_no,
+                                            bool modify = false);
+  cofgroupmod disable_group_l2_overlay_flood(uint8_t ofp_version,
+                                             uint16_t tunnel_id,
+                                             uint16_t index);
+
+  cofgroupmod enable_group_l2_overlay_multicast(
+      uint8_t ofp_version, uint16_t tunnel_id, uint16_t index,
+      const std::set<uint32_t> &lport_no, bool modify = false);
+  cofgroupmod disable_group_l2_overlay_multicast(uint8_t ofp_version,
+                                                 uint16_t tunnel_id,
+                                                 uint16_t index);
 
   cofgroupmod enable_group_l2_rewrite(
       uint8_t ofp_version, uint32_t id, uint32_t port_group_id,
