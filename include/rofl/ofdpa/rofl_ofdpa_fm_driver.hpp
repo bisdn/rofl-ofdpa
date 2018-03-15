@@ -38,15 +38,10 @@
   }                                                                            \
   struct __##name##_useless__
 
-#define GROUP_ID_FUNC_ID_INDEX_1(name, type_id)                                \
+#define GROUP_ID_FUNC_ID_SUBTYPE(name, type_id, subtype_id)                    \
   inline uint32_t group_id_##name(uint16_t index, uint16_t id) {               \
-    return type_id << 28 | (0xffff & id) << 12 | 1 << 10 | (0x0fff & index);   \
-  }                                                                            \
-  struct __##name##_useless__
-
-#define GROUP_ID_FUNC_ID_INDEX_2(name, type_id)                                \
-  inline uint32_t group_id_##name(uint16_t index, uint16_t id) {               \
-    return type_id << 28 | (0xffff & id) << 12 | 2 << 10 | (0x0fff & index);   \
+    return type_id << 28 | (0xffff & id) << 12 | (0x3 & subtype_id) << 10 |    \
+           (0x03ff & index);                                                   \
   }                                                                            \
   struct __##name##_useless__
 
@@ -78,8 +73,8 @@ public:
   GROUP_ID_FUNC_ID(l3_interface, 5);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
   GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
-  GROUP_ID_FUNC_ID_INDEX_1(l2_overlay_flood, 8);
-  GROUP_ID_FUNC_ID_INDEX_2(l2_overlay_multicast, 8);
+  GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_flood, 8, 0);
+  GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_multicast, 8, 1);
 
   /* OF-DPA Flow-Mods */
 
