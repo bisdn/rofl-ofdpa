@@ -690,6 +690,94 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_flood(uint8_t ofp_version,
   return gm;
 }
 
+cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_overlay_flood(
+    uint8_t ofp_version, uint16_t tunnel_id, uint16_t index,
+    const std::set<uint32_t> &lport_no, bool modify) {
+  assert(tunnel_id < 0x1000);
+
+  uint32_t group_id = group_id_l2_overlay_flood(index, tunnel_id);
+
+  cofgroupmod gm(ofp_version);
+  uint16_t command = (modify) ? OFPGC_MODIFY : OFPGC_ADD;
+  gm.set_command(command);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  uint32_t bucket_id = 0;
+
+  for (const uint32_t &i : lport_no) {
+    gm.set_buckets()
+        .add_bucket(bucket_id++)
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(i);
+  }
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_overlay_flood(
+    uint8_t ofp_version, uint16_t tunnel_id, uint16_t index) {
+  assert(tunnel_id < 0x1000);
+
+  uint32_t group_id = group_id_l2_overlay_flood(index, tunnel_id);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_DELETE);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_overlay_multicast(
+    uint8_t ofp_version, uint16_t tunnel_id, uint16_t index,
+    const std::set<uint32_t> &lport_no, bool modify) {
+  assert(tunnel_id < 0x1000);
+
+  uint32_t group_id = group_id_l2_overlay_multicast(index, tunnel_id);
+
+  cofgroupmod gm(ofp_version);
+  uint16_t command = (modify) ? OFPGC_MODIFY : OFPGC_ADD;
+  gm.set_command(command);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  uint32_t bucket_id = 0;
+
+  for (const uint32_t &i : lport_no) {
+    gm.set_buckets()
+        .add_bucket(bucket_id++)
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(i);
+  }
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_overlay_multicast(
+    uint8_t ofp_version, uint16_t tunnel_id, uint16_t index) {
+  assert(tunnel_id < 0x1000);
+
+  uint32_t group_id = group_id_l2_overlay_multicast(index, tunnel_id);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_DELETE);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+
+  return gm;
+}
+
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
                                                    bool update) {
 
@@ -1202,6 +1290,58 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(uint8_t ofp_version,
   fm.set_command(OFPFC_DELETE);
 
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
+                                                          uint16_t tunnel_id,
+                                                          uint32_t group_id) {
+  assert(tunnel_id < 0x1000);
+
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  fm.set_idle_timeout(0);
+  fm.set_hard_timeout(0);
+  fm.set_priority(4);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
+
+  fm.set_command(OFPFC_ADD);
+
+  fm.set_match().set_tunnel_id(tunnel_id);
+
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .add_action_group(cindex(0))
+      .set_group_id(group_id);
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod
+rofl_ofdpa_fm_driver::remove_bridging_dlf_overlay(uint8_t ofp_version,
+                                                  uint16_t tunnel_id) {
+  assert(tunnel_id < 0x1000);
+
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  fm.set_priority(4);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
+  fm.set_cookie_mask(-1);
+
+  // TODO do this strict?
+  fm.set_command(OFPFC_DELETE);
+
+  fm.set_match().set_tunnel_id(tunnel_id);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
