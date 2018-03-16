@@ -294,7 +294,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV4_UNICAST_MAC) | 0);
 
-  fm.set_match().set_in_port(in_port);
+  if (in_port)
+    fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(dmac);
