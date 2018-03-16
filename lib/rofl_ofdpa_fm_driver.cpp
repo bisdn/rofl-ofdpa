@@ -170,7 +170,6 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
 cofflowmod rofl_ofdpa_fm_driver::disable_port_pvid_ingress(uint8_t ofp_version,
                                                            uint32_t port_no,
                                                            uint16_t vid) {
-
   // check params
   assert(vid < 0x1000);
   cofflowmod fm(ofp_version);
@@ -693,14 +692,12 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_flood(uint8_t ofp_version,
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_overlay_flood(
     uint8_t ofp_version, uint16_t tunnel_id, uint16_t index,
     const std::set<uint32_t> &lport_no, bool modify) {
-  assert(tunnel_id < 0x1000);
-
   uint32_t group_id = group_id_l2_overlay_flood(index, tunnel_id);
 
   cofgroupmod gm(ofp_version);
   uint16_t command = (modify) ? OFPGC_MODIFY : OFPGC_ADD;
   gm.set_command(command);
-  gm.set_type(OFPGT_ALL);
+  gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
   uint32_t bucket_id = 0;
@@ -720,13 +717,11 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_overlay_flood(
 
 cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_overlay_flood(
     uint8_t ofp_version, uint16_t tunnel_id, uint16_t index) {
-  assert(tunnel_id < 0x1000);
-
   uint32_t group_id = group_id_l2_overlay_flood(index, tunnel_id);
   cofgroupmod gm(ofp_version);
 
   gm.set_command(OFPGC_DELETE);
-  gm.set_type(OFPGT_ALL);
+  gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
   DEBUG_LOG(": return group-mod:" << std::endl << gm);
@@ -744,7 +739,7 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_overlay_multicast(
   cofgroupmod gm(ofp_version);
   uint16_t command = (modify) ? OFPGC_MODIFY : OFPGC_ADD;
   gm.set_command(command);
-  gm.set_type(OFPGT_ALL);
+  gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
   uint32_t bucket_id = 0;
@@ -770,7 +765,7 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_overlay_multicast(
   cofgroupmod gm(ofp_version);
 
   gm.set_command(OFPGC_DELETE);
-  gm.set_type(OFPGT_ALL);
+  gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
   DEBUG_LOG(": return group-mod:" << std::endl << gm);
@@ -1299,15 +1294,13 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(uint8_t ofp_version,
 cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
                                                           uint16_t tunnel_id,
                                                           uint32_t group_id) {
-  assert(tunnel_id < 0x1000);
-
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_idle_timeout(0);
   fm.set_hard_timeout(0);
   fm.set_priority(4);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_OVERLAY));
 
   fm.set_command(OFPFC_ADD);
 
@@ -1329,13 +1322,11 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
 cofflowmod
 rofl_ofdpa_fm_driver::remove_bridging_dlf_overlay(uint8_t ofp_version,
                                                   uint16_t tunnel_id) {
-  assert(tunnel_id < 0x1000);
-
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
   fm.set_priority(4);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_OVERLAY));
   fm.set_cookie_mask(-1);
 
   // TODO do this strict?

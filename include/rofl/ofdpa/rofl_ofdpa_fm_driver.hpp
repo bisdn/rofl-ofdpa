@@ -72,9 +72,9 @@ public:
   GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
   GROUP_ID_FUNC_ID(l3_interface, 5);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
-  GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
   GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_flood, 8, 0);
   GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_multicast, 8, 1);
+  GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
 
   /* OF-DPA Flow-Mods */
 
