@@ -91,9 +91,7 @@ static inline uint64_t gen_flow_mod_type_cookie(uint64_t val) {
   return (val << 8 * 7);
 }
 
-rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver()
-    : default_idle_timeout(30) // TODO idle timeout should be configurable
-{}
+rofl_ofdpa_fm_driver::rofl_ofdpa_fm_driver() {}
 
 rofl_ofdpa_fm_driver::~rofl_ofdpa_fm_driver() {}
 
@@ -102,7 +100,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_overlay_tunnel(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_INGRESS_PORT);
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
   fm.set_cookie(
@@ -142,7 +140,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
   fm.set_cookie(
@@ -201,7 +199,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
@@ -244,7 +242,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_allow_all(uint8_t ofp_version,
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(7);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_ALLOW_ALL) | 0);
@@ -288,7 +286,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(
@@ -318,7 +316,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
   fm.set_command(OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(
@@ -344,7 +342,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
   fm.set_cookie(
@@ -395,7 +393,7 @@ rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
   fm.set_command(OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
   fm.set_cookie(
@@ -419,7 +417,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(
@@ -454,7 +452,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
   fm.set_command(OFPFC_DELETE);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(
@@ -780,7 +778,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
@@ -807,7 +805,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
@@ -917,7 +915,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
@@ -952,7 +950,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
@@ -1029,7 +1027,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
   cofflowmod fm(ofp_version);
 
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(cookie);
@@ -1153,7 +1151,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
   cofflowmod fm(ofp_version);
 
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(cookie);
@@ -1249,7 +1247,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
@@ -1298,7 +1296,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(4);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_OVERLAY));
@@ -1340,21 +1338,23 @@ rofl_ofdpa_fm_driver::remove_bridging_dlf_overlay(uint8_t ofp_version,
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(
-    uint8_t ofp_version, uint32_t port_no, uint16_t vid, const cmacaddr &mac,
-    bool permanent, bool filtered) {
+cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
+                                                           uint32_t port_no,
+                                                           uint16_t vid,
+                                                           const cmacaddr &mac,
+                                                           bool filtered) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
-  fm.set_idle_timeout(permanent ? 0 : default_idle_timeout);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_UNICAST_VLAN) |
                 port_no);
 
-  if (not permanent) {
+  if (idle_timeout) {
     fm.set_flags(OFPFF_SEND_FLOW_REM);
   }
 
@@ -1509,7 +1509,7 @@ cofflowmod rofl_ofdpa_fm_driver::rewrite_vlan_egress(uint8_t ofp_version,
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(
@@ -1545,7 +1545,7 @@ cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
 
-  fm.set_idle_timeout(0);
+  fm.set_idle_timeout(idle_timeout);
   fm.set_hard_timeout(0);
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(
