@@ -49,8 +49,6 @@ namespace rofl {
 namespace openflow {
 
 class rofl_ofdpa_fm_driver final {
-  static const uint16_t DEFAULT_MAX_LEN = OFPCML_NO_BUFFER;
-
 public:
   rofl_ofdpa_fm_driver();
   ~rofl_ofdpa_fm_driver();
@@ -267,6 +265,7 @@ public:
 
 private:
   const uint16_t default_idle_timeout;
+  static const uint16_t DEFAULT_MAX_LEN = OFPCML_NO_BUFFER;
 };
 
 } /* namespace openflow */
