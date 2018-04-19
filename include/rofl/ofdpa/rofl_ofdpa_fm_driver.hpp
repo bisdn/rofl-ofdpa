@@ -49,11 +49,12 @@ namespace rofl {
 namespace openflow {
 
 class rofl_ofdpa_fm_driver final {
-  static const uint16_t DEFAULT_MAX_LEN = OFPCML_NO_BUFFER;
-
 public:
   rofl_ofdpa_fm_driver();
   ~rofl_ofdpa_fm_driver();
+
+  void set_idle_timeout(uint16_t timeout) { idle_timeout = timeout; }
+  uint16_t get_idle_timeout() const { return idle_timeout; }
 
   inline uint8_t get_group_type(uint32_t group_id) { return group_id >> 28; }
 
@@ -116,7 +117,6 @@ public:
 
   cofflowmod add_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
                                        uint16_t vid, const cmacaddr &mac,
-                                       bool permanent = false,
                                        bool filtered = true);
 
   cofflowmod remove_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
@@ -266,7 +266,8 @@ public:
   cofgroupmod disable_group_l3_unicast(uint8_t ofp_version, uint32_t id);
 
 private:
-  const uint16_t default_idle_timeout;
+  uint16_t idle_timeout = 0;
+  static const uint16_t DEFAULT_MAX_LEN = OFPCML_NO_BUFFER;
 };
 
 } /* namespace openflow */
