@@ -850,7 +850,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version, bool update) {
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version,
+                                                     bool update) {
 
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -861,8 +862,10 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version, bool u
 
   fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
 
-  /* 01-80-C2-00-00-00 to 01-80-C2-00-00-0F must not be forwarded by bridges according to IEEE 802.1D */
-  fm.set_match().set_eth_dst(cmacaddr("01:80:c2:00:00:00"),cmacaddr("ff:ff:ff:ff:ff:f0"));
+  /* 01-80-C2-00-00-00 to 01-80-C2-00-00-0F must not be forwarded by bridges
+   * according to IEEE 802.1D */
+  fm.set_match().set_eth_dst(cmacaddr("01:80:c2:00:00:00"),
+                             cmacaddr("ff:ff:ff:ff:ff:f0"));
 
   fm.set_instructions()
       .set_inst_apply_actions()
@@ -885,8 +888,10 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_8021d(uint8_t ofp_version) {
 
   fm.set_command(OFPFC_DELETE);
 
-  /* 01-80-C2-00-00-00 to 01-80-C2-00-00-0F must not be forwarded by bridges according to IEEE 802.1D */
-  fm.set_match().set_eth_dst(cmacaddr("01:80:c2:00:00:00"),cmacaddr("ff:ff:ff:ff:ff:f0"));
+  /* 01-80-C2-00-00-00 to 01-80-C2-00-00-0F must not be forwarded by bridges
+   * according to IEEE 802.1D */
+  fm.set_match().set_eth_dst(cmacaddr("01:80:c2:00:00:00"),
+                             cmacaddr("ff:ff:ff:ff:ff:f0"));
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
