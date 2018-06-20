@@ -850,6 +850,54 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
   return fm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version,
+                                                     bool update) {
+
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(8);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
+
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
+
+  /* 01-80-C2-00-00-00 to 01-80-C2-00-00-0F must not be forwarded by bridges
+   * according to IEEE 802.1D */
+  fm.set_match().set_eth_dst(cmacaddr("01:80:c2:00:00:00"),
+                             cmacaddr("ff:ff:ff:ff:ff:f0"));
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_output(cindex(0))
+      .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions().set_inst_clear_actions();
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_policy_8021d(uint8_t ofp_version) {
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_priority(8);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
+
+  fm.set_command(OFPFC_DELETE);
+
+  /* 01-80-C2-00-00-00 to 01-80-C2-00-00-0F must not be forwarded by bridges
+   * according to IEEE 802.1D */
+  fm.set_match().set_eth_dst(cmacaddr("01:80:c2:00:00:00"),
+                             cmacaddr("ff:ff:ff:ff:ff:f0"));
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
 cofflowmod rofl_ofdpa_fm_driver::disable_policy_l2(uint8_t ofp_version,
                                                    const rofl::caddress_ll &mac,
                                                    const uint16_t type) {
