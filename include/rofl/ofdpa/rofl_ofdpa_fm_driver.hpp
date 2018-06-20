@@ -168,6 +168,9 @@ public:
   cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
                                           const uint32_t in_port);
 
+  cofflowmod enable_policy_8021d(uint8_t ofp_version, bool update = false);
+  cofflowmod disable_policy_8021d(uint8_t ofp_version);
+
   cofflowmod
   enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
                               int16_t dst_port,

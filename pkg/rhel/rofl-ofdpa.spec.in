@@ -52,5 +52,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/pkgconfig/rofl_ofdpa.pc
 
 %changelog
+* Wed Jun 20 2018 Andreas Koepsel
 * Tue Feb  9 2016 Tobias Jungel
 - 

@@ -850,14 +850,13 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version,
-                                                   bool update) {
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version, bool update) {
 
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(idle_timeout);
-  fm.set_priority(2);
+  fm.set_priority(8);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
 
   fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
@@ -881,7 +880,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_8021d(uint8_t ofp_version) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_priority(2);
+  fm.set_priority(8);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
 
   fm.set_command(OFPFC_DELETE);
