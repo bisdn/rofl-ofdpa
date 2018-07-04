@@ -821,7 +821,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(timeout_seconds);
-  fm.set_priority(3);
+  fm.set_priority(10);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
 
   fm.set_flags(OFPFF_SEND_FLOW_REM);
