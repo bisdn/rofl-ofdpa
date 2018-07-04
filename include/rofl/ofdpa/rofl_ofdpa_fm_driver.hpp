@@ -168,7 +168,8 @@ public:
   cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
                                           const uint32_t in_port);
 
-  cofflowmod enable_policy_8021d(uint8_t ofp_version, bool update = false);
+  cofflowmod enable_policy_8021d(uint8_t ofp_version, bool update = false,
+                                 const uint16_t max_len = DEFAULT_MAX_LEN);
   cofflowmod disable_policy_8021d(uint8_t ofp_version);
 
   cofflowmod
