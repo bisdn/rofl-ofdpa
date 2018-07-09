@@ -35,8 +35,8 @@ AC_ARG_WITH([pkgconfigdir], AS_HELP_STRING([--with-pkgconfigdir=PATH],
 AC_SUBST([pkgconfigdir])
 
 # Checks for libraries.
-PKG_CHECK_MODULES([ROFL], rofl_common >= 0.11.0, [],
-  [ AC_MSG_ERROR([minimum version of rofl_common is 0.11.0]) ])
+PKG_CHECK_MODULES([ROFL], rofl_common >= 0.13.1, [],
+  [ AC_MSG_ERROR([minimum version of rofl_common is 0.13.1]) ])
 
 # Checks for header files.
 AC_CHECK_HEADER([inttypes.h])
