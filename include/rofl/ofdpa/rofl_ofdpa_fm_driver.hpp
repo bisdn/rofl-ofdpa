@@ -144,7 +144,8 @@ public:
 
   cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in4 &dst,
-                                     const caddress_in4 &mask, uint32_t group);
+                                     const caddress_in4 &mask, uint32_t group,
+                                     const uint16_t max_len = DEFAULT_MAX_LEN);
   cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in4 &dst,
                                       const caddress_in4 &mask);
