@@ -396,7 +396,7 @@ rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
     uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask,
-    uint32_t group) {
+    uint32_t group, const uint16_t max_len) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_ADD);
@@ -414,15 +414,29 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
-  fm.set_instructions()
-      .set_inst_write_actions()
-      .set_actions()
-      .set_action_group(cindex(0))
-      .set_group_id(group);
-  fm.set_instructions()
-      .set_inst_write_actions()
-      .set_actions()
-      .set_action_dec_nw_ttl(cindex(1));
+  if (group) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_group(cindex(0))
+        .set_group_id(group);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_dec_nw_ttl(cindex(1));
+  } else {
+    // send to controller
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
