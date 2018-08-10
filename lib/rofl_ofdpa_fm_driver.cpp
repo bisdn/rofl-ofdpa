@@ -325,8 +325,6 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
     const uint16_t max_len) {
   cofflowmod fm(ofp_version);
 
-  cindex index(0);
-
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
@@ -346,23 +344,23 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
     fm.set_instructions()
         .set_inst_write_actions()
         .set_actions()
-        .set_action_group(index++)
+        .set_action_group(cindex(1))
         .set_group_id(group);
     fm.set_instructions()
         .set_inst_write_actions()
         .set_actions()
-        .set_action_dec_nw_ttl(index);
+        .set_action_dec_nw_ttl(cindex(0));
   } else {
     // send to controller
     fm.set_instructions()
         .set_inst_write_actions()
         .set_actions()
-        .add_action_output(index)
+        .add_action_output(cindex(0))
         .set_port_no(OFPP_CONTROLLER);
     fm.set_instructions()
         .set_inst_write_actions()
         .set_actions()
-        .set_action_output(index)
+        .set_action_output(cindex(0))
         .set_max_len(max_len);
   }
 
@@ -463,6 +461,146 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
   return fm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
+    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group,
+    const uint16_t max_len) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(3);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_HOST) |
+      0);
+
+  // TODO match VRF
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv6_dst(dst);
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  if (group) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_group(cindex(1))
+        .set_group_id(group);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_dec_nw_ttl(cindex(0));
+  } else {
+    // send to controller
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
+  }
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod
+rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
+                                                const caddress_in6 &dst) {
+
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_priority(3);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_HOST) |
+      0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv6_dst(dst);
+  // TODO VRF
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
+    uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask,
+    uint32_t group, const uint16_t max_len) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_LPM) | 0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv6_dst(dst, mask);
+  // TODO VRF
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  if (group) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_group(cindex(0))
+        .set_group_id(group);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_dec_nw_ttl(cindex(1));
+  } else {
+    // send to controller
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
+  }
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
+    uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_LPM) | 0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv6_dst(dst, mask);
+  // TODO VRF
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_interface(uint8_t ofp_version,
                                                             uint32_t port_no,
                                                             uint16_t vid,
