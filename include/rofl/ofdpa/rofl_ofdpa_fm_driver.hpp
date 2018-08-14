@@ -135,7 +135,7 @@ public:
   cofflowmod remove_bridging_unicast_overlay_all_tunnel(uint8_t ofp_version,
                                                         uint32_t tunnel_id);
 
-  // Unicast Routing
+  // Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
                                       const caddress_in4 &dst, uint32_t group,
                                       const uint16_t max_len = DEFAULT_MAX_LEN);
@@ -149,6 +149,20 @@ public:
   cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in4 &dst,
                                       const caddress_in4 &mask);
+
+  cofflowmod enable_ipv6_unicast_host(uint8_t ofp_version,
+                                      const caddress_in6 &dst, uint32_t group,
+                                      const uint16_t max_len = DEFAULT_MAX_LEN);
+  cofflowmod disable_ipv6_unicast_host(uint8_t ofp_version,
+                                       const caddress_in6 &dst);
+
+  cofflowmod enable_ipv6_unicast_lpm(uint8_t ofp_version,
+                                     const caddress_in6 &dst,
+                                     const caddress_in6 &mask, uint32_t group,
+                                     const uint16_t max_len = DEFAULT_MAX_LEN);
+  cofflowmod disable_ipv6_unicast_lpm(uint8_t ofp_version,
+                                      const caddress_in6 &dst,
+                                      const caddress_in6 &mask);
   // Policy ACL
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
