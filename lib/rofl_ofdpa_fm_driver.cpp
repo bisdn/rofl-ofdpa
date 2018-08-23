@@ -1215,6 +1215,10 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
   fm.set_cookie(cookie);
   fm.set_command(OFPFC_ADD);
 
+  if (idle_timeout) {
+    fm.set_flags(OFPFF_SEND_FLOW_REM);
+  }
+
   // Matches
   if (matches.has_in_port()) {
     fm.set_match().set_in_port(matches.get_in_port());
