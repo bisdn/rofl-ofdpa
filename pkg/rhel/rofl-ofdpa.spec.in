@@ -10,7 +10,12 @@ License:        BISDN
 URL:            http://www.bisdn.de/
 Source0:        rofl-ofdpa-%{version}%{?snapshot}.tar.gz
 
-BuildRequires:  autoconf, automake, libtool, rofl-common-devel
+BuildRequires:  autoconf
+BuildRequires:  automake
+BuildRequires:  gcc-c++
+BuildRequires:  libtool
+BuildRequires:  rofl-common-devel
+
 Requires:       rofl-common
 
 %description
@@ -54,4 +59,4 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Wed Jun 20 2018 Andreas Koepsel
 * Tue Feb  9 2016 Tobias Jungel
-- 
+-
