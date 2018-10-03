@@ -54,5 +54,5 @@ AC_CONFIG_FILES([Makefile
                  rofl_ofdpa.pc
                  include/Makefile
                  lib/Makefile
-		 pkg/rhel/rofl-ofdpa.spec])
+		 pkg/release/rpm/rofl-ofdpa.spec])
 AC_OUTPUT
