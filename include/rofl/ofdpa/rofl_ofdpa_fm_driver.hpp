@@ -104,6 +104,12 @@ public:
   cofflowmod disable_tmac_ipv4_unicast_mac(uint8_t ofp_version,
                                            uint32_t in_port, uint16_t vid,
                                            const caddress_ll &dmac);
+  cofflowmod enable_tmac_ipv6_unicast_mac(uint8_t ofp_version, uint32_t in_port,
+                                          uint16_t vid,
+                                          const caddress_ll &dmac);
+  cofflowmod disable_tmac_ipv6_unicast_mac(uint8_t ofp_version,
+                                           uint32_t in_port, uint16_t vid,
+                                           const caddress_ll &dmac);
 
   // Bridging
   cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,

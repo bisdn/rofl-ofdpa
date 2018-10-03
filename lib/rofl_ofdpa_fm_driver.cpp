@@ -296,6 +296,34 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
   return fm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
+    uint8_t ofp_version, uint32_t in_port, uint16_t vid,
+    const caddress_ll &dmac) {
+  assert(vid < 0x1000);
+
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV6_UNICAST_MAC) | 0);
+
+  if (in_port)
+    fm.set_match().set_in_port(in_port);
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  fm.set_match().set_eth_dst(dmac);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
 cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
     uint8_t ofp_version, uint32_t in_port, uint16_t vid,
     const caddress_ll &dmac) {
@@ -309,6 +337,30 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
   fm.set_priority(2);
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV4_UNICAST_MAC) | 0);
+
+  fm.set_match().set_in_port(in_port);
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  fm.set_match().set_eth_dst(dmac);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
+    uint8_t ofp_version, uint32_t in_port, uint16_t vid,
+    const caddress_ll &dmac) {
+  assert(vid < 0x1000);
+
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV6_UNICAST_MAC) | 0);
 
   fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IP);
