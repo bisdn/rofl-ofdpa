@@ -312,7 +312,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
 
   if (in_port)
     fm.set_match().set_in_port(in_port);
-  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(dmac);
 
@@ -363,7 +363,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
       gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV6_UNICAST_MAC) | 0);
 
   fm.set_match().set_in_port(in_port);
-  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(dmac);
 
@@ -528,7 +528,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
       0);
 
   // TODO match VRF
-  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst);
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -576,7 +576,7 @@ rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_HOST) |
       0);
 
-  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst);
   // TODO VRF
 
@@ -598,7 +598,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_LPM) | 0);
 
-  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst, mask);
   // TODO VRF
 
@@ -645,7 +645,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_LPM) | 0);
 
-  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst, mask);
   // TODO VRF
 

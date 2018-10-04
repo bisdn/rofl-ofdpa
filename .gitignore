@@ -12,6 +12,7 @@
 *.swo
 *.kdev4
 *.pyc
+*.tar.gz
 
 Makefile.in
 Makefile
