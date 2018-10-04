@@ -1,0 +1,6 @@
+/git-bundle*
+*.spec
+*.tar.*
+*.rpm
+
+!Makefile

@@ -1,0 +1,67 @@
+# vim:ft=spec
+%global fullversion ${FULLVERSION}%{nil}
+%global version     ${VERSION}%{nil}
+%global ncommits    ${NCOMMITS}%{nil}
+%global commit      ${COMMIT}%{nil}
+%global shortcommit ${SHORTCOMMIT}%{nil}
+
+Name:          rofl-ofdpa
+Version:       ${VERSION}
+Release:       %{!?ncommits:1}%{?ncommits}%{?shortcommit:.git%{shortcommit}}%{?dist}
+Summary:       TODO
+
+License:       BISDN
+URL:           http://www.bisdn.de/
+Source0:       https://github.com/bisdn/%{name}/archive/%{?commit}.tar.gz#/%{name}-%{shortcommit}.tar.gz
+
+BuildRequires: autoconf
+BuildRequires: automake
+BuildRequires: git
+BuildRequires: gcc-c++
+BuildRequires: libtool
+BuildRequires: rofl-common-devel
+
+Requires:      rofl-common
+
+%description
+TODO
+
+%package       devel
+Summary:       TODO
+Group:         Development/Libraries
+Requires:      %{name} = %{version}-%{release}
+Requires:      rofl-common-devel
+
+%description   devel
+TODO
+
+%prep
+%setup -q -n %{name}-%{commit}
+# %%autosetup %%{?commit:-n %%{name}-%%{commit}} -p1 -Sgit
+
+
+%build
+./autogen.sh
+%configure
+make %{?_smp_mflags}
+
+
+%install
+%make_install
+
+
+%files
+%{_libdir}/librofl_ofdpa.so.*
+
+%doc
+
+%files devel
+%{_includedir}/rofl/ofdpa/rofl_ofdpa_fm_driver.hpp
+%{_libdir}/librofl_ofdpa.a
+%{_libdir}/librofl_ofdpa.la
+%{_libdir}/librofl_ofdpa.so
+%{_libdir}/pkgconfig/rofl_ofdpa.pc
+
+%changelog
+* Tue Feb  9 2016 Tobias Jungel
+-
