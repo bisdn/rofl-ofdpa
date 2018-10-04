@@ -958,6 +958,32 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_overlay_multicast(
   return gm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_ipv6_multicast(
+    uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask) {
+
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV6_VLAN) | 0);
+
+  fm.set_command(OFPFC_ADD);
+
+  fm.set_match().set_eth_type(ETH_P_IPV6);
+  fm.set_match().set_ipv6_dst(dst, mask);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_output(cindex(0))
+      .set_port_no(OFPP_CONTROLLER);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
                                                    bool update) {
 

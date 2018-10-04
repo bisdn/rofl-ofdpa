@@ -201,6 +201,10 @@ public:
   cofflowmod enable_policy_vrrp(uint8_t ofp_version,
                                 const uint16_t max_len = DEFAULT_MAX_LEN);
 
+  cofflowmod enable_policy_ipv6_multicast(uint8_t ofp_version,
+                                          const caddress_in6 &dst,
+                                          const caddress_in6 &mask);
+
   cofflowmod enable_send_to_l2_rewrite(uint8_t ofp_version, uint16_t vid,
                                        const caddress_ll &dst,
                                        uint32_t group_id, uint64_t cookie);
