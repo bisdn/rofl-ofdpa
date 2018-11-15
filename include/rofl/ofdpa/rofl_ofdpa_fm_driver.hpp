@@ -290,7 +290,8 @@ public:
   cofgroupmod enable_group_l3_unicast(uint8_t ofp_version, uint32_t id,
                                       const caddress_ll &src_mac,
                                       const cmacaddr &dst_mac,
-                                      uint32_t l2_interface);
+                                      uint32_t l2_interface,
+                                      bool modify = false);
 
   cofgroupmod disable_group_l3_unicast(uint8_t ofp_version, uint32_t id);
 

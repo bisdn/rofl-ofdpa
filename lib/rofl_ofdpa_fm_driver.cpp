@@ -1884,14 +1884,19 @@ rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
 
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
     uint8_t ofp_version, uint32_t id, const caddress_ll &src_mac,
-    const cmacaddr &dst_mac, uint32_t l2_interface) {
+    const cmacaddr &dst_mac, uint32_t l2_interface, bool modify) {
   uint32_t group_id = group_id_l3_unicast(id);
   cofgroupmod gm(ofp_version);
 
   assert(0 == get_group_type(l2_interface) &&
          "wrong l2 interface in enable_group_l3_unicast");
 
-  gm.set_command(OFPGC_ADD);
+  if (modify) {
+    gm.set_command(OFPGC_MODIFY);
+  } else {
+    gm.set_command(OFPGC_ADD);
+  }
+
   gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
