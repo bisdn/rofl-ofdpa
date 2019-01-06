@@ -73,6 +73,7 @@ public:
   GROUP_ID_FUNC_ID_VLAN(l2_flood, 4);
   GROUP_ID_FUNC_ID(l3_interface, 5);
   GROUP_ID_FUNC_ID_VLAN(l3_multicast, 6);
+  GROUP_ID_FUNC_ID(l3_ecmp, 7);
   GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_flood, 8, 0);
   GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_multicast, 8, 1);
   GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
@@ -279,14 +280,14 @@ public:
 
   cofgroupmod disable_group_l2_rewrite(uint8_t ofp_version, uint32_t id);
 
-  cofgroupmod enable_group_l3_interface(uint8_t ofp_version, uint32_t id,
-                                        const caddress_ll &src_mac,
-                                        uint32_t l2_interface,
-                                        const cmacaddr &dst_mac = cmacaddr{
-                                            "00:00:00:00:00:00"});
+  /* Used to specify IP multipath. */
+  cofgroupmod enable_group_l3_ecmp(uint8_t ofp_version, uint32_t id,
+                                   const std::set<uint32_t> l3_unicast,
+                                   bool modify = false);
 
-  cofgroupmod disable_group_l3_interface(uint8_t ofp_version, uint32_t id);
+  cofgroupmod disable_group_l3_ecmp(uint8_t ofp_version, uint32_t id);
 
+  /* Used for Ethernet next hop configuration. */
   cofgroupmod enable_group_l3_unicast(uint8_t ofp_version, uint32_t id,
                                       const caddress_ll &src_mac,
                                       const cmacaddr &dst_mac,
@@ -294,6 +295,15 @@ public:
                                       bool modify = false);
 
   cofgroupmod disable_group_l3_unicast(uint8_t ofp_version, uint32_t id);
+
+  /* Used for L3 multicast */
+  cofgroupmod enable_group_l3_interface(uint8_t ofp_version, uint32_t id,
+                                        const caddress_ll &src_mac,
+                                        uint32_t l2_interface,
+                                        const cmacaddr &dst_mac = cmacaddr{
+                                            "00:00:00:00:00:00"});
+
+  cofgroupmod disable_group_l3_interface(uint8_t ofp_version, uint32_t id);
 
 private:
   uint16_t idle_timeout = 0;

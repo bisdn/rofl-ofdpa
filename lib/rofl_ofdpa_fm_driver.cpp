@@ -1824,61 +1824,43 @@ cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
   return fm;
 }
 
-cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_interface(
-    uint8_t ofp_version, uint32_t id, const caddress_ll &src_mac,
-    uint32_t l2_interface, const cmacaddr &dst_mac) {
-
-  uint32_t group_id = group_id_l3_interface(id);
+cofgroupmod
+rofl_ofdpa_fm_driver::enable_group_l3_ecmp(uint8_t ofp_version, uint32_t id,
+                                           const std::set<uint32_t> l3_unicast,
+                                           bool modify) {
   cofgroupmod gm(ofp_version);
+  uint32_t group_id = group_id_l3_ecmp(id);
+  uint32_t bucket_id = 0;
 
-  assert(5 == get_group_type(l2_interface) &&
-         "wrong l2 group in enable_group_l3_interface");
-
-  gm.set_command(OFPGC_ADD);
-  gm.set_type(OFPGT_INDIRECT);
-  gm.set_group_id(group_id);
-
-  cindex i(0);
-  gm.set_buckets()
-      .set_bucket(0)
-      .set_actions()
-      .add_action_set_field(i++)
-      .set_oxm(coxmatch_ofb_eth_src(src_mac));
-
-  if (dst_mac != caddress_ll("00:00:00:00:00:00")) {
-    gm.set_buckets()
-        .set_bucket(0)
-        .set_actions()
-        .add_action_set_field(i++)
-        .set_oxm(coxmatch_ofb_eth_dst(dst_mac));
+  if (modify) {
+    gm.set_command(OFPGC_MODIFY);
+  } else {
+    gm.set_command(OFPGC_ADD);
   }
 
-  gm.set_buckets()
-      .set_bucket(0)
-      .set_actions()
-      .add_action_set_field(i++)
-      .set_oxm(
-          coxmatch_ofb_vlan_vid(OFPVID_PRESENT | get_group_vid(l2_interface)));
+  gm.set_type(OFPGT_SELECT);
+  gm.set_group_id(group_id);
 
-  gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
-      l2_interface);
+  for (const uint32_t &i : l3_unicast) {
+    gm.set_buckets()
+        .add_bucket(bucket_id++)
+        .set_actions()
+        .add_action_group(cindex(0))
+        .set_group_id(i);
+  }
 
-  DEBUG_LOG(": return group-mod:" << std::endl << gm);
   return gm;
 }
 
-cofgroupmod
-rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
-                                                 uint32_t id) {
-
-  uint32_t group_id = group_id_l3_interface(id);
+cofgroupmod rofl_ofdpa_fm_driver::disable_group_l3_ecmp(uint8_t ofp_version,
+                                                        uint32_t id) {
   cofgroupmod gm(ofp_version);
+  uint32_t group_id = group_id_l3_ecmp(id);
 
   gm.set_command(OFPGC_DELETE);
-  gm.set_type(OFPGT_INDIRECT);
+  gm.set_type(OFPGT_SELECT);
   gm.set_group_id(group_id);
 
-  DEBUG_LOG(": return group-mod:" << std::endl << gm);
   return gm;
 }
 
@@ -1930,6 +1912,64 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
 cofgroupmod rofl_ofdpa_fm_driver::disable_group_l3_unicast(uint8_t ofp_version,
                                                            uint32_t id) {
   uint32_t group_id = group_id_l3_unicast(id);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_DELETE);
+  gm.set_type(OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_interface(
+    uint8_t ofp_version, uint32_t id, const caddress_ll &src_mac,
+    uint32_t l2_interface, const cmacaddr &dst_mac) {
+
+  uint32_t group_id = group_id_l3_interface(id);
+  cofgroupmod gm(ofp_version);
+
+  assert(5 == get_group_type(l2_interface) &&
+         "wrong l2 group in enable_group_l3_interface");
+
+  gm.set_command(OFPGC_ADD);
+  gm.set_type(OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  cindex i(0);
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(coxmatch_ofb_eth_src(src_mac));
+
+  if (dst_mac != caddress_ll("00:00:00:00:00:00")) {
+    gm.set_buckets()
+        .set_bucket(0)
+        .set_actions()
+        .add_action_set_field(i++)
+        .set_oxm(coxmatch_ofb_eth_dst(dst_mac));
+  }
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(
+          coxmatch_ofb_vlan_vid(OFPVID_PRESENT | get_group_vid(l2_interface)));
+
+  gm.set_buckets().set_bucket(0).set_actions().add_action_group(i).set_group_id(
+      l2_interface);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
+cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
+                                                 uint32_t id) {
+
+  uint32_t group_id = group_id_l3_interface(id);
   cofgroupmod gm(ofp_version);
 
   gm.set_command(OFPGC_DELETE);
