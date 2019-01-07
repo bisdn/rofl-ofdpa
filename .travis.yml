@@ -6,18 +6,22 @@ services:
   - docker
 
 env:
-  - BUILDER="docker.io/toanju/builder:28"
+  global:
+    - BUILDER="docker.io/toanju/builder"
+  matrix:
+    - RELVER=28
+
 before_install:
-  - docker pull $BUILDER
+  - docker pull $BUILDER:$RELVER
 
 script:
-  - docker run -v "$PWD":/workdir:Z --rm --name builder -dti $BUILDER /bin/bash
+  - docker run -v "$PWD":/workdir:Z --rm --name builder -dti $BUILDER:$RELVER /bin/bash
   - docker exec builder find . -regex '.*\.\(hh?\|cc?\|hpp\|cpp\)$' | xargs docker exec builder clang-format -i -style=file -fallback-style=llvm
   - docker exec builder git diff --exit-code
-  - docker exec builder dnf -y copr enable bisdn/rofl
-  - docker exec builder dnf -y copr enable bisdn/rofl-testing
+  - docker exec builder dnf -y copr --releasever $RELVER enable bisdn/rofl
+  - docker exec builder dnf -y copr --releasever $RELVER enable bisdn/rofl-testing
   - docker exec builder make -C ./pkg/testing/rpm/ spec
-  - docker exec builder dnf -y builddep ./pkg/testing/rpm/rofl-ofdpa.spec
+  - docker exec builder dnf -y builddep --releasever $RELVER ./pkg/testing/rpm/rofl-ofdpa.spec
   - docker exec builder ./autogen.sh
   - docker exec builder ./configure
   - docker exec builder make -j
