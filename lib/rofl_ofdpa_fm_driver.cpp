@@ -187,7 +187,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_pvid_ingress(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
                                                          uint32_t port_no,
-                                                         uint16_t vid) {
+                                                         uint16_t vid,
+                                                         uint16_t vrf_id) {
   assert(vid < 0x1000);
   cofflowmod fm(ofp_version);
 
@@ -201,6 +202,14 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
 
+  if (vrf_id != 0) {
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .add_action_set_field(cindex(0))
+        .set_oxm(ofdpa::coxmatch_ofb_vrf(vrf_id));
+  }
+
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
@@ -211,7 +220,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
                                                           uint32_t port_no,
-                                                          uint16_t vid) {
+                                                          uint16_t vid,
+                                                          uint16_t vrf_id) {
   assert(vid < 0x1000);
   cofflowmod fm(ofp_version);
 
@@ -220,6 +230,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
 
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
@@ -373,7 +389,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
-    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group, bool update) {
+    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group, bool update, uint32_t vrf_id) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
@@ -385,9 +401,17 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_HOST) |
       0);
 
-  // TODO match VRF
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst);
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
+
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -420,9 +444,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
   return fm;
 }
 
-cofflowmod
-rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
-                                                const caddress_in4 &dst) {
+cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(
+    uint8_t ofp_version, const caddress_in4 &dst, uint32_t vrf_id) {
 
   cofflowmod fm(ofp_version);
 
@@ -436,7 +459,14 @@ rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
 
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst);
-  // TODO VRF
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -445,7 +475,7 @@ rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
     uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask,
-    uint32_t group, bool update) {
+    uint32_t group, bool update, uint32_t vrf_id) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
@@ -458,7 +488,14 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
 
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst, mask);
-  // TODO VRF
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -493,7 +530,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
-    uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask) {
+    uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask,
+    uint32_t vrf_id) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_DELETE_STRICT);
@@ -506,7 +544,14 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
 
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst, mask);
-  // TODO VRF
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -514,7 +559,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
-    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group, bool update) {
+    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group, bool update, uint32_t vrf_id) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
@@ -526,9 +571,17 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_HOST) |
       0);
 
-  // TODO match VRF
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst);
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
+
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -561,9 +614,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
   return fm;
 }
 
-cofflowmod
-rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
-                                                const caddress_in6 &dst) {
+cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(
+    uint8_t ofp_version, const caddress_in6 &dst, uint32_t vrf_id) {
 
   cofflowmod fm(ofp_version);
 
@@ -577,7 +629,14 @@ rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
 
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst);
-  // TODO VRF
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -586,7 +645,7 @@ rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
     uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask,
-    uint32_t group, bool update) {
+    uint32_t group, bool update, uint32_t vrf_id) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
@@ -599,7 +658,14 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
 
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst, mask);
-  // TODO VRF
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -634,7 +700,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
-    uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask) {
+    uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask,
+    uint32_t vrf_id) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_DELETE_STRICT);
@@ -647,7 +714,14 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
 
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst, mask);
-  // TODO VRF
+
+  // match VRF
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
