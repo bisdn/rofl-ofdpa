@@ -86,14 +86,14 @@ public:
 
   // VLAN
   cofflowmod enable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                      uint16_t vid);
+                                      uint16_t vid, uint32_t vrf_id = 0);
   cofflowmod disable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                       uint16_t vid);
+                                       uint16_t vid, uint32_t vrf_id = 0);
 
   cofflowmod enable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                     uint16_t vid);
+                                     uint16_t vid, uint32_t vrf_id = 0);
   cofflowmod disable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                      uint16_t vid);
+                                      uint16_t vid, uint32_t vrf_id = 0);
 
   cofflowmod enable_port_vid_allow_all(uint8_t ofp_version, uint32_t port_no);
   cofflowmod disable_port_vid_allow_all(uint8_t ofp_version, uint32_t port_no);
@@ -145,31 +145,39 @@ public:
   // Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
                                       const caddress_in4 &dst, uint32_t group,
-                                      const uint16_t max_len = DEFAULT_MAX_LEN);
+                                      const uint16_t max_len = DEFAULT_MAX_LEN,
+                                      uint32_t vrf_id = 0);
   cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
-                                       const caddress_in4 &dst);
+                                       const caddress_in4 &dst,
+                                       uint32_t vrf_id = 0);
 
   cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in4 &dst,
                                      const caddress_in4 &mask, uint32_t group,
-                                     const uint16_t max_len = DEFAULT_MAX_LEN);
+                                     const uint16_t max_len = DEFAULT_MAX_LEN,
+                                     uint32_t vrf_id = 0);
   cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in4 &dst,
-                                      const caddress_in4 &mask);
+                                      const caddress_in4 &mask,
+                                      uint32_t vrf_id = 0);
 
   cofflowmod enable_ipv6_unicast_host(uint8_t ofp_version,
                                       const caddress_in6 &dst, uint32_t group,
-                                      const uint16_t max_len = DEFAULT_MAX_LEN);
+                                      const uint16_t max_len = DEFAULT_MAX_LEN,
+                                      uint32_t vrf_id = 0);
   cofflowmod disable_ipv6_unicast_host(uint8_t ofp_version,
-                                       const caddress_in6 &dst);
+                                       const caddress_in6 &dst,
+                                       uint32_t vrf_id = 0);
 
   cofflowmod enable_ipv6_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in6 &dst,
                                      const caddress_in6 &mask, uint32_t group,
-                                     const uint16_t max_len = DEFAULT_MAX_LEN);
+                                     const uint16_t max_len = DEFAULT_MAX_LEN,
+                                     uint32_t vrf_id = 0);
   cofflowmod disable_ipv6_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in6 &dst,
-                                      const caddress_in6 &mask);
+                                      const caddress_in6 &mask,
+                                      uint32_t vrf_id = 0);
   // Policy ACL
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
