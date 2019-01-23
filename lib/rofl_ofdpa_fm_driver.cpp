@@ -439,6 +439,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
   fm.set_priority(2);
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_LPM) | 0);
+  fm.set_cookie_mask(-1);
 
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst, mask);
