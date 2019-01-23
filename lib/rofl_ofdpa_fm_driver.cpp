@@ -154,11 +154,12 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
       .add_action_set_field(cindex(0))
       .set_oxm(coxmatch_ofb_vlan_vid(OFPVID_PRESENT | vid));
 
-  fm.set_instructions()
-      .set_inst_apply_actions()
-      .set_actions()
-      .add_action_set_field(cindex(0))
-      .set_oxm(ofdpa::coxmatch_ofb_vrf(vrf_id));
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
@@ -188,9 +189,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_pvid_ingress(uint8_t ofp_version,
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(0);
 
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -213,9 +217,13 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .add_action_set_field(cindex(1))
+        .set_oxm(ofdpa::coxmatch_ofb_vrf(vrf_id));
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
@@ -237,9 +245,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
 
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
@@ -410,9 +421,12 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
   fm.set_match().set_ipv4_dst(dst);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -463,9 +477,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(
   fm.set_match().set_ipv4_dst(dst);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -489,9 +506,12 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
   fm.set_match().set_ipv4_dst(dst, mask);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -542,9 +562,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
   fm.set_match().set_ipv4_dst(dst, mask);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -569,9 +592,12 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
   fm.set_match().set_ipv6_dst(dst);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -622,9 +648,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(
   fm.set_match().set_ipv6_dst(dst);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -648,9 +677,12 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
   fm.set_match().set_ipv6_dst(dst, mask);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -701,9 +733,12 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
   fm.set_match().set_ipv6_dst(dst, mask);
 
   // match VRF
-  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
-                                             ofdpa::OXM_TLV_EXPR_VRF_MASK) =
-      ofdpa::coxmatch_ofb_vrf(vrf_id);
+  if (vrf_id != 0) {
+    fm.set_match()
+      .set_matches()
+      .set_exp_match(EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) =
+        ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
