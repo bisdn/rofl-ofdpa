@@ -576,7 +576,6 @@ rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_HOST) |
       0);
-  fm.set_cookie_mask(-1);
 
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst);
@@ -646,6 +645,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
   fm.set_priority(2);
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_LPM) | 0);
+  fm.set_cookie_mask(-1);
 
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst, mask);
