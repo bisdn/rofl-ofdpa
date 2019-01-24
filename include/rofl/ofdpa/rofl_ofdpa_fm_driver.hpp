@@ -86,9 +86,9 @@ public:
 
   // VLAN
   cofflowmod enable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                      uint16_t vid, uint32_t vrf_id = 0);
+                                      uint16_t vid);
   cofflowmod disable_port_pvid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                       uint16_t vid, uint32_t vrf_id = 0);
+                                       uint16_t vid);
 
   cofflowmod enable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
                                      uint16_t vid, uint32_t vrf_id = 0);
