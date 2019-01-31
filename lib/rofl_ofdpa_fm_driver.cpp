@@ -497,12 +497,13 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
     uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_DELETE);
+  fm.set_command(OFPFC_DELETE_STRICT);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_priority(2);
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV4_UNICAST_LPM) | 0);
+  fm.set_cookie_mask(-1);
 
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_ipv4_dst(dst, mask);
@@ -638,12 +639,13 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
     uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_DELETE);
+  fm.set_command(OFPFC_DELETE_STRICT);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_priority(2);
   fm.set_cookie(
       gen_flow_mod_type_cookie(OFDPA_FTT_UNICAST_ROUTING_IPV6_UNICAST_LPM) | 0);
+  fm.set_cookie_mask(-1);
 
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_ipv6_dst(dst, mask);
