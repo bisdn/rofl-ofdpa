@@ -1241,6 +1241,32 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version,
   return fm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_ipv4_multicast(
+    uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask) {
+
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV4_VLAN) | 0);
+
+  fm.set_command(OFPFC_ADD);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst, mask);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_output(cindex(0))
+      .set_port_no(OFPP_CONTROLLER);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
 cofflowmod rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
     uint8_t ofp_version, uint16_t vid, const caddress_ll &dst,
     uint32_t group_id, uint64_t cookie) {
