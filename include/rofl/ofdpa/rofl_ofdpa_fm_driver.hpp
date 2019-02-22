@@ -56,6 +56,9 @@ public:
   void set_idle_timeout(uint16_t timeout) { idle_timeout = timeout; }
   uint16_t get_idle_timeout() const { return idle_timeout; }
 
+  void set_max_len(uint16_t max_len) { this->max_len = max_len; }
+  uint16_t get_max_len() const { return max_len; }
+
   inline uint8_t get_group_type(uint32_t group_id) { return group_id >> 28; }
 
   inline uint16_t get_group_vid(uint32_t group_id) {
@@ -144,29 +147,25 @@ public:
 
   // Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
-                                      const caddress_in4 &dst, uint32_t group,
-                                      const uint16_t max_len = DEFAULT_MAX_LEN);
+                                      const caddress_in4 &dst, uint32_t group);
   cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
                                        const caddress_in4 &dst);
 
   cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in4 &dst,
-                                     const caddress_in4 &mask, uint32_t group,
-                                     const uint16_t max_len = DEFAULT_MAX_LEN);
+                                     const caddress_in4 &mask, uint32_t group);
   cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in4 &dst,
                                       const caddress_in4 &mask);
 
   cofflowmod enable_ipv6_unicast_host(uint8_t ofp_version,
-                                      const caddress_in6 &dst, uint32_t group,
-                                      const uint16_t max_len = DEFAULT_MAX_LEN);
+                                      const caddress_in6 &dst, uint32_t group);
   cofflowmod disable_ipv6_unicast_host(uint8_t ofp_version,
                                        const caddress_in6 &dst);
 
   cofflowmod enable_ipv6_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in6 &dst,
-                                     const caddress_in6 &mask, uint32_t group,
-                                     const uint16_t max_len = DEFAULT_MAX_LEN);
+                                     const caddress_in6 &mask, uint32_t group);
   cofflowmod disable_ipv6_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in6 &dst,
                                       const caddress_in6 &mask);
@@ -174,14 +173,12 @@ public:
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
   cofflowmod enable_policy_l2(uint8_t ofp_version, const rofl::caddress_ll &mac,
-                              const uint16_t type,
-                              const uint16_t max_len = DEFAULT_MAX_LEN);
+                              const uint16_t type);
 
-  cofflowmod
-  enable_policy_specific_lacp(uint8_t ofp_version, const caddress_ll &eth_src,
-                              const uint16_t timeout_seconds,
-                              const uint32_t in_port,
-                              const uint16_t max_len = DEFAULT_MAX_LEN);
+  cofflowmod enable_policy_specific_lacp(uint8_t ofp_version,
+                                         const caddress_ll &eth_src,
+                                         const uint16_t timeout_seconds,
+                                         const uint32_t in_port);
 
   cofflowmod disable_policy_l2(uint8_t ofp_version,
                                const rofl::caddress_ll &mac,
@@ -190,17 +187,13 @@ public:
   cofflowmod disable_policy_specific_lacp(uint8_t ofp_version,
                                           const uint32_t in_port);
 
-  cofflowmod enable_policy_8021d(uint8_t ofp_version, bool update = false,
-                                 const uint16_t max_len = DEFAULT_MAX_LEN);
+  cofflowmod enable_policy_8021d(uint8_t ofp_version, bool update = false);
   cofflowmod disable_policy_8021d(uint8_t ofp_version);
 
-  cofflowmod
-  enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
-                              int16_t dst_port,
-                              const uint16_t max_len = DEFAULT_MAX_LEN);
+  cofflowmod enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
+                                         int16_t dst_port);
 
-  cofflowmod enable_policy_vrrp(uint8_t ofp_version,
-                                const uint16_t max_len = DEFAULT_MAX_LEN);
+  cofflowmod enable_policy_vrrp(uint8_t ofp_version);
 
   cofflowmod enable_policy_ipv4_multicast(uint8_t ofp_version,
                                           const caddress_in4 &dst,
@@ -311,6 +304,7 @@ public:
 
 private:
   uint16_t idle_timeout = 0;
+  uint16_t max_len = DEFAULT_MAX_LEN;
   static const uint16_t DEFAULT_MAX_LEN = OFPCML_NO_BUFFER;
 };
 

@@ -373,8 +373,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
-    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group,
-    const uint16_t max_len) {
+    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_ADD);
@@ -446,7 +445,7 @@ rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
     uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask,
-    uint32_t group, const uint16_t max_len) {
+    uint32_t group) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_ADD);
@@ -515,8 +514,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
-    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group,
-    const uint16_t max_len) {
+    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_ADD);
@@ -588,7 +586,7 @@ rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
     uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask,
-    uint32_t group, const uint16_t max_len) {
+    uint32_t group) {
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_ADD);
@@ -1013,8 +1011,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
                                                   const rofl::caddress_ll &mac,
-                                                  const uint16_t type,
-                                                  const uint16_t max_len) {
+                                                  const uint16_t type) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -1047,8 +1044,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
     uint8_t ofp_version, const caddress_ll &eth_src,
-    const uint16_t timeout_seconds, const uint32_t in_port,
-    const uint16_t max_len) {
+    const uint16_t timeout_seconds, const uint32_t in_port) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -1083,8 +1079,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version,
-                                                     bool update,
-                                                     const uint16_t max_len) {
+                                                     bool update) {
 
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -1175,8 +1170,7 @@ rofl_ofdpa_fm_driver::disable_policy_specific_lacp(uint8_t ofp_version,
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(
-    uint8_t ofp_version, int16_t src_port, int16_t dst_port,
-    const uint16_t max_len) {
+    uint8_t ofp_version, int16_t src_port, int16_t dst_port) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -1209,8 +1203,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_broadcast_udp(
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version,
-                                                    const uint16_t max_len) {
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_vrrp(uint8_t ofp_version) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
