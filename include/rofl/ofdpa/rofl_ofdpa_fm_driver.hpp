@@ -147,25 +147,29 @@ public:
 
   // Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
-                                      const caddress_in4 &dst, uint32_t group);
+                                      const caddress_in4 &dst, uint32_t group,
+                                      bool update = false);
   cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
                                        const caddress_in4 &dst);
 
   cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in4 &dst,
-                                     const caddress_in4 &mask, uint32_t group);
+                                     const caddress_in4 &mask, uint32_t group,
+                                     bool update = false);
   cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in4 &dst,
                                       const caddress_in4 &mask);
 
   cofflowmod enable_ipv6_unicast_host(uint8_t ofp_version,
-                                      const caddress_in6 &dst, uint32_t group);
+                                      const caddress_in6 &dst, uint32_t group,
+                                      bool update = false);
   cofflowmod disable_ipv6_unicast_host(uint8_t ofp_version,
                                        const caddress_in6 &dst);
 
   cofflowmod enable_ipv6_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in6 &dst,
-                                     const caddress_in6 &mask, uint32_t group);
+                                     const caddress_in6 &mask, uint32_t group,
+                                     bool update = false);
   cofflowmod disable_ipv6_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in6 &dst,
                                       const caddress_in6 &mask);

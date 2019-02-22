@@ -373,10 +373,10 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_host(
-    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group) {
+    uint8_t ofp_version, const caddress_in4 &dst, uint32_t group, bool update) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_idle_timeout(idle_timeout);
@@ -445,10 +445,10 @@ rofl_ofdpa_fm_driver::disable_ipv4_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
     uint8_t ofp_version, const caddress_in4 &dst, const caddress_in4 &mask,
-    uint32_t group) {
+    uint32_t group, bool update) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_idle_timeout(idle_timeout);
@@ -514,10 +514,10 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_unicast_lpm(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_host(
-    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group) {
+    uint8_t ofp_version, const caddress_in6 &dst, uint32_t group, bool update) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_idle_timeout(idle_timeout);
@@ -586,10 +586,10 @@ rofl_ofdpa_fm_driver::disable_ipv6_unicast_host(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
     uint8_t ofp_version, const caddress_in6 &dst, const caddress_in6 &mask,
-    uint32_t group) {
+    uint32_t group, bool update) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_idle_timeout(idle_timeout);
