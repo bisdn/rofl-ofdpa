@@ -148,35 +148,35 @@ public:
   // Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
                                       const caddress_in4 &dst, uint32_t group,
-                                      bool update = false, uint32_t vrf_id = 0);
+                                      bool update = false, uint16_t vrf_id = 0);
   cofflowmod disable_ipv4_unicast_host(uint8_t ofp_version,
                                        const caddress_in4 &dst,
-                                       uint32_t vrf_id = 0);
+                                       uint16_t vrf_id = 0);
 
   cofflowmod enable_ipv4_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in4 &dst,
                                      const caddress_in4 &mask, uint32_t group,
-                                     bool update = false, uint32_t vrf_id = 0);
+                                     bool update = false, uint16_t vrf_id = 0);
   cofflowmod disable_ipv4_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in4 &dst,
                                       const caddress_in4 &mask,
-                                      uint32_t vrf_id = 0);
+                                      uint16_t vrf_id = 0);
 
   cofflowmod enable_ipv6_unicast_host(uint8_t ofp_version,
                                       const caddress_in6 &dst, uint32_t group,
-                                      bool update = false, uint32_t vrf_id = 0);
+                                      bool update = false, uint16_t vrf_id = 0);
   cofflowmod disable_ipv6_unicast_host(uint8_t ofp_version,
                                        const caddress_in6 &dst,
-                                       uint32_t vrf_id = 0);
+                                       uint16_t vrf_id = 0);
 
   cofflowmod enable_ipv6_unicast_lpm(uint8_t ofp_version,
                                      const caddress_in6 &dst,
                                      const caddress_in6 &mask, uint32_t group,
-                                     bool update = false, uint32_t vrf_id = 0);
+                                     bool update = false, uint16_t vrf_id = 0);
   cofflowmod disable_ipv6_unicast_lpm(uint8_t ofp_version,
                                       const caddress_in6 &dst,
                                       const caddress_in6 &mask,
-                                      uint32_t vrf_id = 0);
+                                      uint16_t vrf_id = 0);
   // Policy ACL
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
