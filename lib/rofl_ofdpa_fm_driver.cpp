@@ -1346,8 +1346,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_send_to_l2_rewrite(
   cofactions write_actions(ofp_version);
   write_actions.set_action_group(cindex(0)).set_group_id(group_id);
 
-  return enable_policy_acl_ipv4_vlan(ofp_version, match, false, 0, 0, cookie,
-                                     cofactions(), write_actions);
+  return enable_policy_acl_generic(ofp_version, match, false, 0, 0, cookie,
+                                   cofactions(), write_actions);
 }
 
 cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite(
@@ -1359,7 +1359,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite(
   match.set_vlan_vid(vid | OFPVID_PRESENT);
   match.set_eth_dst(dst);
 
-  return disable_policy_acl_ipv4_vlan(ofp_version, match, cookie);
+  return disable_policy_acl_generic(ofp_version, match, cookie);
 }
 
 cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite_all(
@@ -1369,13 +1369,13 @@ cofflowmod rofl_ofdpa_fm_driver::disable_send_to_l2_rewrite_all(
   cofmatch match(ofp_version);
   match.set_vlan_vid(vid | OFPVID_PRESENT);
 
-  return disable_policy_acl_ipv4_vlan(ofp_version, match, cookie);
+  return disable_policy_acl_generic(ofp_version, match, cookie);
 }
 
 // TODO: For future reference:
 // The contents of apply_actions and write_actions arguments should be checked,
 // rofl-common also currently does not match on VLAN_DEI and VRF.
-cofflowmod rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
+cofflowmod rofl_ofdpa_fm_driver::enable_policy_acl_generic(
     uint8_t ofp_version, const cofmatch &matches, bool clear_actions,
     uint32_t meter_id, uint32_t table_id, uint64_t cookie,
     const cofactions &apply_actions, const cofactions &write_actions) {
@@ -1504,7 +1504,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_acl_ipv4_vlan(
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::disable_policy_acl_ipv4_vlan(
+cofflowmod rofl_ofdpa_fm_driver::disable_policy_acl_generic(
     uint8_t ofp_version, const cofmatch &matches, uint64_t cookie) {
 
   cofflowmod fm(ofp_version);
