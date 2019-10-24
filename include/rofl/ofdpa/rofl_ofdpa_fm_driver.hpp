@@ -223,15 +223,15 @@ public:
                                             uint64_t cookie);
 
   cofflowmod
-  enable_policy_acl_ipv4_vlan(uint8_t ofp_version, const cofmatch &matches,
-                              bool clear_actions = false, uint32_t meter_id = 0,
-                              uint32_t table_id = 0, uint64_t cookie = 0,
-                              const cofactions &apply_actions = cofactions(),
-                              const cofactions &write_actions = cofactions());
+  enable_policy_acl_generic(uint8_t ofp_version, const cofmatch &matches,
+                            bool clear_actions = false, uint32_t meter_id = 0,
+                            uint32_t table_id = 0, uint64_t cookie = 0,
+                            const cofactions &apply_actions = cofactions(),
+                            const cofactions &write_actions = cofactions());
 
-  cofflowmod disable_policy_acl_ipv4_vlan(uint8_t ofp_version,
-                                          const cofmatch &matches,
-                                          uint64_t cookie);
+  cofflowmod disable_policy_acl_generic(uint8_t ofp_version,
+                                        const cofmatch &matches,
+                                        uint64_t cookie);
 
   // VLAN Egress
   cofflowmod rewrite_vlan_egress(uint8_t ofp_version, uint32_t backup_port,
