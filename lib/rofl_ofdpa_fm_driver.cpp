@@ -24,6 +24,15 @@
 #define DEBUG_LOG(x)
 #endif
 
+#ifndef ETH_P_8021AD
+#define ETH_P_8021AD 0x88A8
+#endif
+
+#ifndef OXM_TLV_CLASS_TYPE
+#define OXM_TLV_CLASS_TYPE(x) (x & 0xfffffe00)
+#endif
+
+
 namespace rofl {
 namespace openflow {
 
@@ -1933,13 +1942,13 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
 
   fm.set_command(OFPFC_ADD);
 
-  fm.set_match().set_vlan_vid(OFPVID_PRESENT | OFPVID_PRESENT);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
   ofdpa::coxmatch_ofb_actset_output exp_match(port);
   fm.set_match().set_matches().set_exp_match(
       ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
 
-  fm.set_match().set_vlan_vid(OFPVID_PRESENT | OFPVID_PRESENT);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
   /*
   Copy Field - PACKET_REG(1)  - Copy the VLAN Id to a temporary register.
@@ -1947,32 +1956,23 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
   PUSH VLAN - ETH_TYPE - Must be 0x88a8.
   Set-Field - PACKET_REG(1) - Sets the VLAN Id to the copied value.
   */
-  
+
   cofaction_experimenter action;
   action.set_version(rofl::openflow13::OFP_VERSION);
   action.set_exp_id(0x4F4E4600);
 
-  uint16_t n_bits = 12; // VLAN size - number of bits to copy
-  uint16_t src_offset = 0;
-  uint16_t dst_offset = 0;
-  uint32_t src_oxm_id = OXM_TLV_BASIC_VLAN_VID;
-  uint32_t src_oxm_exp_id = 0;
-  uint32_t dst_oxm_id = OXM_TLV_PKTREG(1);
-  uint32_t dst_oxm_exp_id = 0;
-
   experimental::ext320::cofaction_body_copy_field copy_field(
-		  n_bits, 
-		  src_offset, 
-		  dst_offset, 
-		  src_oxm_id, 
-		  src_oxm_exp_id, 
-		  dst_oxm_id, 
-		  dst_oxm_exp_id);
+		  /*n_bits         =*/16,
+		  /*src_offset     =*/ 0,
+		  /*dst_offset     =*/ 0,
+		  /*src_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),
+		  /*src_oxm_exp_id =*/ 0,
+		  /*dst_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
+		  /*dst_oxm_exp_id =*/ 0);
 
   action.set_exp_body() = copy_field;
 
-  // copy field
-  // XXX explain fields
+  // copy field: store VLAN_VID in PacketRegister(1)
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
@@ -1984,19 +1984,18 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
       .set_actions()
       .add_action_pop_vlan(cindex(1));
 
-  // push vlan
-  // ethtype - 0x88a8
+  // push vlan S-TAG according to "IEEE 802.1ad" (0x88a8)
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
       .add_action_push_vlan(cindex(2))
-      .set_eth_type(0x88a8);
+      .set_eth_type(ETH_P_8021AD);
 
-  // set field
+  // set field: restore VLAN_VID from PacketRegister(1)
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
-      .add_action_set_field(cindex(2))
+      .add_action_set_field(cindex(3))
       .set_oxm(extensions::ext244::coxmatch_packet_register(1));
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
