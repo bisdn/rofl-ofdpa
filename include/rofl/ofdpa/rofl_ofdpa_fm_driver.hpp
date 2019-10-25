@@ -240,6 +240,7 @@ public:
   cofflowmod remove_rewritten_vlan_egress(uint8_t ofp_version,
                                           uint32_t backup_port,
                                           uint16_t old_vid, uint16_t new_vid);
+  cofflowmod write_vlan_tpid(uint8_t ofp_version, uint32_t port, uint16_t vid);
 
   /* OF-DPA Group-Mods */
   cofgroupmod enable_group_l2_interface(uint8_t ofp_version, uint32_t port_no,
