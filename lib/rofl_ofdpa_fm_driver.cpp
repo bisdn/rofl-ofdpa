@@ -1926,13 +1926,11 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
 
   fm.set_command(OFPFC_ADD);
 
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
-
   ofdpa::coxmatch_ofb_actset_output exp_match(port);
   fm.set_match().set_matches().set_exp_match(
       ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
 
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT , OFPVID_PRESENT);
 
   /*
   Copy Field - PACKET_REG(1)  - Copy the VLAN Id to a temporary register.
@@ -1942,19 +1940,34 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
   */
 
   cofaction_experimenter action;
+  cofaction_experimenter restore;
+
   action.set_version(rofl::openflow13::OFP_VERSION);
+  restore.set_version(rofl::openflow13::OFP_VERSION);
+
   action.set_exp_id(0x4F4E4600);
+  restore.set_exp_id(0x4F4E4600);
 
   experimental::ext320::cofaction_body_copy_field copy_field(
 		  /*n_bits         =*/16,
 		  /*src_offset     =*/ 0,
 		  /*dst_offset     =*/ 0,
-		  /*src_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),
+		  /*src_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),  
 		  /*src_oxm_exp_id =*/ 0,
 		  /*dst_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
 		  /*dst_oxm_exp_id =*/ 0);
 
+  experimental::ext320::cofaction_body_copy_field restore_field(
+		  /*n_bits         =*/16,
+		  /*src_offset     =*/ 0,
+		  /*dst_offset     =*/ 0,
+		  /*src_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
+		  /*src_oxm_exp_id =*/ 0,
+		  /*dst_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),   
+		  /*dst_oxm_exp_id =*/ 0);
+
   action.set_exp_body() = copy_field;
+  restore.set_exp_body() = restore_field;
 
   // copy field: store VLAN_VID in PacketRegister(1)
   fm.set_instructions()
@@ -1975,15 +1988,13 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
       .add_action_push_vlan(cindex(2))
       .set_eth_type(ETH_P_8021AD);
 
-  // set field: restore VLAN_VID from PacketRegister(1)
+  // copy field: restore VLAN_VID from PacketRegister(1)
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
-      .add_action_set_field(cindex(3))
-      .set_oxm(extensions::ext244::coxmatch_packet_register(1));
+      .add_action_experimenter(cindex(3)) = restore;
 
-  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
-
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm); 
   return fm;
 }
 
