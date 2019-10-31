@@ -32,7 +32,6 @@
 #define OXM_TLV_CLASS_TYPE(x) (x & 0xfffffe00)
 #endif
 
-
 namespace rofl {
 namespace openflow {
 
@@ -1915,14 +1914,23 @@ cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
-                                                 uint32_t port,
-                                                 uint16_t vid) {
+/*
+ *  OFPDA helper function to set the TPID on the port.
+ *  OFPDA does not have a specific set-field action for the TPID,
+ *  we have to follow the spec for the specific apply actions order
+ *
+ *  The two defined matches are OFPVID_PRESENT with mask OFPVID_PRESENT,
+ *  and output port.
+ *
+ *  @param ofp_version Defines the current openflow version supported
+ *  @param port The expected output port for the Flowmod
+ * */
+cofflowmod rofl_ofdpa_fm_driver::set_port_tpid(uint8_t ofp_version,
+                                               uint32_t port) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_TPID);
   fm.set_priority(2);
-  fm.set_cookie(gen_flow_mod_type_cookie(
-                    OFDPA_FTT_EGRESS_TPID_STAG) | 0);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_EGRESS_TPID_STAG) | 0);
 
   fm.set_command(OFPFC_ADD);
 
@@ -1930,7 +1938,7 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
   fm.set_match().set_matches().set_exp_match(
       ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
 
-  fm.set_match().set_vlan_vid(OFPVID_PRESENT , OFPVID_PRESENT);
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT, OFPVID_PRESENT);
 
   /*
   Copy Field - PACKET_REG(1)  - Copy the VLAN Id to a temporary register.
@@ -1949,22 +1957,22 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
   restore.set_exp_id(0x4F4E4600);
 
   experimental::ext320::cofaction_body_copy_field copy_field(
-		  /*n_bits         =*/16,
-		  /*src_offset     =*/ 0,
-		  /*dst_offset     =*/ 0,
-		  /*src_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),  
-		  /*src_oxm_exp_id =*/ 0,
-		  /*dst_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
-		  /*dst_oxm_exp_id =*/ 0);
+      /*n_bits         =*/16,
+      /*src_offset     =*/0,
+      /*dst_offset     =*/0,
+      /*src_oxm_id     =*/OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),
+      /*src_oxm_exp_id =*/0,
+      /*dst_oxm_id     =*/OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
+      /*dst_oxm_exp_id =*/0);
 
   experimental::ext320::cofaction_body_copy_field restore_field(
-		  /*n_bits         =*/16,
-		  /*src_offset     =*/ 0,
-		  /*dst_offset     =*/ 0,
-		  /*src_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
-		  /*src_oxm_exp_id =*/ 0,
-		  /*dst_oxm_id     =*/ OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),   
-		  /*dst_oxm_exp_id =*/ 0);
+      /*n_bits         =*/16,
+      /*src_offset     =*/0,
+      /*dst_offset     =*/0,
+      /*src_oxm_id     =*/OXM_TLV_CLASS_TYPE(OXM_TLV_PKTREG(1)),
+      /*src_oxm_exp_id =*/0,
+      /*dst_oxm_id     =*/OXM_TLV_CLASS_TYPE(OXM_TLV_BASIC_VLAN_VID),
+      /*dst_oxm_exp_id =*/0);
 
   action.set_exp_body() = copy_field;
   restore.set_exp_body() = restore_field;
@@ -1994,7 +2002,37 @@ cofflowmod rofl_ofdpa_fm_driver::write_vlan_tpid(uint8_t ofp_version,
       .set_actions()
       .add_action_experimenter(cindex(3)) = restore;
 
-  DEBUG_LOG(": return flow-mod:" << std::endl << fm); 
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+  return fm;
+}
+
+/*
+ *  OFPDA helper function to delete the TPID on the port.
+ *  OFPDA does not have a specific set-field action for the TPID,
+ *  we have to follow the spec for the specific apply actions order
+ *
+ *  The two defined matches are OFPVID_PRESENT with mask OFPVID_PRESENT,
+ *  and output port.
+ *
+ *  @param ofp_version Defines the current openflow version supported
+ *  @param port The expected output port for the Flowmod
+ * */
+cofflowmod rofl_ofdpa_fm_driver::remove_port_tpid(uint8_t ofp_version,
+                                                  uint32_t port) {
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_TPID);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_EGRESS_TPID_STAG) | 0);
+
+  fm.set_command(OFPFC_DELETE);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(port);
+  fm.set_match().set_matches().set_exp_match(
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT, OFPVID_PRESENT);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
   return fm;
 }
 
