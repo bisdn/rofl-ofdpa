@@ -29,7 +29,7 @@
 #endif
 
 #ifndef OXM_TLV_CLASS_TYPE
-#define OXM_TLV_CLASS_TYPE(x) (x & 0xfffffe00)
+#define OXM_TLV_CLASS_TYPE(x) ((x) & (0xfffffe00))
 #endif
 
 namespace rofl {
