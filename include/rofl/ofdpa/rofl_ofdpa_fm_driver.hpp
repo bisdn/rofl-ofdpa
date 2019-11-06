@@ -241,6 +241,10 @@ public:
                                           uint32_t backup_port,
                                           uint16_t old_vid, uint16_t new_vid);
 
+  // TPID Egress
+  cofflowmod set_port_tpid(uint8_t ofp_version, uint32_t port);
+  cofflowmod remove_port_tpid(uint8_t ofp_version, uint32_t port);
+
   /* OF-DPA Group-Mods */
   cofgroupmod enable_group_l2_interface(uint8_t ofp_version, uint32_t port_no,
                                         uint16_t vid, bool untagged = false);
