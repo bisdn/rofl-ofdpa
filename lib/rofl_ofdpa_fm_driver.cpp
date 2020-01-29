@@ -146,6 +146,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
   // check params
   assert(vid < 0x1000);
   cofflowmod fm(ofp_version);
+  cindex i(0);
 
   fm.set_command(OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
@@ -163,14 +164,14 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_pvid_ingress(uint8_t ofp_version,
     fm.set_instructions()
         .set_inst_apply_actions()
         .set_actions()
-        .add_action_set_field(cindex(0))
+        .add_action_set_field(i)
         .set_oxm(ofdpa::coxmatch_ofb_vrf(vrf_id));
   }
 
   fm.set_instructions()
       .set_inst_apply_actions()
       .set_actions()
-      .add_action_set_field(cindex(1))
+      .add_action_set_field(++i)
       .set_oxm(coxmatch_ofb_vlan_vid(OFPVID_PRESENT | vid));
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
