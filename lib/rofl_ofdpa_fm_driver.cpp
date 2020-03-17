@@ -331,6 +331,100 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
   return fm;
 }
 
+cofflowmod
+rofl_ofdpa_fm_driver::enable_tmac_ipv4_multicast_mac(uint8_t ofp_version) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV4_MULTICAST_MAC) |
+      0);
+
+  caddress_ll mcast_mac("01:00:5e:00:00:00");
+  caddress_ll mask("ff:ff:ff:80:00:00");
+  fm.set_match().set_eth_dst(mcast_mac, mask);
+  fm.set_match().set_eth_type(ETH_P_IP);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_MULTICAST_ROUTING);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod
+rofl_ofdpa_fm_driver::disable_tmac_ipv4_multicast_mac(uint8_t ofp_version) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV4_MULTICAST_MAC) |
+      0);
+
+  caddress_ll mcast_mac("01:00:5e:00:00:00");
+  caddress_ll mask("ff:ff:ff:80:00:00");
+  fm.set_match().set_eth_dst(mcast_mac, mask);
+  fm.set_match().set_eth_type(ETH_P_IP);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod
+rofl_ofdpa_fm_driver::enable_tmac_ipv6_multicast_mac(uint8_t ofp_version) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV6_MULTICAST_MAC) |
+      0);
+
+  caddress_ll mcast_mac("33:33:00:00:00:00");
+  caddress_ll mask("ff:ff:00:00:00:00");
+  fm.set_match().set_eth_dst(mcast_mac, mask);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_MULTICAST_ROUTING);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod
+rofl_ofdpa_fm_driver::disable_tmac_ipv6_multicast_mac(uint8_t ofp_version) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_TERMINATION_MAC_IPV6_MULTICAST_MAC) |
+      0);
+
+  caddress_ll mcast_mac("33:33:00:00:00:00");
+  caddress_ll mask("ff:ff:00:00:00:00");
+  fm.set_match().set_eth_dst(mcast_mac, mask);
+  fm.set_match().set_eth_type(ETH_P_IPV6);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
 cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
     uint8_t ofp_version, uint32_t in_port, uint16_t vid,
     const caddress_ll &dmac) {
@@ -401,6 +495,61 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(dmac);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid, const cmacaddr &mac) {
+  assert(vid < 0x1000);
+
+  cofflowmod fm(ofp_version);
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(3);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_MULTICAST_VLAN) |
+                port_no);
+
+  fm.set_command(OFPFC_ADD);
+
+  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+
+  uint32_t group_id = group_id_l2_multicast(vid, vid);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .add_action_group(cindex(0))
+      .set_group_id(group_id);
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::remove_bridging_multicast_vlan(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid, const cmacaddr &mac) {
+  assert(vid < 0x1000);
+
+  cofflowmod fm(ofp_version);
+
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
+
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(3);
+  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_MULTICAST_VLAN) |
+                port_no);
+
+  fm.set_command(OFPFC_DELETE);
+
+  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -732,6 +881,157 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_unicast_lpm(
 
   return fm;
 }
+
+cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_multicast(uint8_t ofp_version,
+                                                            uint32_t port_id,
+                                                            uint16_t vid) {
+  uint32_t group_id = group_id_l3_multicast(port_id, vid);
+  cofgroupmod gm(ofp_version);
+  cindex i(0);
+
+  gm.set_command(OFPGC_ADD);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_group(i++)
+      .set_group_id(group_id_l2_interface(port_id, vid));
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(coxmatch_ofb_vlan_vid(OFPVID_PRESENT | vid));
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::disable_group_l3_multicast(
+    uint8_t ofp_version, uint32_t port_id, uint16_t vid) {
+  uint32_t group_id = group_id_l3_multicast(port_id, vid);
+  cofgroupmod gm(ofp_version);
+  cindex i(0);
+
+  gm.set_command(OFPGC_DELETE);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_multicast_host(
+    uint8_t ofp_version, uint32_t id, uint16_t vid, const caddress_in4 &dst,
+    bool update, uint16_t vrf_id) {
+  cofflowmod fm(ofp_version);
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(2);
+
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_MULTICAST_ROUTING);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_MULTICAST_ROUTING_IPV4_MULTICAST) | 0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+
+  uint32_t group_id = group_id_l3_multicast(id, vid);
+  if (group_id)
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_group(cindex(1))
+        .set_group_id(group_id);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  // match VRF
+  if (vrf_id != 0)
+    fm.set_match().set_matches().set_exp_match(
+        EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) = ofdpa::coxmatch_ofb_vrf(vrf_id);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_ipv4_multicast_host(
+    uint8_t ofp_version, const caddress_in4 &dst, uint16_t vrf_id) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_MULTICAST_ROUTING);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_MULTICAST_ROUTING_IPV6_MULTICAST) | 0);
+
+  fm.set_match().set_eth_type(ETH_P_IP);
+  fm.set_match().set_ipv4_dst(dst);
+
+  // match VRF
+  if (vrf_id != 0)
+    fm.set_match().set_matches().set_exp_match(
+        EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) = ofdpa::coxmatch_ofb_vrf(vrf_id);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_multicast_host(
+    uint8_t ofp_version, uint32_t id, uint16_t vid, const caddress_in6 &dst,
+    bool update, uint16_t vrf_id) {
+  cofflowmod fm(ofp_version);
+  fm.set_idle_timeout(idle_timeout);
+  fm.set_priority(2);
+
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_MULTICAST_ROUTING);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_MULTICAST_ROUTING_IPV6_MULTICAST) | 0);
+
+  fm.set_match().set_eth_type(ETH_P_IPV6);
+  fm.set_match().set_ipv6_dst(dst);
+  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+
+  uint32_t group_id = group_id_l3_multicast(id, vid);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .set_action_group(cindex(1))
+      .set_group_id(group_id);
+
+  // match VRF
+  if (vrf_id != 0)
+    fm.set_match().set_matches().set_exp_match(
+        EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) = ofdpa::coxmatch_ofb_vrf(vrf_id);
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_ACL_POLICY);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_multicast_host(
+    uint8_t ofp_version, const caddress_in6 &dst, uint16_t vrf_id) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_MULTICAST_ROUTING);
+  fm.set_cookie(
+      gen_flow_mod_type_cookie(OFDPA_FTT_MULTICAST_ROUTING_IPV6_MULTICAST) | 0);
+
+  fm.set_match().set_eth_type(ETH_P_IPV6);
+  fm.set_match().set_ipv6_dst(dst);
+
+  // match VRF
+  if (vrf_id != 0)
+    fm.set_match().set_matches().set_exp_match(
+        EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) = ofdpa::coxmatch_ofb_vrf(vrf_id);
+
+  return fm;
+}
+
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_interface(uint8_t ofp_version,
                                                             uint32_t port_no,
                                                             uint16_t vid,
@@ -882,14 +1182,14 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_rewrite(uint8_t ofp_version,
 
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
     uint8_t ofp_version, uint16_t vid, uint16_t id,
-    const std::set<uint32_t> &l2_interfaces) {
+    const std::set<uint32_t> &l2_interfaces, bool modify) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_multicast(id, vid);
 
   cofgroupmod gm(ofp_version);
 
-  gm.set_command(OFPGC_ADD);
+  gm.set_command(modify ? OFPGC_MODIFY : OFPGC_ADD);
   gm.set_type(OFPGT_ALL);
   gm.set_group_id(group_id);
 
@@ -904,6 +1204,21 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
   }
 
   DEBUG_LOG(": return group-mod:" << std::endl << gm);
+
+  return gm;
+}
+
+cofgroupmod
+rofl_ofdpa_fm_driver::disable_group_l2_multicast(uint8_t ofp_version,
+                                                 uint16_t vid, uint16_t id) {
+  assert(vid < 0x1000);
+
+  cofgroupmod gm(ofp_version);
+  uint32_t group_id = group_id_l2_multicast(id, vid);
+
+  gm.set_command(OFPGC_DELETE);
+  gm.set_type(OFPGT_ALL);
+  gm.set_group_id(group_id);
 
   return gm;
 }
@@ -1719,7 +2034,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
 
   fm.set_command(OFPFC_ADD);
 
-  // FIXME do not allow multicast mac here?
+  // FIXME do not allow multicast mac here? 
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
@@ -1756,7 +2071,6 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_unicast_vlan(
   // TODO do this strict?
   fm.set_command(OFPFC_DELETE);
 
-  // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 

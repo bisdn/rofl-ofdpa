@@ -114,6 +114,10 @@ public:
   cofflowmod disable_tmac_ipv6_unicast_mac(uint8_t ofp_version,
                                            uint32_t in_port, uint16_t vid,
                                            const caddress_ll &dmac);
+  cofflowmod enable_tmac_ipv4_multicast_mac(uint8_t ofp_version);
+  cofflowmod disable_tmac_ipv4_multicast_mac(uint8_t ofp_version);
+  cofflowmod enable_tmac_ipv6_multicast_mac(uint8_t ofp_version);
+  cofflowmod disable_tmac_ipv6_multicast_mac(uint8_t ofp_version);
 
   // Bridging
   cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
@@ -144,8 +148,13 @@ public:
                                                        uint32_t lport_no);
   cofflowmod remove_bridging_unicast_overlay_all_tunnel(uint8_t ofp_version,
                                                         uint32_t tunnel_id);
+  cofflowmod add_bridging_multicast_vlan(uint8_t ofp_version, uint32_t port_no,
+                                         uint16_t vid, const cmacaddr &mac);
+  cofflowmod remove_bridging_multicast_vlan(uint8_t ofp_version,
+                                            uint32_t port_no, uint16_t vid,
+                                            const cmacaddr &mac);
 
-  // Routing
+  // Unicast Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
                                       const caddress_in4 &dst, uint32_t group,
                                       bool update = false, uint16_t vrf_id = 0);
@@ -177,6 +186,24 @@ public:
                                       const caddress_in6 &dst,
                                       const caddress_in6 &mask,
                                       uint16_t vrf_id = 0);
+  // Multicast Routing
+  cofgroupmod enable_group_l3_multicast(uint8_t ofp_version, uint32_t port_id,
+                                        uint16_t vid);
+  cofgroupmod disable_group_l3_multicast(uint8_t ofp_version, uint32_t port_id,
+                                         uint16_t vid);
+  cofflowmod enable_ipv4_multicast_host(uint8_t ofp_version, uint32_t id,
+                                        uint16_t vid, const caddress_in4 &dst,
+                                        bool update, uint16_t vrf_id = 0);
+  cofflowmod disable_ipv4_multicast_host(uint8_t ofp_version,
+                                         const caddress_in4 &dst,
+                                         uint16_t vrf_id = 0);
+  cofflowmod enable_ipv6_multicast_host(uint8_t ofp_version, uint32_t id,
+                                        uint16_t vid, const caddress_in6 &dst,
+                                        bool update, uint16_t vrf_id = 0);
+  cofflowmod disable_ipv6_multicast_host(uint8_t ofp_version,
+                                         const caddress_in6 &dst,
+                                         uint16_t vrf_id = 0);
+
   // Policy ACL
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
@@ -256,9 +283,12 @@ public:
   cofgroupmod disable_group_l2_unfiltered_interface(uint8_t ofp_version,
                                                     uint32_t port_no);
 
-  cofgroupmod
-  enable_group_l2_multicast(uint8_t ofp_version, uint16_t vid, uint16_t id,
-                            const std::set<uint32_t> &l2_interfaces);
+  cofgroupmod enable_group_l2_multicast(uint8_t ofp_version, uint16_t vid,
+                                        uint16_t id,
+                                        const std::set<uint32_t> &l2_interfaces,
+                                        bool modify = false);
+  cofgroupmod disable_group_l2_multicast(uint8_t ofp_version, uint16_t vid,
+                                         uint16_t id);
 
   cofgroupmod enable_group_l2_flood(uint8_t ofp_version, uint16_t vid,
                                     uint16_t id,
