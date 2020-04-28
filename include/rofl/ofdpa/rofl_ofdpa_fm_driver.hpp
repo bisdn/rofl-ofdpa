@@ -103,17 +103,15 @@ public:
 
   // Termination MAC
   cofflowmod enable_tmac_ipv4_unicast_mac(uint8_t ofp_version, uint32_t in_port,
-                                          uint16_t vid,
-                                          const caddress_ll &dmac);
+                                          uint16_t vid, const caddress_ll &mac);
   cofflowmod disable_tmac_ipv4_unicast_mac(uint8_t ofp_version,
                                            uint32_t in_port, uint16_t vid,
-                                           const caddress_ll &dmac);
+                                           const caddress_ll &mac);
   cofflowmod enable_tmac_ipv6_unicast_mac(uint8_t ofp_version, uint32_t in_port,
-                                          uint16_t vid,
-                                          const caddress_ll &dmac);
+                                          uint16_t vid, const caddress_ll &mac);
   cofflowmod disable_tmac_ipv6_unicast_mac(uint8_t ofp_version,
                                            uint32_t in_port, uint16_t vid,
-                                           const caddress_ll &dmac);
+                                           const caddress_ll &mac);
   cofflowmod enable_tmac_ipv4_multicast_mac(uint8_t ofp_version);
   cofflowmod disable_tmac_ipv4_multicast_mac(uint8_t ofp_version);
   cofflowmod enable_tmac_ipv6_multicast_mac(uint8_t ofp_version);

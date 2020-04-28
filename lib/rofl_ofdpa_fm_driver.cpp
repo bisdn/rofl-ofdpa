@@ -305,7 +305,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_allow_all(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
     uint8_t ofp_version, uint32_t in_port, uint16_t vid,
-    const caddress_ll &dmac) {
+    const caddress_ll &mac) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -321,7 +321,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
     fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
-  fm.set_match().set_eth_dst(dmac);
+  fm.set_match().set_eth_dst(mac);
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -427,7 +427,7 @@ rofl_ofdpa_fm_driver::disable_tmac_ipv6_multicast_mac(uint8_t ofp_version) {
 
 cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
     uint8_t ofp_version, uint32_t in_port, uint16_t vid,
-    const caddress_ll &dmac) {
+    const caddress_ll &mac) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -443,7 +443,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
     fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
-  fm.set_match().set_eth_dst(dmac);
+  fm.set_match().set_eth_dst(mac);
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
@@ -455,7 +455,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
 
 cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
     uint8_t ofp_version, uint32_t in_port, uint16_t vid,
-    const caddress_ll &dmac) {
+    const caddress_ll &mac) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -470,7 +470,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
   fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IP);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
-  fm.set_match().set_eth_dst(dmac);
+  fm.set_match().set_eth_dst(mac);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -479,7 +479,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
 
 cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
     uint8_t ofp_version, uint32_t in_port, uint16_t vid,
-    const caddress_ll &dmac) {
+    const caddress_ll &mac) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -494,7 +494,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
   fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IPV6);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
-  fm.set_match().set_eth_dst(dmac);
+  fm.set_match().set_eth_dst(mac);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -525,6 +525,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
       .set_actions()
       .add_action_group(cindex(0))
       .set_group_id(group_id);
+
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -2034,7 +2035,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
 
   fm.set_command(OFPFC_ADD);
 
-  // FIXME do not allow multicast mac here? 
+  // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
