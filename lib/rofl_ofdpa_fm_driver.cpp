@@ -502,7 +502,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
-    uint8_t ofp_version, uint32_t port_no, uint16_t vid, const cmacaddr &mac) {
+    uint8_t ofp_version, uint32_t index, uint16_t vid, const cmacaddr &mac) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -512,14 +512,14 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
   fm.set_idle_timeout(idle_timeout);
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_MULTICAST_VLAN) |
-                port_no);
+                index);
 
   fm.set_command(OFPFC_ADD);
 
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
-  uint32_t group_id = group_id_l2_multicast(vid, vid);
+  uint32_t group_id = group_id_l2_multicast(index, vid);
   fm.set_instructions()
       .set_inst_write_actions()
       .set_actions()
@@ -535,7 +535,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::remove_bridging_multicast_vlan(
-    uint8_t ofp_version, uint32_t port_no, uint16_t vid, const cmacaddr &mac) {
+    uint8_t ofp_version, uint32_t port, uint16_t vid, const cmacaddr &mac) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -545,7 +545,7 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_multicast_vlan(
   fm.set_idle_timeout(idle_timeout);
   fm.set_priority(3);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_MULTICAST_VLAN) |
-                port_no);
+                port);
 
   fm.set_command(OFPFC_DELETE);
 
@@ -1182,11 +1182,11 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_rewrite(uint8_t ofp_version,
 }
 
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
-    uint8_t ofp_version, uint16_t vid, uint16_t id,
+    uint8_t ofp_version, uint16_t index, uint16_t vid,
     const std::set<uint32_t> &l2_interfaces, bool modify) {
   assert(vid < 0x1000);
 
-  uint32_t group_id = group_id_l2_multicast(id, vid);
+  uint32_t group_id = group_id_l2_multicast(index, vid);
 
   cofgroupmod gm(ofp_version);
 
@@ -1195,13 +1195,14 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
   gm.set_group_id(group_id);
 
   uint32_t bucket_id = 0;
+  cindex i(0);
 
-  for (const uint32_t &i : l2_interfaces) {
+  for (const uint32_t &interface : l2_interfaces) {
     gm.set_buckets()
         .add_bucket(bucket_id++)
         .set_actions()
-        .add_action_group(cindex(0))
-        .set_group_id(i);
+        .add_action_group(i++)
+        .set_group_id(interface);
   }
 
   DEBUG_LOG(": return group-mod:" << std::endl << gm);
@@ -1211,11 +1212,11 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_multicast(
 
 cofgroupmod
 rofl_ofdpa_fm_driver::disable_group_l2_multicast(uint8_t ofp_version,
-                                                 uint16_t vid, uint16_t id) {
+                                                 uint16_t index, uint16_t vid) {
   assert(vid < 0x1000);
 
   cofgroupmod gm(ofp_version);
-  uint32_t group_id = group_id_l2_multicast(id, vid);
+  uint32_t group_id = group_id_l2_multicast(index, vid);
 
   gm.set_command(OFPGC_DELETE);
   gm.set_type(OFPGT_ALL);
