@@ -146,11 +146,10 @@ public:
                                                        uint32_t lport_no);
   cofflowmod remove_bridging_unicast_overlay_all_tunnel(uint8_t ofp_version,
                                                         uint32_t tunnel_id);
-  cofflowmod add_bridging_multicast_vlan(uint8_t ofp_version, uint32_t port_no,
+  cofflowmod add_bridging_multicast_vlan(uint8_t ofp_version, uint32_t index,
                                          uint16_t vid, const cmacaddr &mac);
-  cofflowmod remove_bridging_multicast_vlan(uint8_t ofp_version,
-                                            uint32_t port_no, uint16_t vid,
-                                            const cmacaddr &mac);
+  cofflowmod remove_bridging_multicast_vlan(uint8_t ofp_version, uint32_t port,
+                                            uint16_t vid, const cmacaddr &mac);
 
   // Unicast Routing
   cofflowmod enable_ipv4_unicast_host(uint8_t ofp_version,
@@ -281,12 +280,12 @@ public:
   cofgroupmod disable_group_l2_unfiltered_interface(uint8_t ofp_version,
                                                     uint32_t port_no);
 
-  cofgroupmod enable_group_l2_multicast(uint8_t ofp_version, uint16_t vid,
-                                        uint16_t id,
+  cofgroupmod enable_group_l2_multicast(uint8_t ofp_version, uint16_t index,
+                                        uint16_t vid,
                                         const std::set<uint32_t> &l2_interfaces,
                                         bool modify = false);
-  cofgroupmod disable_group_l2_multicast(uint8_t ofp_version, uint16_t vid,
-                                         uint16_t id);
+  cofgroupmod disable_group_l2_multicast(uint8_t ofp_version, uint16_t index,
+                                         uint16_t vid);
 
   cofgroupmod enable_group_l2_flood(uint8_t ofp_version, uint16_t vid,
                                     uint16_t id,
