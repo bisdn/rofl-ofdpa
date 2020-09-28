@@ -2518,5 +2518,78 @@ rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
   return gm;
 }
 
+cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_trunk_interface(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid,
+    bool untagged) {
+  assert(vid < 0x1000);
+
+  uint32_t group_id = group_id_l2_trunk_interface(port_no, vid);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_ADD);
+  gm.set_type(OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  cindex i(0);
+  if (untagged) {
+    gm.set_buckets().add_bucket(0).set_actions().add_action_pop_vlan(i++);
+  }
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_set_field(i++)
+      .set_oxm(ofdpa::coxmatch_ofb_allow_vlan_translation(0));
+
+  gm.set_buckets()
+      .set_bucket(0)
+      .set_actions()
+      .add_action_output(i++)
+      .set_port_no(port_no);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_trunk_interface(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid) {
+  assert(vid < 0x1000);
+
+  uint32_t group_id = group_id_l2_trunk_interface(port_no, vid);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_ADD);
+  gm.set_type(OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
+cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
+                                            uint32_t port_no) {
+  uint32_t group_id = group_id_l2_trunk_unfiltered_interface(port_no);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_ADD);
+  gm.set_type(OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
+                                             uint32_t port_no){
+  uint32_t group_id = group_id_l2_trunk_unfiltered_interface(port_no);
+  cofgroupmod gm(ofp_version);
+
+  gm.set_command(OFPGC_ADD);
+  gm.set_type(OFPGT_INDIRECT);
+  gm.set_group_id(group_id);
+
+  DEBUG_LOG(": return group-mod:" << std::endl << gm);
+  return gm;
+}
+
 } /* namespace openflow */
 } /* namespace rofl */

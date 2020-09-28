@@ -343,6 +343,18 @@ public:
 
   cofgroupmod disable_group_l3_interface(uint8_t ofp_version, uint32_t id);
 
+  /* Used for L2 Trunk */
+  cofgroupmod enable_group_l2_trunk_interface(uint8_t ofp_version,
+                                              uint32_t port_no, uint16_t vid,
+                                              bool untagged = false);
+  cofgroupmod disable_group_l2_trunk_interface(uint8_t ofp_version,
+                                               uint32_t port_no, uint16_t vid);
+
+  cofgroupmod enable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
+                                              uint32_t port_no);
+  cofgroupmod disable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
+                                               uint32_t port_no);
+
 private:
   uint16_t idle_timeout = 0;
   uint16_t max_len = DEFAULT_MAX_LEN;
