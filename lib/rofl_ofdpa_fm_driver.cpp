@@ -2019,7 +2019,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
                                                            uint32_t port_no,
                                                            uint16_t vid,
                                                            const cmacaddr &mac,
-                                                           bool filtered) {
+                                                           bool filtered, bool lag) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -2041,7 +2041,11 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
   uint32_t group_id;
-  if (filtered) {
+  if (lag && filtered) {
+    group_id = group_id_l2_trunk_interface(port_no, vid);
+  } else if (lag && !filtered) {
+    group_id = group_id_l2_trunk_unfiltered_interface(port_no);
+  } else if (!lag && filtered) {
     group_id = group_id_l2_interface(port_no, vid);
   } else {
     group_id = group_id_l2_unfiltered_interface(port_no);

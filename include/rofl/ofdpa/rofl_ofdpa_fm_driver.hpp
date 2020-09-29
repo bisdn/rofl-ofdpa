@@ -131,7 +131,7 @@ public:
 
   cofflowmod add_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
                                        uint16_t vid, const cmacaddr &mac,
-                                       bool filtered = true);
+                                       bool filtered = true, bool lag = false);
 
   cofflowmod remove_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
                                           uint16_t vid, const cmacaddr &mac);
