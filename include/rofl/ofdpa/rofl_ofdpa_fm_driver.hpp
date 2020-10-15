@@ -80,6 +80,8 @@ public:
   GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_flood, 8, 0);
   GROUP_ID_FUNC_ID_SUBTYPE(l2_overlay_multicast, 8, 1);
   GROUP_ID_FUNC_PORT(l2_unfiltered_interface, 11);
+  GROUP_ID_FUNC_PORT_VLAN(l2_trunk_interface, 12);
+  GROUP_ID_FUNC_PORT(l2_trunk_unfiltered_interface, 13);
 
   /* OF-DPA Flow-Mods */
 
@@ -129,7 +131,7 @@ public:
 
   cofflowmod add_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
                                        uint16_t vid, const cmacaddr &mac,
-                                       bool filtered = true);
+                                       bool filtered = true, bool lag = false);
 
   cofflowmod remove_bridging_unicast_vlan(uint8_t ofp_version, uint32_t port_no,
                                           uint16_t vid, const cmacaddr &mac);
@@ -340,6 +342,18 @@ public:
                                             "00:00:00:00:00:00"});
 
   cofgroupmod disable_group_l3_interface(uint8_t ofp_version, uint32_t id);
+
+  /* Used for L2 Trunk */
+  cofgroupmod enable_group_l2_trunk_interface(uint8_t ofp_version,
+                                              uint32_t port_no, uint16_t vid,
+                                              bool untagged = false);
+  cofgroupmod disable_group_l2_trunk_interface(uint8_t ofp_version,
+                                               uint32_t port_no, uint16_t vid);
+
+  cofgroupmod enable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
+                                              uint32_t port_no);
+  cofgroupmod disable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
+                                               uint32_t port_no);
 
 private:
   uint16_t idle_timeout = 0;
