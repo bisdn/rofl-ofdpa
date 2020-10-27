@@ -2562,7 +2562,7 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_trunk_interface(
   uint32_t group_id = group_id_l2_trunk_interface(port_no, vid);
   cofgroupmod gm(ofp_version);
 
-  gm.set_command(OFPGC_ADD);
+  gm.set_command(OFPGC_DELETE);
   gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
@@ -2587,7 +2587,7 @@ cofgroupmod rofl_ofdpa_fm_driver::disable_group_l2_trunk_unfiltered_interface(ui
   uint32_t group_id = group_id_l2_trunk_unfiltered_interface(port_no);
   cofgroupmod gm(ofp_version);
 
-  gm.set_command(OFPGC_ADD);
+  gm.set_command(OFPGC_DELETE);
   gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
