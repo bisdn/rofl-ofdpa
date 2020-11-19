@@ -2412,8 +2412,10 @@ cofgroupmod rofl_ofdpa_fm_driver::enable_group_l3_unicast(
   uint32_t group_id = group_id_l3_unicast(id);
   cofgroupmod gm(ofp_version);
 
-  assert(0 == get_group_type(l2_interface) &&
-         "wrong l2 interface in enable_group_l3_unicast");
+  assert(0 == get_group_type(l2_interface) || /* l2 */
+      11 == get_group_type(l2_interface) || /* l2 unfiltered */
+      12 == get_group_type(l2_interface) || /* trunk */
+      13 == get_group_type(l2_interface)); /* trunk unfiltered */
 
   if (modify) {
     gm.set_command(OFPGC_MODIFY);
