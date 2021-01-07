@@ -1407,7 +1407,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
                                                   const rofl::caddress_ll &mac,
-                                                  const uint16_t type) {
+                                                  const rofl::caddress_ll &mask
+                                                  ) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -1417,8 +1418,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
 
   fm.set_command(OFPFC_ADD);
 
-  fm.set_match().set_eth_type(type);
-  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_eth_dst(mac,mask);
 
   fm.set_instructions()
       .set_inst_apply_actions()
@@ -1529,7 +1529,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_8021d(uint8_t ofp_version) {
 
 cofflowmod rofl_ofdpa_fm_driver::disable_policy_l2(uint8_t ofp_version,
                                                    const rofl::caddress_ll &mac,
-                                                   const uint16_t type) {
+                                                   const rofl::caddress_ll &mask
+                                                   ) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -1538,8 +1539,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_l2(uint8_t ofp_version,
 
   fm.set_command(OFPFC_DELETE);
 
-  fm.set_match().set_eth_type(type);
-  fm.set_match().set_eth_dst(mac);
+  fm.set_match().set_eth_dst(mac,mask);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
