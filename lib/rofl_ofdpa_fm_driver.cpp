@@ -1539,7 +1539,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_l2(uint8_t ofp_version,
 
   fm.set_command(OFPFC_DELETE);
 
-  fm.set_match().set_eth_dst(mac,mask);
+  fm.set_match().set_eth_dst(mac, mask);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
