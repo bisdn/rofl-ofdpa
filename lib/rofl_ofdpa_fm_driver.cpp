@@ -1407,8 +1407,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
                                                   const rofl::caddress_ll &mac,
-                                                  const rofl::caddress_ll &mask
-                                                  ) {
+                                                  const rofl::caddress_ll &mask) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
