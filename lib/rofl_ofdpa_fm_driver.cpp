@@ -1418,7 +1418,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
 
   fm.set_command(OFPFC_ADD);
 
-  fm.set_match().set_eth_dst(mac,mask);
+  fm.set_match().set_eth_dst(mac, mask);
 
   fm.set_instructions()
       .set_inst_apply_actions()
