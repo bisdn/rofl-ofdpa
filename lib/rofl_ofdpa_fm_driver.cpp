@@ -1361,7 +1361,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_ipv6_multicast(
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
   fm.set_idle_timeout(idle_timeout);
-  fm.set_priority(2);
+  fm.set_priority(1);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_POLICY_ACL_IPV6_VLAN) | 0);
 
   fm.set_command(OFPFC_ADD);
