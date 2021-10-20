@@ -273,7 +273,8 @@ public:
 
   /* OF-DPA Group-Mods */
   cofgroupmod enable_group_l2_interface(uint8_t ofp_version, uint32_t port_no,
-                                        uint16_t vid, bool untagged = false);
+                                        uint16_t vid, bool untagged = false,
+                                        bool update = false);
   cofgroupmod disable_group_l2_interface(uint8_t ofp_version, uint32_t port_no,
                                          uint16_t vid);
 
@@ -346,14 +347,15 @@ public:
   /* Used for L2 Trunk */
   cofgroupmod enable_group_l2_trunk_interface(uint8_t ofp_version,
                                               uint32_t port_no, uint16_t vid,
-                                              bool untagged = false);
+                                              bool untagged = false,
+                                              bool update = false);
   cofgroupmod disable_group_l2_trunk_interface(uint8_t ofp_version,
                                                uint32_t port_no, uint16_t vid);
 
   cofgroupmod enable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
-                                              uint32_t port_no);
+                                                         uint32_t port_no);
   cofgroupmod disable_group_l2_trunk_unfiltered_interface(uint8_t ofp_version,
-                                               uint32_t port_no);
+                                                          uint32_t port_no);
 
 private:
   uint16_t idle_timeout = 0;
