@@ -2020,7 +2020,8 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
                                                            uint32_t port_no,
                                                            uint16_t vid,
                                                            const cmacaddr &mac,
-                                                           bool filtered, bool lag) {
+                                                           bool filtered, bool lag,
+                                                           bool update) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -2035,7 +2036,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_unicast_vlan(uint8_t ofp_version,
     fm.set_flags(OFPFF_SEND_FLOW_REM);
   }
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
 
   // FIXME do not allow multicast mac here?
   fm.set_match().set_eth_dst(mac);
