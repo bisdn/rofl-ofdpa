@@ -1038,12 +1038,13 @@ cofflowmod rofl_ofdpa_fm_driver::disable_ipv6_multicast_host(
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_interface(uint8_t ofp_version,
                                                             uint32_t port_no,
                                                             uint16_t vid,
-                                                            bool untagged) {
+                                                            bool untagged,
+                                                            bool update) {
   assert(vid < 0x1000);
   uint32_t group_id = group_id_l2_interface(port_no, vid);
   cofgroupmod gm(ofp_version);
 
-  gm.set_command(OFPGC_ADD);
+  gm.set_command(update ? OFPGC_MODIFY : OFPGC_ADD);
   gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
@@ -2525,14 +2526,14 @@ rofl_ofdpa_fm_driver::disable_group_l3_interface(uint8_t ofp_version,
 }
 
 cofgroupmod rofl_ofdpa_fm_driver::enable_group_l2_trunk_interface(
-    uint8_t ofp_version, uint32_t port_no, uint16_t vid,
-    bool untagged) {
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid, bool untagged,
+    bool update) {
   assert(vid < 0x1000);
 
   uint32_t group_id = group_id_l2_trunk_interface(port_no, vid);
   cofgroupmod gm(ofp_version);
 
-  gm.set_command(OFPGC_ADD);
+  gm.set_command(update ? OFPGC_MODIFY : OFPGC_ADD);
   gm.set_type(OFPGT_INDIRECT);
   gm.set_group_id(group_id);
 
