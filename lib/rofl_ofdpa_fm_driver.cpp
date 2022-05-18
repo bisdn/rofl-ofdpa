@@ -646,7 +646,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv4_unicast_lpm(
     uint32_t group, bool update, uint16_t vrf_id) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY_STRICT : OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_idle_timeout(idle_timeout);
@@ -809,7 +809,7 @@ cofflowmod rofl_ofdpa_fm_driver::enable_ipv6_unicast_lpm(
     uint32_t group, bool update, uint16_t vrf_id) {
   cofflowmod fm(ofp_version);
 
-  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY_STRICT : OFPFC_ADD);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_UNICAST_ROUTING);
 
   fm.set_idle_timeout(idle_timeout);
