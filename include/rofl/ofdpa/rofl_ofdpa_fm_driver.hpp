@@ -224,6 +224,9 @@ public:
   cofflowmod enable_policy_8021d(uint8_t ofp_version, bool update = false);
   cofflowmod disable_policy_8021d(uint8_t ofp_version);
 
+  cofflowmod enable_policy_udp(uint8_t ofp_version, uint16_t eth_type, int16_t src_port,
+                                         int16_t dst_port);
+
   cofflowmod enable_policy_broadcast_udp(uint8_t ofp_version, int16_t src_port,
                                          int16_t dst_port);
 
