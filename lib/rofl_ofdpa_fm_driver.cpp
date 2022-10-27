@@ -320,7 +320,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
   if (in_port)
     fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IP);
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  if (vid)
+    fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(mac);
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
@@ -442,7 +443,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv6_unicast_mac(
   if (in_port)
     fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IPV6);
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  if (vid)
+    fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(mac);
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
@@ -470,7 +472,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
   if (in_port)
     fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IP);
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  if (vid)
+    fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(mac);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
@@ -495,7 +498,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
   if (in_port)
     fm.set_match().set_in_port(in_port);
   fm.set_match().set_eth_type(ETH_P_IPV6);
-  fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
+  if (vid)
+    fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
   fm.set_match().set_eth_dst(mac);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
