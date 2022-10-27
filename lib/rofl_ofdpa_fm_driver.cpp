@@ -631,7 +631,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv4_unicast_mac(
 
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_DELETE);
+  fm.set_command(OFPFC_DELETE_STRICT);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
   fm.set_priority(2);
@@ -656,7 +656,7 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
 
   cofflowmod fm(ofp_version);
 
-  fm.set_command(OFPFC_DELETE);
+  fm.set_command(OFPFC_DELETE_STRICT);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
 
   fm.set_priority(2);
