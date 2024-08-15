@@ -504,7 +504,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_tmac_ipv6_unicast_mac(
 }
 
 cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
-    uint8_t ofp_version, uint32_t index, uint16_t vid, const cmacaddr &mac) {
+    uint8_t ofp_version, uint32_t index, uint16_t vid, const cmacaddr &mac,
+    bool to_controller, bool update) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -516,7 +517,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_MULTICAST_VLAN) |
                 index);
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
 
   fm.set_match().set_eth_dst(mac);
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
@@ -527,6 +528,19 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_multicast_vlan(
       .set_actions()
       .add_action_group(cindex(0))
       .set_group_id(group_id);
+
+  if (to_controller) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
+  }
 
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
@@ -1957,7 +1971,9 @@ cofflowmod rofl_ofdpa_fm_driver::disable_policy_acl_generic(
 
 cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(uint8_t ofp_version,
                                                        uint16_t vid,
-                                                       uint32_t group_id) {
+                                                       uint32_t group_id,
+                                                       bool to_controller,
+                                                       bool update) {
   assert(vid < 0x1000);
 
   cofflowmod fm(ofp_version);
@@ -1967,7 +1983,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(uint8_t ofp_version,
   fm.set_priority(2);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_VLAN));
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
 
   fm.set_match().set_vlan_vid(vid | OFPVID_PRESENT);
 
@@ -1976,6 +1992,20 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_vlan(uint8_t ofp_version,
       .set_actions()
       .add_action_group(cindex(0))
       .set_group_id(group_id);
+
+  if (to_controller) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
+  }
+
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -2007,7 +2037,9 @@ cofflowmod rofl_ofdpa_fm_driver::remove_bridging_dlf_vlan(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
                                                           uint16_t tunnel_id,
-                                                          uint32_t group_id) {
+                                                          uint32_t group_id,
+                                                          bool to_controller,
+                                                          bool update) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_BRIDGING);
 
@@ -2015,7 +2047,7 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
   fm.set_priority(4);
   fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_BRIDGING_DLF_OVERLAY));
 
-  fm.set_command(OFPFC_ADD);
+  fm.set_command(update ? OFPFC_MODIFY : OFPFC_ADD);
 
   fm.set_match().set_tunnel_id(tunnel_id);
 
@@ -2024,6 +2056,20 @@ cofflowmod rofl_ofdpa_fm_driver::add_bridging_dlf_overlay(uint8_t ofp_version,
       .set_actions()
       .add_action_group(cindex(0))
       .set_group_id(group_id);
+
+  if (to_controller) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_output(cindex(0))
+        .set_port_no(OFPP_CONTROLLER);
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .set_action_output(cindex(0))
+        .set_max_len(max_len);
+  }
+
   fm.set_instructions().set_inst_goto_table().set_table_id(
       OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
