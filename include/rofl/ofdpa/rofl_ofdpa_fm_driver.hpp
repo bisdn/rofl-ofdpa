@@ -130,11 +130,15 @@ public:
 
   // Bridging
   cofflowmod add_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid,
-                                   uint32_t group_id);
+                                   uint32_t group_id,
+                                   bool to_controller = false,
+                                   bool update = false);
   cofflowmod remove_bridging_dlf_vlan(uint8_t ofp_version, uint16_t vid);
 
   cofflowmod add_bridging_dlf_overlay(uint8_t ofp_version, uint16_t tunnel_id,
-                                      uint32_t group_id);
+                                      uint32_t group_id,
+                                      bool to_controller = false,
+                                      bool update = false);
   cofflowmod remove_bridging_dlf_overlay(uint8_t ofp_version,
                                          uint16_t tunnel_id);
 
@@ -158,7 +162,9 @@ public:
   cofflowmod remove_bridging_unicast_overlay_all_tunnel(uint8_t ofp_version,
                                                         uint32_t tunnel_id);
   cofflowmod add_bridging_multicast_vlan(uint8_t ofp_version, uint32_t index,
-                                         uint16_t vid, const cmacaddr &mac);
+                                         uint16_t vid, const cmacaddr &mac,
+                                         bool to_controller = false,
+                                         bool update = false);
   cofflowmod remove_bridging_multicast_vlan(uint8_t ofp_version, uint32_t port,
                                             uint16_t vid, const cmacaddr &mac);
 
