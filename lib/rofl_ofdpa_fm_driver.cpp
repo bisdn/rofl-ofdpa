@@ -43,6 +43,8 @@ namespace ofdpa {
  * Original values can be found in ofagent's of_oxm_wire_object_id_get() */
 enum oxm_tlv_match_fields {
   OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 6,
+  OXM_TLV_EXPR_TRAFFIC_CLASS =
+      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_TRAFFIC_CLASS << 9) | 5,
   OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT =
@@ -59,6 +61,16 @@ public:
   coxmatch_ofb_vrf(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_vrf() {}
+};
+
+class coxmatch_ofb_traffic_class : public coxmatch_exp {
+public:
+  coxmatch_ofb_traffic_class(uint8_t tc)
+      : coxmatch_exp(OXM_TLV_EXPR_TRAFFIC_CLASS, EXP_ID_BCM, tc) {}
+
+  coxmatch_ofb_traffic_class(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
+
+  virtual ~coxmatch_ofb_traffic_class() {}
 };
 
 class coxmatch_ofb_allow_vlan_translation : public coxmatch_exp {
