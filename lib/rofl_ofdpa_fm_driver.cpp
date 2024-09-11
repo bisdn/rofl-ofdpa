@@ -42,9 +42,7 @@ namespace ofdpa {
 /* OXM Flow match field types for OpenFlow experimenter class.
  * Original values can be found in ofagent's of_oxm_wire_object_id_get() */
 enum oxm_tlv_match_fields {
-  OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 2,
-  OXM_TLV_EXPR_VRF_MASK =
-      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 4 | HAS_MASK_FLAG,
+  OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 6,
   OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT =
@@ -57,9 +55,6 @@ class coxmatch_ofb_vrf : public coxmatch_exp {
 public:
   coxmatch_ofb_vrf(uint16_t vrf)
       : coxmatch_exp(OXM_TLV_EXPR_VRF, EXP_ID_BCM, vrf) {}
-
-  coxmatch_ofb_vrf(uint16_t vrf, uint16_t mask)
-      : coxmatch_exp(OXM_TLV_EXPR_VRF_MASK, EXP_ID_BCM, vrf, mask) {}
 
   coxmatch_ofb_vrf(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
