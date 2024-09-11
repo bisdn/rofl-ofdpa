@@ -39,7 +39,11 @@ namespace ofdpa {
 
 #define HAS_MASK_FLAG (1 << 8)
 
-/* OXM Flow match field types for OpenFlow experimenter class. */
+// OXM Flow match field types for OpenFlow experimenter class.
+// Original values can be found in ofagent's of_oxm_wire_object_id_get(), see
+// https://github.com/bisdn/of-dpa/blob/master/src/ofagent/indigo/submodules/loxigen-artifacts/loci/src/class05.c#L34
+// Note that while the parser understands OF_OXM_BSN_* matches, the OF-DPA
+// adapter does not support them.
 enum oxm_tlv_match_fields {
   OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 2,
   OXM_TLV_EXPR_VRF_MASK =
