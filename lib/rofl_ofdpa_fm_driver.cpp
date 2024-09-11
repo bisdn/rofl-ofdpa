@@ -39,7 +39,8 @@ namespace ofdpa {
 
 #define HAS_MASK_FLAG (1 << 8)
 
-/* OXM Flow match field types for OpenFlow experimenter class. */
+/* OXM Flow match field types for OpenFlow experimenter class.
+ * Original values can be found in ofagent's of_oxm_wire_object_id_get() */
 enum oxm_tlv_match_fields {
   OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 2,
   OXM_TLV_EXPR_VRF_MASK =
