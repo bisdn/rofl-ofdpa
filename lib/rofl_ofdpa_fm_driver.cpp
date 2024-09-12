@@ -1486,6 +1486,11 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_specific_lacp(
       .set_actions()
       .set_action_output(cindex(0))
       .set_max_len(max_len);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .add_action_set_field(cindex(0))
+      .set_oxm(ofdpa::coxmatch_ofb_traffic_class(7));
   fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
@@ -1520,6 +1525,11 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_8021d(uint8_t ofp_version,
       .set_actions()
       .set_action_output(cindex(0))
       .set_max_len(max_len);
+  fm.set_instructions()
+      .set_inst_write_actions()
+      .set_actions()
+      .add_action_set_field(cindex(0))
+      .set_oxm(ofdpa::coxmatch_ofb_traffic_class(7));
   fm.set_instructions().set_inst_clear_actions();
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
