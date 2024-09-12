@@ -1418,7 +1418,8 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_arp(uint8_t ofp_version,
 
 cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
                                                   const rofl::caddress_ll &mac,
-                                                  const rofl::caddress_ll &mask) {
+                                                  const rofl::caddress_ll &mask,
+						  int8_t traffic_class) {
   cofflowmod fm(ofp_version);
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_ACL_POLICY);
 
@@ -1440,6 +1441,14 @@ cofflowmod rofl_ofdpa_fm_driver::enable_policy_l2(uint8_t ofp_version,
       .set_actions()
       .set_action_output(cindex(0))
       .set_max_len(max_len);
+
+  if (traffic_class > 0) {
+    fm.set_instructions()
+        .set_inst_write_actions()
+        .set_actions()
+        .add_action_set_field(cindex(0))
+        .set_oxm(ofdpa::coxmatch_ofb_traffic_class(traffic_class));
+  }
 
   fm.set_instructions().set_inst_clear_actions();
 

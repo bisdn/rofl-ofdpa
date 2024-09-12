@@ -207,7 +207,7 @@ public:
   cofflowmod enable_policy_arp(uint8_t ofp_version, bool update = false);
 
   cofflowmod enable_policy_l2(uint8_t ofp_version, const rofl::caddress_ll &mac,
-                              const rofl::caddress_ll &mask);
+                              const rofl::caddress_ll &mask, int8_t traffic_class = 0);
 
   cofflowmod enable_policy_specific_lacp(uint8_t ofp_version,
                                          const caddress_ll &eth_src,
