@@ -46,12 +46,12 @@ namespace ofdpa {
 // adapter does not support them.
 enum oxm_tlv_match_fields {
   OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 6,
+  OXM_TLV_EXPR_LMEP_ID =
+      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_LMEP_ID << 9) | 8,
   OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ACTSET_OUTPUT << 9) | 8,
-  OXM_TLV_EXPR_LMEP_ID =
-      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_LMEP_ID << 9) | 8,
 };
 
 class coxmatch_ofb_vrf : public coxmatch_exp {
