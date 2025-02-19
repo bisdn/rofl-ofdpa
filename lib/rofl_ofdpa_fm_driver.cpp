@@ -48,6 +48,7 @@ enum oxm_tlv_match_fields {
   OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 6,
   OXM_TLV_EXPR_LMEP_ID =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_LMEP_ID << 9) | 8,
+  OXM_TLV_EXPR_OVID = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_OVID << 9) | 6,
   OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT =
@@ -93,6 +94,16 @@ public:
   coxmatch_ofb_lmep_id(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_lmep_id() {}
+};
+
+class coxmatch_ofb_ovid : public coxmatch_exp {
+public:
+  coxmatch_ofb_ovid(uint16_t ovid)
+      : coxmatch_exp(OXM_TLV_EXPR_OVID, EXP_ID_BCM, ovid) {}
+
+  coxmatch_ofb_ovid(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
+
+  virtual ~coxmatch_ofb_ovid() {}
 };
 
 } // end of namespace ofdpa
