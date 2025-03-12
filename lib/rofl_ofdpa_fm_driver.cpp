@@ -2390,6 +2390,73 @@ cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
   return fm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_vlan_egress_push_tag(
+    uint8_t ofp_version, uint32_t out_port, uint16_t vid, uint16_t ovid) {
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG) |
+                0);
+
+  fm.set_command(OFPFC_ADD);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(out_port);
+  fm.set_match().set_matches().set_exp_match(
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION) =
+      ofdpa::coxmatch_ofb_allow_vlan_translation(1);
+
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+
+  // OF-DPA requires the pushed tag to be 802.1Q (0x8100), so a follow up TPID
+  // flow is needed to rewrite to 802.1AD (0x88a8)
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_push_vlan(cindex(0))
+      .set_eth_type(ETH_P_8021Q);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_set_field(cindex(1))
+      .set_oxm(coxmatch_ofb_vlan_vid(OFPVID_PRESENT | ovid));
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_EGRESS_DSCP_PCP_REMARK);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_vlan_egress_push_tag(
+    uint8_t ofp_version, uint32_t out_port, uint16_t vid, uint16_t ovid) {
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG) |
+                0);
+
+  fm.set_command(OFPFC_DELETE);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(out_port);
+  fm.set_match().set_matches().set_exp_match(
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION) =
+      ofdpa::coxmatch_ofb_allow_vlan_translation(1);
+
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+
+  return fm;
+}
+
 /*
  *  OFPDA helper function to set the TPID on the port.
  *  OFPDA does not have a specific set-field action for the TPID,
