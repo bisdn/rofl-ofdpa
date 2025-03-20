@@ -46,12 +46,13 @@ namespace ofdpa {
 // adapter does not support them.
 enum oxm_tlv_match_fields {
   OXM_TLV_EXPR_VRF = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_VRF << 9) | 6,
+  OXM_TLV_EXPR_LMEP_ID =
+      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_LMEP_ID << 9) | 8,
+  OXM_TLV_EXPR_OVID = (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_OVID << 9) | 6,
   OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ALLOW_VLAN_TRANSLATION << 9) | 5,
   OXM_TLV_EXPR_ACTSET_OUTPUT =
       (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_ACTSET_OUTPUT << 9) | 8,
-  OXM_TLV_EXPR_LMEP_ID =
-      (OFPXMC_EXPERIMENTER << 16) | (OFDPA_OXM_LMEP_ID << 9) | 8,
 };
 
 class coxmatch_ofb_vrf : public coxmatch_exp {
@@ -93,6 +94,16 @@ public:
   coxmatch_ofb_lmep_id(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
 
   virtual ~coxmatch_ofb_lmep_id() {}
+};
+
+class coxmatch_ofb_ovid : public coxmatch_exp {
+public:
+  coxmatch_ofb_ovid(uint16_t ovid)
+      : coxmatch_exp(OXM_TLV_EXPR_OVID, EXP_ID_BCM, ovid) {}
+
+  coxmatch_ofb_ovid(const coxmatch_exp &oxm) : coxmatch_exp(oxm) {}
+
+  virtual ~coxmatch_ofb_ovid() {}
 };
 
 } // end of namespace ofdpa
@@ -208,7 +219,8 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_pvid_ingress(uint8_t ofp_version,
 cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
                                                          uint32_t port_no,
                                                          uint16_t vid,
-                                                         uint16_t vrf_id) {
+                                                         uint16_t vrf_id,
+                                                         bool pop_tag) {
   assert(vid < 0x1000);
   cofflowmod fm(ofp_version);
 
@@ -217,10 +229,104 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
   fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
 
   fm.set_priority(3);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
+  if (pop_tag)
+    fm.set_cookie(
+        gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_TRANSLATE_DOUBLE_TAG) | 0);
+  else
+    fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+
+  cindex i(0);
+  if (vrf_id != 0) {
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .add_action_set_field(cindex(i++))
+        .set_oxm(ofdpa::coxmatch_ofb_vrf(vrf_id));
+  }
+
+  if (pop_tag) {
+    // this does not actually pop the tag, but OF-DPA wants it that way
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .add_action_pop_vlan(cindex(i++));
+
+    // we are popping the O(uter) VID
+    fm.set_instructions()
+        .set_inst_apply_actions()
+        .set_actions()
+        .add_action_set_field(cindex(i++))
+        .set_oxm(ofdpa::coxmatch_ofb_ovid(OFPVID_PRESENT | vid));
+
+    // VLAN_1 triggers the actual double tag -> single tag conversion
+    fm.set_instructions().set_inst_goto_table().set_table_id(
+        OFDPA_FLOW_TABLE_ID_VLAN_1);
+  } else {
+    fm.set_instructions().set_inst_goto_table().set_table_id(
+        OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+  }
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
+                                                          uint32_t port_no,
+                                                          uint16_t vid,
+                                                          uint16_t vrf_id,
+                                                          bool pop_tag) {
+  assert(vid < 0x1000);
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
+
+  fm.set_priority(3);
+  if (pop_tag)
+    fm.set_cookie(
+        gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_TRANSLATE_DOUBLE_TAG) | 0);
+  else
+    fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
+
+  if (vrf_id != 0) {
+    fm.set_match().set_matches().set_exp_match(
+        EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) = ofdpa::coxmatch_ofb_vrf(vrf_id);
+  }
+
+  fm.set_match().set_in_port(port_no);
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::enable_port_pop_tag_ingress(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid, uint16_t ovid,
+    uint16_t vrf_id) {
+  assert(vid < 0x1000);
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN_1);
+
+  fm.set_priority(3);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_VLAN_1_TRANSLATE_DOUBLE_TAG_TO_SINGLE_TAG) |
+                0);
+
+  // match on both O(outer) VID and inner VID
+  fm.set_match().set_in_port(port_no);
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
+                                             ofdpa::OXM_TLV_EXPR_OVID) =
+      ofdpa::coxmatch_ofb_ovid(OFPVID_PRESENT | ovid);
+
+  // no VLAN actions means delete inner tag, then add match VID as outer tag
 
   if (vrf_id != 0) {
     fm.set_instructions()
@@ -238,18 +344,19 @@ cofflowmod rofl_ofdpa_fm_driver::enable_port_vid_ingress(uint8_t ofp_version,
   return fm;
 }
 
-cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
-                                                          uint32_t port_no,
-                                                          uint16_t vid,
-                                                          uint16_t vrf_id) {
+cofflowmod rofl_ofdpa_fm_driver::disable_port_pop_tag_ingress(
+    uint8_t ofp_version, uint32_t port_no, uint16_t vid, uint16_t ovid,
+    uint16_t vrf_id) {
   assert(vid < 0x1000);
   cofflowmod fm(ofp_version);
 
   fm.set_command(OFPFC_DELETE);
-  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_VLAN_1);
 
   fm.set_priority(3);
-  fm.set_cookie(gen_flow_mod_type_cookie(OFDPA_FTT_VLAN_VLAN_FILTERING) | 0);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_VLAN_1_TRANSLATE_DOUBLE_TAG_TO_SINGLE_TAG) |
+                0);
   if (vrf_id != 0) {
     fm.set_match().set_matches().set_exp_match(
         EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_VRF) = ofdpa::coxmatch_ofb_vrf(vrf_id);
@@ -257,6 +364,9 @@ cofflowmod rofl_ofdpa_fm_driver::disable_port_vid_ingress(uint8_t ofp_version,
 
   fm.set_match().set_in_port(port_no);
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+  fm.set_match().set_matches().set_exp_match(EXP_ID_BCM,
+                                             ofdpa::OXM_TLV_EXPR_OVID) =
+      ofdpa::coxmatch_ofb_ovid(OFPVID_PRESENT | ovid);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
 
@@ -2276,6 +2386,73 @@ cofflowmod rofl_ofdpa_fm_driver::remove_rewritten_vlan_egress(
   fm.set_match().set_vlan_vid(OFPVID_PRESENT | old_vid);
 
   DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::enable_vlan_egress_push_tag(
+    uint8_t ofp_version, uint32_t out_port, uint16_t vid, uint16_t ovid) {
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG) |
+                0);
+
+  fm.set_command(OFPFC_ADD);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(out_port);
+  fm.set_match().set_matches().set_exp_match(
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION) =
+      ofdpa::coxmatch_ofb_allow_vlan_translation(1);
+
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
+
+  // OF-DPA requires the pushed tag to be 802.1Q (0x8100), so a follow up TPID
+  // flow is needed to rewrite to 802.1AD (0x88a8)
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_push_vlan(cindex(0))
+      .set_eth_type(ETH_P_8021Q);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_set_field(cindex(1))
+      .set_oxm(coxmatch_ofb_vlan_vid(OFPVID_PRESENT | ovid));
+
+  fm.set_instructions().set_inst_goto_table().set_table_id(
+      OFDPA_FLOW_TABLE_ID_EGRESS_DSCP_PCP_REMARK);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_vlan_egress_push_tag(
+    uint8_t ofp_version, uint32_t out_port, uint16_t vid, uint16_t ovid) {
+  cofflowmod fm(ofp_version);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_EGRESS_VLAN);
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_EGRESS_VLAN_VLAN_TRANSLATE_SINGLE_TAG) |
+                0);
+
+  fm.set_command(OFPFC_DELETE);
+
+  ofdpa::coxmatch_ofb_actset_output exp_match(out_port);
+  fm.set_match().set_matches().set_exp_match(
+      ONF_EXP_ID_ONF, ofdpa::OXM_TLV_EXPR_ACTSET_OUTPUT) = exp_match;
+
+  fm.set_match().set_matches().set_exp_match(
+      EXP_ID_BCM, ofdpa::OXM_TLV_EXPR_ALLOW_VLAN_TRANSLATION) =
+      ofdpa::coxmatch_ofb_allow_vlan_translation(1);
+
+  fm.set_match().set_vlan_vid(OFPVID_PRESENT | vid);
 
   return fm;
 }

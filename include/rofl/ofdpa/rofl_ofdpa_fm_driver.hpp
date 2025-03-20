@@ -96,9 +96,18 @@ public:
                                        uint16_t vid);
 
   cofflowmod enable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                     uint16_t vid, uint16_t vrf_id = 0);
+                                     uint16_t vid, uint16_t vrf_id = 0,
+                                     bool pop_tag = false);
   cofflowmod disable_port_vid_ingress(uint8_t ofp_version, uint32_t port_no,
-                                      uint16_t vid, uint16_t vrf_id = 0);
+                                      uint16_t vid, uint16_t vrf_id = 0,
+                                      bool pop_tag = false);
+
+  cofflowmod enable_port_pop_tag_ingress(uint8_t ofp_version, uint32_t port_no,
+                                         uint16_t vid, uint16_t ovid,
+                                         uint16_t vrf_id = 0);
+  cofflowmod disable_port_pop_tag_ingress(uint8_t ofp_version, uint32_t port_no,
+                                          uint16_t vid, uint16_t ovid,
+                                          uint16_t vrf_id = 0);
 
   cofflowmod enable_port_vid_allow_all(uint8_t ofp_version, uint32_t port_no);
   cofflowmod disable_port_vid_allow_all(uint8_t ofp_version, uint32_t port_no);
@@ -269,6 +278,11 @@ public:
   cofflowmod remove_rewritten_vlan_egress(uint8_t ofp_version,
                                           uint32_t backup_port,
                                           uint16_t old_vid, uint16_t new_vid);
+  cofflowmod enable_vlan_egress_push_tag(uint8_t ofp_version, uint32_t out_port,
+                                         uint16_t vid, uint16_t ovid);
+  cofflowmod disable_vlan_egress_push_tag(uint8_t ofp_version,
+                                          uint32_t out_port, uint16_t vid,
+                                          uint16_t ovid);
 
   // TPID Egress
   cofflowmod set_port_tpid(uint8_t ofp_version, uint32_t port);
