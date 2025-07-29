@@ -440,6 +440,68 @@ cofflowmod rofl_ofdpa_fm_driver::enable_tmac_ipv4_unicast_mac(
   return fm;
 }
 
+cofflowmod rofl_ofdpa_fm_driver::enable_tmac_bpdu_multicast_mac(
+    uint8_t ofp_version, const caddress_ll &mac, const caddress_ll &mask) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_ADD);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_TERMINATION_MAC_RESERVED_MULTICAST_MAC) |
+                0);
+
+  fm.set_match().set_eth_type(ETH_P_ALL);
+  fm.set_match().set_eth_dst(mac, mask);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_output(cindex(0))
+      .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
+cofflowmod rofl_ofdpa_fm_driver::disable_tmac_bpdu_multicast_mac(
+    uint8_t ofp_version, const caddress_ll &mac, const caddress_ll &mask) {
+  cofflowmod fm(ofp_version);
+
+  fm.set_command(OFPFC_DELETE);
+  fm.set_table_id(OFDPA_FLOW_TABLE_ID_TERMINATION_MAC);
+
+  fm.set_priority(2);
+  fm.set_cookie(gen_flow_mod_type_cookie(
+                    OFDPA_FTT_TERMINATION_MAC_RESERVED_MULTICAST_MAC) |
+                0);
+
+  fm.set_match().set_eth_type(ETH_P_ALL);
+  fm.set_match().set_eth_dst(mac, mask);
+
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .add_action_output(cindex(0))
+      .set_port_no(OFPP_CONTROLLER);
+  fm.set_instructions()
+      .set_inst_apply_actions()
+      .set_actions()
+      .set_action_output(cindex(0))
+      .set_max_len(max_len);
+
+  DEBUG_LOG(": return flow-mod:" << std::endl << fm);
+
+  return fm;
+}
+
 cofflowmod
 rofl_ofdpa_fm_driver::enable_tmac_ipv4_multicast_mac(uint8_t ofp_version) {
   cofflowmod fm(ofp_version);
