@@ -123,6 +123,12 @@ public:
   cofflowmod disable_tmac_ipv6_unicast_mac(uint8_t ofp_version,
                                            uint32_t in_port, uint16_t vid,
                                            const caddress_ll &mac);
+  cofflowmod enable_tmac_bpdu_multicast_mac(uint8_t ofp_version,
+                                            const caddress_ll &mac,
+                                            const caddress_ll &mask);
+  cofflowmod disable_tmac_bpdu_multicast_mac(uint8_t ofp_version,
+                                             const caddress_ll &mac,
+                                             const caddress_ll &mask);
   cofflowmod enable_tmac_ipv4_multicast_mac(uint8_t ofp_version);
   cofflowmod disable_tmac_ipv4_multicast_mac(uint8_t ofp_version);
   cofflowmod enable_tmac_ipv6_multicast_mac(uint8_t ofp_version);
